@@ -1,0 +1,20 @@
+# Runtime dependencies (never shipped to the browser)
+node_modules/
+
+# Logs & caches
+*.log
+npm-debug.log*
+.cache/
+.parcel-cache/
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Build output (if a bundler is ever added)
+dist/
+build/
