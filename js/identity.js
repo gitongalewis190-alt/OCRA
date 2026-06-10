@@ -1,5 +1,132 @@
-{
-  "returncode" : 0,
-  "stdout" : "\/* ============================================================\n   DOMAIN_02 — IDENTITY & SECURITY\n   Multi-stage signup, login, password rules, recovery questions,\n   hidden developer access (5s hold). Mock store today.\n   ---- BACKEND SEAM ----------------------------------------------------\n   Replace store() \/ login() bodies with Firebase Auth (you already use\n   Firebase) or FastAPI \/auth endpoints. Everything else stays the same.\n   --------------------------------------------------------------------- *\/\n(function (O) {\n  \"use strict\";\n  var I = (O.identity = {});\n\n  \/\/ password rule from your locked spec: 9+ chars, capital, number, symbol\n  I.validPassword = function (p) {\n    return \/.{9,}\/.test(p) && \/[A-Z]\/.test(p) && \/[0-9]\/.test(p) && \/[^A-Za-z0-9]\/.test(p);\n  };\n  I.validEmail = function (e) { return \/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$\/.test(e); };\n\n  \/\/ recovery questions: 2 FACTS + 2 FAVORITES (locked)\n  I.recovery = [\n    { k: \"rq_mother\", q: \"Mother's name (fact)\" },\n    { k: \"rq_friend\", q: \"Best friend's name (fact)\" },\n    { k: \"rq_pet\", q: \"Favourite pet (favourite)\" },\n    { k: \"rq_subject\", q: \"Favourite subject (favourite)\" },\n  ];\n\n  \/\/ stage field configs per account type (data-driven -> scalable)\n  I.stages = {\n    personal: [\n      { title: \"About you\", fields: [[\"first\", \"First name\"], [\"last\", \"Last name\"], [\"dob\", \"Date of birth\", \"date\"], [\"gender\", \"Gender\", \"select\", [\"\", \"Female\", \"Male\", \"Other\", \"Prefer not to say\"]], [\"country\", \"Country\"]] },\n      { title: \"Academics\", fields: [[\"school\", \"School\"], [\"system\", \"Education system\", \"select\", [\"\", \"CBC \/ CBE\", \"8-4-4\", \"IGCSE\", \"IB\", \"AP\", \"A-Level\"]], [\"grade\", \"Grade \/ level\"]] },\n      { title: \"Account\", fields: [[\"email\", \"Email\", \"email\"], [\"password\", \"Password\", \"password\"]], recovery: true },\n      { title: \"Agreement\", policy: true },\n    ],\n    family: [\n      { title: \"Family\", fields: [[\"familyName\", \"Family surname\"], [\"slogan\", \"Slogan (optional)\"], [\"country\", \"Country\"]] },\n      { title: \"Parents\", fields: [[\"momEmail\", \"Mum email\", \"email\"], [\"dadEmail\", \"Dad email\", \"email\"]] },\n      { title: \"Account\", fields: [[\"password\", \"Password\", \"password\"]], recovery: true },\n      { title: \"Agreement\", policy: true },\n    ],\n    organization: [\n      { title: \"Organization\", fields: [[\"orgName\", \"Organization name\"], [\"orgType\", \"Type\", \"select\", [\"\", \"School\", \"College\", \"University\", \"Tutoring centre\", \"NGO\"]], [\"county\", \"County \/ region\"]] },\n      { title: \"Contact\", fields: [[\"principal\", \"Principal \/ director\"], [\"email\", \"Org email\", \"email\"], [\"phone\", \"Org phone\"]] },\n      { title: \"Account\", fields: [[\"password\", \"Password\", \"password\"]], recovery: true },\n      { title: \"Agreement\", policy: true },\n    ],\n  };\n\n  \/\/ ---- mock persistence (swap for Firebase\/FastAPI) ----\n  I.store = function (record) {\n    try {\n      var all = JSON.parse(localStorage.getItem(\"ocra_accounts\") || \"[]\");\n      all.push(record); localStorage.setItem(\"ocra_accounts\", JSON.stringify(all));\n    } catch (e) { \/* private mode *\/ }\n  };\n\n  I.login = function (btn) {\n    var card = btn.closest(\"[data-auth]\");\n    var email = card.querySelector('[data-field=\"email\"]');\n    var pass = card.querySelector('[data-field=\"password\"]');\n    var msg = card.querySelector(\"#authMsg\");\n    if (!I.validEmail(email.value)) { msg.textContent = \"Enter a valid email.\"; return; }\n    if (!pass.value) { msg.textContent = \"Enter your password.\"; return; }\n    O.state.user = { email: email.value, type: O.state.account };\n    O.go({ phase: \"dash\", dash: O.state.account });\n  };\n\n  I.signupBack = function () {\n    if (O.state.signupStage > 1) O.go({ signupStage: O.state.signupStage - 1 });\n    else O.go({ authMode: \"login\" });\n  };\n\n  I.signupNext = function () {\n    var stages = I.stages[O.state.account];\n    var idx = O.state.signupStage - 1;\n    var stage = stages[idx];\n    var f = O.state.form;\n    var err = I.validateStage(stage, f);\n    var box = document.getElementById(\"stageErr\");\n    if (err) { if (box) box.textContent = err; return; }\n\n    if (O.state.signupStage < stages.length) {\n      O.go({ signupStage: O.state.signupStage + 1 });\n    } else {\n      \/\/ final stage -> create account\n      I.store({ type: O.state.account, fields: f, created: Date.now() });\n      O.state.user = { email: f.email || f.momEmail || \"user\", type: O.state.account };\n      O.go({ phase: \"dash\", dash: O.state.account, signupStage: 1, form: {} });\n    }\n  };\n\n  I.validateStage = function (stage, f) {\n    if (stage.policy) { return f.agreed ? \"\" : \"Please accept the agreement to continue.\"; }\n    var fields = stage.fields || [];\n    for (var i = 0; i < fields.length; i++) {\n      var key = fields[i][0], type = fields[i][2];\n      var optional = \/optional\/i.test(fields[i][1]);\n      var val = f[key];\n      if (!optional && (!val || !String(val).trim())) return \"Please fill in: \" + fields[i][1] + \".\";\n      if (type === \"email\" && val && !I.validEmail(val)) return fields[i][1] + \" is not valid.\";\n      if (type === \"password\" && !I.validPassword(val)) return \"Password needs 9+ characters, a capital, a number and a symbol.\";\n    }\n    if (stage.recovery) {\n      for (var r = 0; r < I.recovery.length; r++) {\n        if (!f[I.recovery[r].k]) return \"Answer all 4 recovery questions.\";\n      }\n    }\n    return \"\";\n  };\n\n  \/\/ ---- hidden developer access: hold the intro mark for 5 seconds ----\n  O.bindHold = function () {\n    var el = document.getElementById(\"devHold\");\n    if (!el) return;\n    var timer = null, ring = el.querySelector(\"#devRing\");\n    function start() {\n      el.dataset.holding = \"1\";\n      if (ring) ring.style.transition = \"stroke-dashoffset 5s linear\", ring.style.strokeDashoffset = \"0\";\n      timer = setTimeout(function () {\n        O.state.user = { email: \"developer\", type: \"developer\" };\n        O.go({ phase: \"dash\", dash: \"developer\" });\n      }, 5000);\n    }\n    function cancel() {\n      clearTimeout(timer);\n      if (ring) ring.style.transition = \"none\", ring.style.strokeDashoffset = \"289\";\n    }\n    el.addEventListener(\"mousedown\", start); el.addEventListener(\"touchstart\", start, { passive: true });\n    [\"mouseup\", \"mouseleave\", \"touchend\", \"touchcancel\"].forEach(function (ev) { el.addEventListener(ev, cancel); });\n  };\n\n})(window.OCRA);\n",
-  "stderr" : ""
-}
+/* ============================================================
+   DOMAIN_02 — IDENTITY & SECURITY
+   Multi-stage signup, login, password rules, recovery questions,
+   hidden developer access (5s hold). Mock store today.
+   ---- BACKEND SEAM ----------------------------------------------------
+   Replace store() / login() bodies with Firebase Auth (you already use
+   Firebase) or FastAPI /auth endpoints. Everything else stays the same.
+   --------------------------------------------------------------------- */
+(function (O) {
+  "use strict";
+  var I = (O.identity = {});
+
+  // password rule from your locked spec: 9+ chars, capital, number, symbol
+  I.validPassword = function (p) {
+    return /.{9,}/.test(p) && /[A-Z]/.test(p) && /[0-9]/.test(p) && /[^A-Za-z0-9]/.test(p);
+  };
+  I.validEmail = function (e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); };
+
+  // recovery questions: 2 FACTS + 2 FAVORITES (locked)
+  I.recovery = [
+    { k: "rq_mother", q: "Mother's name (fact)" },
+    { k: "rq_friend", q: "Best friend's name (fact)" },
+    { k: "rq_pet", q: "Favourite pet (favourite)" },
+    { k: "rq_subject", q: "Favourite subject (favourite)" },
+  ];
+
+  // stage field configs per account type (data-driven -> scalable)
+  I.stages = {
+    personal: [
+      { title: "About you", fields: [["first", "First name"], ["last", "Last name"], ["dob", "Date of birth", "date"], ["gender", "Gender", "select", ["", "Female", "Male", "Other", "Prefer not to say"]], ["country", "Country"]] },
+      { title: "Academics", fields: [["school", "School"], ["system", "Education system", "select", ["", "CBC / CBE", "8-4-4", "IGCSE", "IB", "AP", "A-Level"]], ["grade", "Grade / level"]] },
+      { title: "Account", fields: [["email", "Email", "email"], ["password", "Password", "password"]], recovery: true },
+      { title: "Agreement", policy: true },
+    ],
+    family: [
+      { title: "Family", fields: [["familyName", "Family surname"], ["slogan", "Slogan (optional)"], ["country", "Country"]] },
+      { title: "Parents", fields: [["momEmail", "Mum email", "email"], ["dadEmail", "Dad email", "email"]] },
+      { title: "Account", fields: [["password", "Password", "password"]], recovery: true },
+      { title: "Agreement", policy: true },
+    ],
+    organization: [
+      { title: "Organization", fields: [["orgName", "Organization name"], ["orgType", "Type", "select", ["", "School", "College", "University", "Tutoring centre", "NGO"]], ["county", "County / region"]] },
+      { title: "Contact", fields: [["principal", "Principal / director"], ["email", "Org email", "email"], ["phone", "Org phone"]] },
+      { title: "Account", fields: [["password", "Password", "password"]], recovery: true },
+      { title: "Agreement", policy: true },
+    ],
+  };
+
+  // ---- mock persistence (swap for Firebase/FastAPI) ----
+  I.store = function (record) {
+    try {
+      var all = JSON.parse(localStorage.getItem("ocra_accounts") || "[]");
+      all.push(record); localStorage.setItem("ocra_accounts", JSON.stringify(all));
+    } catch (e) { /* private mode */ }
+  };
+
+  I.login = function (btn) {
+    var card = btn.closest("[data-auth]");
+    var email = card.querySelector('[data-field="email"]');
+    var pass = card.querySelector('[data-field="password"]');
+    var msg = card.querySelector("#authMsg");
+    if (!I.validEmail(email.value)) { msg.textContent = "Enter a valid email."; return; }
+    if (!pass.value) { msg.textContent = "Enter your password."; return; }
+    O.state.user = { email: email.value, type: O.state.account };
+    O.go({ phase: "dash", dash: O.state.account });
+  };
+
+  I.signupBack = function () {
+    if (O.state.signupStage > 1) O.go({ signupStage: O.state.signupStage - 1 });
+    else O.go({ authMode: "login" });
+  };
+
+  I.signupNext = function () {
+    var stages = I.stages[O.state.account];
+    var idx = O.state.signupStage - 1;
+    var stage = stages[idx];
+    var f = O.state.form;
+    var err = I.validateStage(stage, f);
+    var box = document.getElementById("stageErr");
+    if (err) { if (box) box.textContent = err; return; }
+
+    if (O.state.signupStage < stages.length) {
+      O.go({ signupStage: O.state.signupStage + 1 });
+    } else {
+      // final stage -> create account
+      I.store({ type: O.state.account, fields: f, created: Date.now() });
+      O.state.user = { email: f.email || f.momEmail || "user", type: O.state.account };
+      O.go({ phase: "dash", dash: O.state.account, signupStage: 1, form: {} });
+    }
+  };
+
+  I.validateStage = function (stage, f) {
+    if (stage.policy) { return f.agreed ? "" : "Please accept the agreement to continue."; }
+    var fields = stage.fields || [];
+    for (var i = 0; i < fields.length; i++) {
+      var key = fields[i][0], type = fields[i][2];
+      var optional = /optional/i.test(fields[i][1]);
+      var val = f[key];
+      if (!optional && (!val || !String(val).trim())) return "Please fill in: " + fields[i][1] + ".";
+      if (type === "email" && val && !I.validEmail(val)) return fields[i][1] + " is not valid.";
+      if (type === "password" && !I.validPassword(val)) return "Password needs 9+ characters, a capital, a number and a symbol.";
+    }
+    if (stage.recovery) {
+      for (var r = 0; r < I.recovery.length; r++) {
+        if (!f[I.recovery[r].k]) return "Answer all 4 recovery questions.";
+      }
+    }
+    return "";
+  };
+
+  // ---- hidden developer access: hold the intro mark for 5 seconds ----
+  O.bindHold = function () {
+    var el = document.getElementById("devHold");
+    if (!el) return;
+    var timer = null, ring = el.querySelector("#devRing");
+    function start() {
+      el.dataset.holding = "1";
+      if (ring) ring.style.transition = "stroke-dashoffset 5s linear", ring.style.strokeDashoffset = "0";
+      timer = setTimeout(function () {
+        O.state.user = { email: "developer", type: "developer" };
+        O.go({ phase: "dash", dash: "developer" });
+      }, 5000);
+    }
+    function cancel() {
+      clearTimeout(timer);
+      if (ring) ring.style.transition = "none", ring.style.strokeDashoffset = "289";
+    }
+    el.addEventListener("mousedown", start); el.addEventListener("touchstart", start, { passive: true });
+    ["mouseup", "mouseleave", "touchend", "touchcancel"].forEach(function (ev) { el.addEventListener(ev, cancel); });
+  };
+
+})(window.OCRA);
