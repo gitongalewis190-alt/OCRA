@@ -1,0 +1,88 @@
+/* ============================================================
+   OCRA LAYOUT  — responsive for phone + desktop
+   ============================================================ */
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ margin:0; padding:0; }
+body{ font-family:var(--font); color:var(--ink); }
+
+.stage{ min-height:100vh; background:var(--bg-light); padding:26px clamp(14px,4vw,40px); }
+.stage.dark{ background:var(--bg-dark); color:#dce8f2; }
+
+button{ font-family:inherit; cursor:pointer; }
+.btn{
+  background:var(--pill-bg); border:1px solid var(--pill-border); border-radius:999px;
+  box-shadow:0 2px 8px rgba(31,72,110,0.08); color:var(--ink);
+  padding:9px 16px; font-size:12.5px; font-weight:600; white-space:nowrap;
+  transition:transform .08s ease, box-shadow .15s ease;
+}
+.btn:hover{ box-shadow:0 4px 14px rgba(31,72,110,0.16); }
+.btn:active{ transform:translateY(1px) scale(.99); }     /* sinking sensation */
+.btn.primary{ background:var(--ocean); color:#fff; border:none; }
+.btn.deep{ background:var(--ocean-deep); color:#fff; border:none; }
+.btn.full{ width:100%; }
+.btn.lg{ padding:14px 28px; font-size:15px; font-weight:700; }
+.btn.dark{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.16); color:#dce8f2; border-radius:12px; }
+
+/* centred screens (intro / choose / account / auth) */
+.center{ min-height:82vh; display:grid; place-items:center; }
+.card-pad{ padding:clamp(22px,4vw,46px); }
+
+/* entry flow */
+.choose-grid{ display:grid; grid-template-columns:1fr 1fr; gap:22px; max-width:660px; width:100%; }
+.choose-tile{ padding:44px 24px; text-align:center; border:none; }
+.choose-tile.soon{ opacity:.7; cursor:default; }
+
+/* dashboards */
+.topbar{ display:flex; align-items:center; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
+.topbar .brand{ display:flex; align-items:center; gap:8px; margin:0 auto; }
+.topbar .brand b{ font-size:26px; font-weight:800; letter-spacing:.08em; }
+.switcher{ flex-basis:100%; display:flex; gap:8px; justify-content:center; margin-top:6px; flex-wrap:wrap; }
+.switcher .btn.on{ background:var(--ocean); color:#fff; }
+
+.grid-3{ display:grid; grid-template-columns:300px 1fr 360px; gap:16px; }
+.grid-2l{ display:grid; grid-template-columns:300px 1fr; gap:16px; }
+.grid-2f{ display:grid; grid-template-columns:280px 1fr; gap:16px; }
+.col{ display:flex; flex-direction:column; gap:16px; }
+
+.panel{ padding:16px; }
+.panel-0{ padding:0; overflow:hidden; }
+.kpi{ font-weight:800; }
+.muted{ color:var(--muted); }
+.row-line{ border-bottom:1px solid rgba(255,255,255,.45); }
+.btnwrap{ display:flex; flex-wrap:wrap; gap:8px; }
+
+/* tables */
+.thead{ display:grid; padding:10px 16px; border-bottom:1px solid rgba(255,255,255,.7); }
+.thead span{ font-size:9.5px; }
+.trow{ display:grid; padding:12px 16px; align-items:center; font-size:12px; }
+
+/* signup progress */
+.rail{ display:flex; gap:6px; margin-bottom:18px; }
+.rail i{ flex:1; height:5px; border-radius:999px; background:rgba(16,58,85,.15); }
+.rail i.on{ background:var(--ocean); }
+.field{ margin-bottom:10px; }
+.field label{ display:block; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+.field input, .field select{
+  width:100%; padding:13px 14px; border-radius:12px; font-size:14px; color:var(--ink);
+  background:rgba(255,255,255,.6); border:1px solid var(--glass-border); outline:none;
+}
+.field input:focus, .field select:focus{ border-color:var(--ocean); }
+.err{ color:var(--red); font-size:12px; margin:4px 0 0; }
+.hint{ color:var(--muted); font-size:11.5px; margin-top:4px; }
+
+/* svg charts */
+svg.chart{ width:100%; height:auto; display:block; }
+
+/* ---- RESPONSIVE: collapse to single column on phones ---- */
+@media (max-width:920px){
+  .grid-3,.grid-2l,.grid-2f{ grid-template-columns:1fr; }
+  .choose-grid{ grid-template-columns:1fr; }
+}
+@media (max-width:560px){
+  .topbar .brand b{ font-size:22px; }
+  .btn{ font-size:12px; }
+}
+
+/* accessibility: visible focus + reduced motion */
+:focus-visible{ outline:2px solid var(--ocean); outline-offset:2px; }
+@media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
