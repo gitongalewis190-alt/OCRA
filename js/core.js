@@ -28,23 +28,51 @@ window.OCRA = window.OCRA || {};
   };
 
   O.render = function () {
-    var s = O.state, app = document.getElementById("app"), html = "";
-    if (s.phase === "dash") {
-      var dark = s.dash === "developer";
-      html =
-        '<div class="stage' + (dark ? " dark" : "") + '">' +
-          O.topbar(s.dash, dark) +
-          (O.dashboards[s.dash] ? O.dashboards[s.dash]() : "") +
-          '<div style="text-align:center;margin-top:22px">' +
-            '<button class="btn' + (dark ? " dark" : "") + '" data-action="restart" style="font-size:11px">&larr; Restart flow</button>' +
-          '</div>' +
-        '</div>';
-    } else {
-      var fn = O.screens[s.phase];
-      html = '<div class="stage">' + (fn ? fn() : "") + '</div>';
+    var s = O.state, app = document.getElementById("app");
+    if (!app) return;                 // DOM not ready / mount point missing
+    try {
+      var html = "";
+      if (s.phase === "dash") {
+        var dark = s.dash === "developer";
+        html =
+          '<div class="stage' + (dark ? " dark" : "") + '">' +
+            O.topbar(s.dash, dark) +
+            (O.dashboards[s.dash] ? O.dashboards[s.dash]() : "") +
+            '<div style="text-align:center;margin-top:22px">' +
+              '<button class="btn' + (dark ? " dark" : "") + '" data-action="restart" style="font-size:11px">&larr; Restart flow</button>' +
+            '</div>' +
+          '</div>';
+      } else {
+        var fn = O.screens[s.phase];
+        html = '<div class="stage">' + (fn ? fn() : "") + '</div>';
+      }
+      app.innerHTML = html;
+      O.bindHold();   // (re)attach the hidden developer hold-to-reveal
+    } catch (err) {
+      O.fail(err);    // never leave the user staring at a blank page
     }
-    app.innerHTML = html;
-    O.bindHold();   // (re)attach the hidden developer hold-to-reveal
+  };
+
+  // ---- last-resort error surface: a visible banner beats a white screen ----
+  O.fail = function (err) {
+    try { if (window.console && console.error) console.error("[OCRA]", err); } catch (e) {}
+    var app = document.getElementById("app");
+    if (!app) return;
+    var detail = O.esc(err && err.message ? err.message : String(err || "Unknown error"));
+    app.innerHTML =
+      '<div role="alert" style="max-width:520px;margin:14vh auto;padding:28px;border-radius:16px;' +
+        'font-family:-apple-system,system-ui,sans-serif;background:#fff;color:#103A55;' +
+        'box-shadow:0 8px 30px rgba(31,72,110,.18);text-align:center">' +
+        '<div style="font-size:34px;margin-bottom:8px">&#9888;</div>' +
+        '<h1 style="font-size:18px;margin:0 0 8px">OCRA hit a snag</h1>' +
+        '<p style="font-size:13px;color:#5B7689;margin:0 0 18px">The screen could not be rendered. ' +
+          'Your data is safe &mdash; try restarting the flow.</p>' +
+        '<pre style="font-size:11px;color:#FF3B30;background:#fff5f5;border-radius:8px;' +
+          'padding:10px;overflow:auto;text-align:left;margin:0 0 18px">' + detail + '</pre>' +
+        '<button onclick="OCRA.go({phase:\'intro\',signupStage:1,form:{}})" ' +
+          'style="padding:12px 24px;border:none;border-radius:999px;background:#0E6BA8;' +
+          'color:#fff;font-weight:700;cursor:pointer">Restart OCRA</button>' +
+      '</div>';
   };
 
   // ---- delegated actions: any [data-action] element routes here ----

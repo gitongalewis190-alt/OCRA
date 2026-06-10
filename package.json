@@ -1,0 +1,18 @@
+{
+  "name": "ocra",
+  "version": "1.0.0",
+  "private": true,
+  "description": "OCRA — Optimised Career & Results Analytics. A dependency-free, static analytics dashboard for academic records and cognitive signals.",
+  "homepage": "https://gitongalewis190-alt.github.io/OCRA/",
+  "scripts": {
+    "validate": "node scripts/validate-sources.mjs",
+    "smoke": "node scripts/smoke-test.mjs",
+    "test": "node scripts/validate-sources.mjs && node scripts/smoke-test.mjs",
+    "serve": "python3 -m http.server 8000"
+  },
+  "license": "MIT",
+  "author": "Lewis Gitonga",
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
+}
