@@ -12,6 +12,14 @@ const { window } = dom;
 globalThis.window   = window;
 globalThis.document = window.document;
 
+// Safety net: jsdom can leave open handles that prevent Node from exiting,
+// which would hang CI until the run is cancelled. Never let this process
+// outlive the assertions. The timer is unref'd so it can't itself keep us alive.
+setTimeout(() => {
+  console.error("\nSMOKE TEST TIMED OUT (30s) — forcing exit\n");
+  process.exit(1);
+}, 30000).unref();
+
 // localStorage mock (jsdom's window.localStorage is a getter — must use defineProperty)
 const _store = {};
 const _ls = {
@@ -194,3 +202,9 @@ assert("developer bypasses payment",    O.payment.isDeveloper());
 console.log("\n── Result: " + passed + " passed, " + failed + " failed ──────────────────");
 if (failed) console.error("SMOKE TEST FAILED\n");
 else        console.log("SMOKE TEST PASSED\n");
+
+// Tear down jsdom and force a deterministic exit. Without this the pending
+// in-app timers (e.g. the notifications welcome toast) keep the event loop
+// alive on CI, hanging the deploy until it gets cancelled.
+try { window.close(); } catch (e) {}
+process.exit(failed ? 1 : 0);
