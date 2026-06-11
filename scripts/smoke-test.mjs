@@ -12,6 +12,17 @@ const { window } = dom;
 globalThis.window   = window;
 globalThis.document = window.document;
 
+// localStorage mock (jsdom's window.localStorage is a getter — must use defineProperty)
+const _store = {};
+const _ls = {
+  getItem:    (k) => Object.prototype.hasOwnProperty.call(_store, k) ? _store[k] : null,
+  setItem:    (k, v) => { _store[k] = String(v); },
+  removeItem: (k) => { delete _store[k]; },
+  clear:      () => { Object.keys(_store).forEach(k => delete _store[k]); },
+};
+globalThis.localStorage = _ls;
+Object.defineProperty(window, "localStorage", { value: _ls, writable: true });
+
 const coreModules = [
   "js/core.js",
   "js/identity.js",
@@ -30,6 +41,7 @@ const coreModules = [
   "modules/payment/payment.js",
   "modules/pdf-export/pdf-export.js",
   "modules/developer-console/developer-console.js",
+  "modules/auth/auth.js",
   "js/app.js",
 ];
 
@@ -143,9 +155,40 @@ assert("O.dataManagement loaded",       typeof O.dataManagement === "object");
 assert("O.notifications loaded",        typeof O.notifications === "object");
 assert("O.pdfExport loaded",            typeof O.pdfExport === "object");
 assert("O.developerConsole loaded",     typeof O.developerConsole === "object");
+assert("O.auth loaded",                 typeof O.auth === "object");
 
-// Developer bypass: developer role skips payment
-O.state.user = { email: "gitongalewis190@gmail.com", role: "developer" };
+// Auth: sign up a test user
+var signedUp = false, signupErr = null;
+O.auth.signUp("personal",
+  { first: "Test", last: "User", email: "test_smoke@ocra.app", password: "Smoke#Test9", dob: "2005-01-01", agreed: true },
+  function () { signedUp = true; },
+  function (e) { signupErr = e; }
+);
+assert("auth: signup creates session",  signedUp && !signupErr);
+assert("auth: session user set",        O.state.user && O.state.user.email === "test_smoke@ocra.app");
+assert("auth: isLoggedIn returns true", O.auth.isLoggedIn());
+
+// Auth: log in
+var loggedIn = false, loginErr = null;
+O.auth.logIn("test_smoke@ocra.app", "Smoke#Test9",
+  function () { loggedIn = true; },
+  function (e) { loginErr = e; }
+);
+assert("auth: login with correct password", loggedIn && !loginErr);
+
+// Auth: wrong password
+var badLogin = false;
+O.auth.logIn("test_smoke@ocra.app", "wrongpassword",
+  function () { badLogin = true; },
+  function () {}
+);
+assert("auth: rejects wrong password",  !badLogin);
+
+// Developer bypass
+O.auth.logIn("gitongalewis190@gmail.com", "anypassword",
+  function (user) { O.state.user = user; },
+  function () {}
+);
 assert("developer bypasses payment",    O.payment.isDeveloper());
 
 console.log("\n── Result: " + passed + " passed, " + failed + " failed ──────────────────");
