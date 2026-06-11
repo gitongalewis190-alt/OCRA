@@ -20,6 +20,22 @@ window.OCRA = window.OCRA || {};
     devBypassPayment:     true,
     debugMode:            false,
     showAuditLog:         false,
+    introBackground:      "dark",   // "dark" | "black" | "light"
+  };
+
+  // restore persisted intro background choice
+  try {
+    var _saved = localStorage.getItem("ocra_introBackground");
+    if (_saved === "dark" || _saved === "black" || _saved === "light") {
+      DC.flags.introBackground = _saved;
+    }
+  } catch (e) {}
+
+  DC.setIntroBackground = function (v) {
+    DC.flags.introBackground = v;
+    try { localStorage.setItem("ocra_introBackground", v); } catch (e) {}
+    if (O.notifications) O.notifications.push("Intro background → " + v, "info");
+    O.render();
   };
 
   // ---- API KEYS (seams — actual keys stored server-side) ----
@@ -147,6 +163,24 @@ window.OCRA = window.OCRA || {};
             '<button class="btn dark" style="font-size:11px;padding:10px" onclick="OCRA.dataManagement&&OCRA.dataManagement.exportUserData()">[ Export All Data ]</button>' +
             '<button class="btn dark" style="font-size:11px;padding:10px;color:var(--red)" onclick="if(confirm(\'Clear all session data?\'))OCRA.dataManagement&&OCRA.dataManagement.clearAll(true)">[ Clear Session ]</button>' +
           '</div>' +
+        '</div>' +
+        '<div class="dglass panel">' +
+          '<div class="label" style="font-size:11px;color:var(--ocean);margin-bottom:10px">Intro Screen Theme</div>' +
+          '<div style="font-size:11px;color:rgba(220,232,242,.6);margin-bottom:10px">Current: <strong style="color:#38BDF8">' + DC.flags.introBackground + '</strong></div>' +
+          '<div style="display:flex;gap:8px">' +
+            (["dark","black","light"].map(function (opt) {
+              var on = DC.flags.introBackground === opt;
+              return '<button onclick="OCRA.developerConsole.setIntroBackground(\'' + opt + '\')" ' +
+                'style="flex:1;padding:8px 0;font-size:11px;font-family:inherit;cursor:pointer;' +
+                'border-radius:8px;border:1px solid ' + (on ? "var(--ocean)" : "rgba(255,255,255,.15)") + ';' +
+                'background:' + (on ? "var(--ocean)" : "rgba(255,255,255,.05)") + ';' +
+                'color:' + (on ? "#fff" : "rgba(220,232,242,.7)") + '">' + opt + '</button>';
+            }).join("")) +
+          '</div>' +
+          '<button onclick="OCRA.go({phase:\'intro\'})" ' +
+            'style="width:100%;margin-top:8px;padding:9px;font-size:11px;font-family:inherit;cursor:pointer;' +
+            'border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);' +
+            'color:rgba(220,232,242,.6)">Preview Intro →</button>' +
         '</div>' +
       '</div>' +
 
