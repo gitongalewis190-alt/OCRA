@@ -39,7 +39,7 @@
       { title: "Agreement", policy: true },
     ],
     organization: [
-      { title: "Organization", fields: [["orgName", "Organization name"], ["orgType", "Type", "select", ["", "Primary school", "Junior school","Senior school"  "College", "University", "Tutoring centre", "NGO"]], ["county", "County / region"]] },
+      { title: "Organization", fields: [["orgName", "Organization name"], ["orgType", "Type", "select", ["", "Primary school", "Junior school","Senior school", "College", "University", "Tutoring centre", "NGO"]], ["county", "County / region"]] },
       { title: "Contact", fields: [["principal", "Principal / director"], ["email", "Org email", "email"], ["phone", "Org phone"]] },
       { title: "Account", fields: [["password", "Password", "password"]], recovery: true },
       { title: "Agreement", policy: true },
