@@ -27,7 +27,7 @@
   // stage field configs per account type (data-driven -> scalable)
   I.stages = {
     personal: [
-      { title: "About you", fields: [["first", "First name"], ["last", "Last name"], ["dob", "Date of birth", "date"], ["gender", "Gender", "select", ["", "Female", "Male", "Other", "Prefer not to say"]], ["country", "Country"]] },
+      { title: "About you", fields: [["first", "First name"], ["last", "Last name"], ["dob", "Date of birth", "date"], ["gender", "Gender", "select", ["", "Female", "Male"]], ["country", "Country"]] },
       { title: "Academics", fields: [["school", "School"], ["system", "Education system", "select", ["", "CBC / CBE", "8-4-4", "IGCSE", "IB", "AP", "A-Level"]], ["grade", "Grade / level"]] },
       { title: "Account", fields: [["email", "Email", "email"], ["password", "Password", "password"]], recovery: true },
       { title: "Agreement", policy: true },
@@ -39,7 +39,7 @@
       { title: "Agreement", policy: true },
     ],
     organization: [
-      { title: "Organization", fields: [["orgName", "Organization name"], ["orgType", "Type", "select", ["", "School", "College", "University", "Tutoring centre", "NGO"]], ["county", "County / region"]] },
+      { title: "Organization", fields: [["orgName", "Organization name"], ["orgType", "Type", "select", ["", "Primary school", "Junior school","Senior school"  "College", "University", "Tutoring centre", "NGO"]], ["county", "County / region"]] },
       { title: "Contact", fields: [["principal", "Principal / director"], ["email", "Org email", "email"], ["phone", "Org phone"]] },
       { title: "Account", fields: [["password", "Password", "password"]], recovery: true },
       { title: "Agreement", policy: true },
@@ -59,7 +59,7 @@
     var email = card.querySelector('[data-field="email"]');
     var pass = card.querySelector('[data-field="password"]');
     var msg = card.querySelector("#authMsg");
-    if (!I.validEmail(email.value)) { msg.textContent = "Enter a valid email."; return; }
+    if (!I.validEmail(email.value)) { msg.textContent = "Please enter a valid email."; return; }
     if (!pass.value) { msg.textContent = "Enter your password."; return; }
     O.state.user = { email: email.value, type: O.state.account };
     O.go({ phase: "dash", dash: O.state.account });
