@@ -80,15 +80,26 @@ assert("O.fail defined",                typeof O.fail === "function");
 // Entry-flow screens
 O.go({ phase: "choose" });
 assert("choose screen",                 app().includes("academics"));
+assert("choose: finances button",       app().includes("finances"));
 
 O.go({ phase: "account" });
 assert("account screen",                app().includes("pickAccount"));
+assert("account: Get Started",          app().includes("accountNext"));
 
-O.go({ phase: "auth", authMode: "login" });
+O.go({ phase: "auth", authMode: "login", authStep: "email" });
 assert("login screen",                  app().includes("data-auth"));
+assert("login: email-first step",       app().includes("emailNext"));
+assert("login: social sign-in seams",   app().includes("socialAuth"));
 
-O.go({ phase: "auth", authMode: "signup" });
+O.go({ phase: "auth", authMode: "recover" });
+assert("recovery screen",               app().includes("recoverSubmit"));
+
+O.go({ phase: "devLogin" });
+assert("developer login screen",        app().includes("devEnter"));
+
+O.go({ phase: "auth", authMode: "signup", signupStage: 1 });
 assert("signup screen",                 app().includes("signupNext"));
+assert("signup: searchable lists",      app().includes("datalist"));
 
 // Brain Test start screen
 O.go({ phase: "brainTestStart" });
