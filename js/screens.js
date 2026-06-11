@@ -9,6 +9,9 @@
   // INTRO — cinematic landing: logo zooms from below, orbits, typewriter, dive in
   O.screens.intro = function () {
     var logo = O.logo(112, true);
+    var bgMap = { "black": "#000000", "light": "var(--bg-light)", "dark": "var(--bg-dark)" };
+    var bgKey = O.developerConsole && O.developerConsole.flags && O.developerConsole.flags.introBackground || "dark";
+    var bg    = bgMap[bgKey] || "var(--bg-dark)";
     // orbital ring helper: outerTilt (static) wraps innerSpin (animated)
     function orbit(tiltStyle, dur) {
       return '' +
@@ -23,8 +26,8 @@
       '</div>';
     }
     return '' +
-    // full-screen dark overlay
-    '<div style="position:fixed;inset:0;background:var(--bg-dark);display:flex;' +
+    // full-screen overlay — background controlled by developer dashboard flag
+    '<div style="position:fixed;inset:0;background:' + bg + ';display:flex;' +
          'flex-direction:column;align-items:center;justify-content:center;' +
          'padding:20px;z-index:100;overflow:hidden">' +
 
