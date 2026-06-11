@@ -20,7 +20,8 @@ window.OCRA = window.OCRA || {};
     devBypassPayment:     true,
     debugMode:            false,
     showAuditLog:         false,
-    introBackground:      "dark",   // "dark" | "black" | "light"
+    introBackground:      "dark",     // "dark" | "black" | "light"
+    introPreset:          "stellar",  // "stellar" | "surge" | "drift" | "neon" | "minimal"
   };
 
   // restore persisted intro background choice
@@ -31,10 +32,25 @@ window.OCRA = window.OCRA || {};
     }
   } catch (e) {}
 
+  // restore persisted intro preset choice
+  try {
+    var _savedPreset = localStorage.getItem("ocra_introPreset");
+    if (_savedPreset && O._introPresets && O._introPresets[_savedPreset]) {
+      DC.flags.introPreset = _savedPreset;
+    }
+  } catch (e) {}
+
   DC.setIntroBackground = function (v) {
     DC.flags.introBackground = v;
     try { localStorage.setItem("ocra_introBackground", v); } catch (e) {}
     if (O.notifications) O.notifications.push("Intro background → " + v, "info");
+    O.render();
+  };
+
+  DC.setIntroPreset = function (v) {
+    DC.flags.introPreset = v;
+    try { localStorage.setItem("ocra_introPreset", v); } catch (e) {}
+    if (O.notifications) O.notifications.push("Intro preset → " + v, "info");
     O.render();
   };
 
@@ -181,6 +197,22 @@ window.OCRA = window.OCRA || {};
             'style="width:100%;margin-top:8px;padding:9px;font-size:11px;font-family:inherit;cursor:pointer;' +
             'border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);' +
             'color:rgba(220,232,242,.6)">Preview Intro →</button>' +
+        '</div>' +
+        '<div class="dglass panel">' +
+          '<div class="label" style="font-size:11px;color:var(--ocean);margin-bottom:10px">Animation Preset</div>' +
+          '<div style="font-size:11px;color:rgba(220,232,242,.6);margin-bottom:10px">Active: <strong style="color:#38BDF8">' + DC.flags.introPreset + '</strong></div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">' +
+            (["stellar","surge","drift","neon","minimal"].map(function (opt) {
+              var on  = DC.flags.introPreset === opt;
+              var p   = O._introPresets && O._introPresets[opt];
+              var ac  = p ? p.accent : "#38BDF8";
+              return '<button onclick="OCRA.developerConsole.setIntroPreset(\'' + opt + '\')" ' +
+                'style="padding:8px 4px;font-size:11px;font-family:inherit;cursor:pointer;' +
+                'border-radius:8px;border:1px solid ' + (on ? ac : "rgba(255,255,255,.12)") + ';' +
+                'background:' + (on ? "rgba(0,0,0,.35)" : "rgba(255,255,255,.04)") + ';' +
+                'color:' + (on ? ac : "rgba(220,232,242,.6)") + '">' + opt + '</button>';
+            }).join("")) +
+          '</div>' +
         '</div>' +
       '</div>' +
 
