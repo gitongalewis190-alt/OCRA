@@ -6,22 +6,21 @@
   "use strict";
   var I = O.identity;
 
-  // INTRO — rotating logo, about, dive in. (Press-and-hold logo 5s = dev access)
+  // INTRO — animated entrance, logo press-and-hold 5 s = silent dev access
   O.screens.intro = function () {
     return '' +
-    '<div class="center"><div class="glass card-pad" style="max-width:560px;text-align:center">' +
-      '<div id="devHold" style="display:inline-grid;place-items:center;margin-bottom:18px;cursor:pointer;position:relative" title="Welcome to OCRA">' +
-        O.logo(92, false) +
-        '<svg width="92" height="92" viewBox="0 0 100 100" style="position:absolute;inset:0;transform:rotate(-90deg)">' +
-          '<circle id="devRing" cx="50" cy="50" r="46" fill="none" stroke="var(--ocean)" stroke-width="3" stroke-dasharray="289" stroke-dashoffset="289" opacity=".9"/>' +
+    '<div class="center"><div class="ocra-intro" style="text-align:center">' +
+      '<div id="devHold" style="display:inline-grid;place-items:center;margin-bottom:16px;cursor:pointer;position:relative" title="OCRA">' +
+        O.logo(88, false) +
+        '<svg width="88" height="88" viewBox="0 0 100 100" style="position:absolute;inset:0;transform:rotate(-90deg)">' +
+          '<circle id="devRing" cx="50" cy="50" r="46" fill="none" stroke="var(--ocean)" stroke-width="3" stroke-dasharray="289" stroke-dashoffset="289" opacity=".85"/>' +
         '</svg>' +
       '</div>' +
-      '<div style="font-size:40px;font-weight:800;letter-spacing:.12em;color:var(--ink)">OCRA</div>' +
-      '<p class="muted" style="font-size:15px;line-height:1.6;margin:14px 0 26px">' +
-        'Optimised Career &amp; Results Analytics. OCRA reads academic records and cognitive signals to decode each learner&rsquo;s potential and map it to real career paths.' +
+      '<div style="font-size:46px;font-weight:800;letter-spacing:.14em;color:var(--ink);margin-bottom:10px">OCRA</div>' +
+      '<p class="muted" style="font-size:14px;line-height:1.7;margin:0 0 30px;max-width:340px">' +
+        'Decode each learner&rsquo;s potential.<br>Map it to real career paths.' +
       '</p>' +
       '<button class="btn primary lg" data-action="diveIn">Dive In</button>' +
-      '<div class="hint" style="margin-top:14px">Press &amp; hold the mark for developer access.</div>' +
     '</div></div>';
   };
 

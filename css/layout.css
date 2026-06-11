@@ -83,6 +83,13 @@ svg.chart{ width:100%; height:auto; display:block; }
   .btn{ font-size:12px; }
 }
 
+/* landing entrance */
+@keyframes ocraIn{
+  from{ opacity:0; transform:translateY(28px) scale(.96); }
+  to{   opacity:1; transform:translateY(0)     scale(1);  }
+}
+.ocra-intro{ animation:ocraIn .65s cubic-bezier(.22,.68,0,1.18) both; }
+
 /* accessibility: visible focus + reduced motion */
 :focus-visible{ outline:2px solid var(--ocean); outline-offset:2px; }
 @media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
