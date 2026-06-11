@@ -87,23 +87,6 @@ svg.chart{ width:100%; height:auto; display:block; }
    CINEMATIC INTRO SCREEN
    ============================================================ */
 
-/* Logo: spirals up from far below, then spins forever */
-@keyframes ocraLogoIn{
-  0%  { opacity:0; transform:translateY(280px) scale(.022) rotate(-720deg); }
-  50% { opacity:1; }
-  100%{ opacity:1; transform:translateY(0)     scale(1)    rotate(0deg);   }
-}
-@keyframes ocraLogoSpin{ to{ transform:rotate(360deg); } }
-.ocra-logo-enter{
-  animation: ocraLogoIn 1.5s cubic-bezier(.16,.7,.08,1.05) forwards,
-             ocraLogoSpin 9s linear 1.5s infinite;
-}
-/* freeze inner dashed-ring so only the whole logo spins */
-.ocra-logo-enter .ocra-spin{ animation:none; }
-
-/* Orbital atom rings — each tilted on a different axis */
-@keyframes ocraOrbitSpin{ to{ transform:rotateZ(360deg); } }
-
 /* Cursor blink for typewriter */
 @keyframes ocraCursorBlink{ 0%,49%{ opacity:1 } 50%,100%{ opacity:0 } }
 .ocra-cursor{
