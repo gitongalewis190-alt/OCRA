@@ -22,10 +22,28 @@
       <p style="color:#5B7689">Please enable JavaScript in your browser to use OCRA.</p>
     </div>
   </noscript>
+
+  <!-- CORE PLATFORM -->
   <script defer src="./js/core.js"></script>
   <script defer src="./js/identity.js"></script>
   <script defer src="./js/screens.js"></script>
   <script defer src="./js/dashboards.js"></script>
+
+  <!-- MODULES — load order: data model before UI, core before dependants -->
+  <script defer src="./modules/notifications/notifications.js"></script>
+  <script defer src="./modules/data-management/data-management.js"></script>
+  <script defer src="./modules/analytics-engine/analytics-engine.js"></script>
+  <script defer src="./modules/ai-insights/ai-insights.js"></script>
+  <script defer src="./modules/report-engine/report-engine.js"></script>
+  <script defer src="./modules/brain-test/brain-test.js"></script>
+  <script defer src="./modules/brain-test/brain-test-ui.js"></script>
+  <script defer src="./modules/intake-form/intake-form.js"></script>
+  <script defer src="./modules/academic-records/academic-records.js"></script>
+  <script defer src="./modules/payment/payment.js"></script>
+  <script defer src="./modules/pdf-export/pdf-export.js"></script>
+  <script defer src="./modules/developer-console/developer-console.js"></script>
+
+  <!-- BOOT -->
   <script defer src="./js/app.js"></script>
 </body>
 </html>

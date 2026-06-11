@@ -27,6 +27,8 @@
         '<div class="label" style="font-size:12px;color:var(--ink);margin-top:22px">News &amp; Updates</div>' +
         '<div class="btnwrap" style="margin-top:10px"><button class="btn" style="font-size:11px">[ Alerts ]</button><button class="btn" style="font-size:11px">[ Data Review ]</button></div>' +
         '<button class="btn full" style="margin-top:16px;padding:14px;font-weight:700">[ See My Profile ]</button>' +
+        '<button class="btn primary full" data-action="brainTestStart" style="margin-top:10px;padding:14px;font-weight:700">Start Brain Test</button>' +
+        '<button class="btn full" data-action="intakeStart" style="margin-top:6px;padding:12px;font-size:12px">Intake Form &rarr; Academic Entry &rarr; Test</button>' +
       '</div>' +
       '<div class="col">' +
         '<div style="display:flex;align-items:center;gap:14px">' +

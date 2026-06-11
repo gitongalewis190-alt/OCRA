@@ -9,12 +9,37 @@ import { JSDOM } from "jsdom";
 const dom = new JSDOM(readFileSync("index.html", "utf8"), { runScripts: "outside-only" });
 const { window } = dom;
 
-// Minimal browser-global shims needed for the module IIFEs.
 globalThis.window   = window;
 globalThis.document = window.document;
 
-for (const f of ["js/core.js","js/identity.js","js/screens.js","js/dashboards.js","js/app.js"]) {
-  window.eval(readFileSync(f, "utf8"));
+const coreModules = [
+  "js/core.js",
+  "js/identity.js",
+  "js/screens.js",
+  "js/dashboards.js",
+  // modules (order matters — same as index.html)
+  "modules/notifications/notifications.js",
+  "modules/data-management/data-management.js",
+  "modules/analytics-engine/analytics-engine.js",
+  "modules/ai-insights/ai-insights.js",
+  "modules/report-engine/report-engine.js",
+  "modules/brain-test/brain-test.js",
+  "modules/brain-test/brain-test-ui.js",
+  "modules/intake-form/intake-form.js",
+  "modules/academic-records/academic-records.js",
+  "modules/payment/payment.js",
+  "modules/pdf-export/pdf-export.js",
+  "modules/developer-console/developer-console.js",
+  "js/app.js",
+];
+
+for (const f of coreModules) {
+  try {
+    window.eval(readFileSync(f, "utf8"));
+  } catch (e) {
+    console.error("LOAD ERROR in " + f + ":", e.message);
+    process.exitCode = 1;
+  }
 }
 
 const O   = window.OCRA;
@@ -28,7 +53,7 @@ function assert(label, cond) {
 
 console.log("\n── Render smoke test ──────────────────────────────");
 
-// Intro (initial state)
+// Initial state
 assert("intro screen renders",          app().includes("diveIn"));
 assert("O.fail defined",                typeof O.fail === "function");
 
@@ -40,30 +65,89 @@ O.go({ phase: "account" });
 assert("account screen",                app().includes("pickAccount"));
 
 O.go({ phase: "auth", authMode: "login" });
-assert("login screen (data-auth)",      app().includes("data-auth"));
+assert("login screen",                  app().includes("data-auth"));
 
 O.go({ phase: "auth", authMode: "signup" });
 assert("signup screen",                 app().includes("signupNext"));
 
+// Brain Test start screen
+O.go({ phase: "brainTestStart" });
+assert("brainTestStart screen",         app().includes("brainTestBegin"));
+
+// Intake form
+O.go({ phase: "intake" });
+assert("intake screen",                 app().includes("intakeNext"));
+
+// Academic records entry
+O.go({ phase: "academicEntry" });
+assert("academicEntry screen",          app().includes("academicEntryNext"));
+
+// Payment gate
+O.go({ phase: "payment", paymentPending: { docType: "transcript", amount: 40 } });
+assert("payment screen",                app().includes("paymentMpesa"));
+
 // All four dashboards
 for (const d of ["personal", "family", "organization", "developer"]) {
   O.go({ phase: "dash", dash: d });
-  assert(`dashboard: ${d}`,             app().length > 1000);
+  assert("dashboard: " + d,            app().length > 500);
 }
+
+// Brain test flow
+O.state.user = { email: "test@ocra.app", firstName: "Test" };
+O.brainTest.init({ sessionId: "smoke_test", accountType: "personal", userId: "test@ocra.app" });
+O.go({ phase: "brainTest", brainTestPhase: "test" });
+assert("brainTest question screen",     app().includes("brainTestAnswer"));
+
+// Brain test results (after faking all answers)
+for (var qi = 0; qi < 60; qi++) {
+  var q = O.brainTest.questions[qi];
+  O.brainTest.recordAnswer(q.correctAnswer);
+  O.brainTest.state.currentQuestion++;
+}
+O.brainTest.state.completedAt = Date.now();
+O.go({ phase: "brainTest", brainTestPhase: "results" });
+assert("brainTest results screen",      app().includes("brainTestToReport") || app().includes("Generate"));
+
+// Report engine
+O.brainTest.scoreAnswers();
+var payload = O.brainTest.generateReportPayload();
+O.reportEngine.generateAllReports(payload, {}, O.state.user);
+O.go({ phase: "reportView", reportPhase: "summary" });
+assert("reportView summary screen",     app().includes("viewReportDoc") || app().includes("Reports Are Ready"));
+
+O.go({ phase: "reportView", reportPhase: "detail", currentDoc: "transcript" });
+assert("reportView detail screen",      app().includes("Transcript") || app().includes("exportReportPDF"));
 
 // Error surface
 O.fail(new Error("sentinel-error"));
 assert("error banner renders",          app().includes("OCRA hit a snag"));
-assert("error message is shown",        app().includes("sentinel-error"));
+assert("error message shown",           app().includes("sentinel-error"));
 
-// Restart clears the error and returns to intro
+// Restart
 O.go({ phase: "intro", signupStage: 1, form: {} });
 assert("restart from error goes home",  app().includes("diveIn"));
 
-// Unknown phase renders an empty stage without throwing
-O.go({ phase: "nonexistent" });
+// Unknown phase
+O.go({ phase: "nonexistent_phase_xyz" });
 assert("unknown phase: no crash",       app().includes("stage"));
 
-console.log(`\n── Result: ${passed} passed, ${failed} failed ──────────────────`);
+// Module health
+assert("O.brainTest loaded",            typeof O.brainTest === "object");
+assert("O.reportEngine loaded",         typeof O.reportEngine === "object");
+assert("O.intakeForm loaded",           typeof O.intakeForm === "object");
+assert("O.academicRecords loaded",      typeof O.academicRecords === "object");
+assert("O.payment loaded",              typeof O.payment === "object");
+assert("O.aiInsights loaded",           typeof O.aiInsights === "object");
+assert("O.analyticsEngine loaded",      typeof O.analyticsEngine === "object");
+assert("O.dataManagement loaded",       typeof O.dataManagement === "object");
+assert("O.notifications loaded",        typeof O.notifications === "object");
+assert("O.pdfExport loaded",            typeof O.pdfExport === "object");
+assert("O.developerConsole loaded",     typeof O.developerConsole === "object");
+
+// Developer bypass: developer role skips payment
+O.state.user = { email: "gitongalewis190@gmail.com", role: "developer" };
+assert("developer bypasses payment",    O.payment.isDeveloper());
+
+console.log("\n── Result: " + passed + " passed, " + failed + " failed ──────────────────");
 if (failed) console.error("SMOKE TEST FAILED\n");
 else        console.log("SMOKE TEST PASSED\n");

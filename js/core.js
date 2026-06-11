@@ -9,16 +9,31 @@ window.OCRA = window.OCRA || {};
 
   // ---- global state (single source of truth) ----
   O.state = {
-    phase: "intro",          // intro | choose | account | auth | dash
+    phase: "intro",          // intro | choose | account | auth | dash | brainTest | reportView | intake | academicEntry | payment
     account: "personal",     // personal | family | organization
     authMode: "login",       // login | signup
-    signupStage: 1,          // 1..4
+    signupStage: 1,          // 1..N
     dash: "personal",        // personal | family | organization | developer
     form: {},                // collected signup fields
     user: null,              // logged-in user
+
+    // Brain Test
+    brainTestPhase: "test",  // test | results
+    academicRecords: null,   // { mathematics_score, physics_score, chemistry_score, mechanics_score }
+
+    // Report
+    reportPhase: "summary",  // summary | detail
+    currentDoc: null,        // transcript | resultsReport | careerGuidance | revisionTimetable
+
+    // Intake
+    intakeStage: 1,
+
+    // Payment
+    paymentPending: null,    // { docType, amount }
+    paymentStatus: null,     // null | pending | success | failed
   };
 
-  O.screens = {};            // phase -> render() ; filled by other modules
+  O.screens   = {};          // phase -> render() ; filled by other modules
   O.dashboards = {};         // type  -> render()
 
   // ---- router / render bus ----
@@ -29,10 +44,33 @@ window.OCRA = window.OCRA || {};
 
   O.render = function () {
     var s = O.state, app = document.getElementById("app");
-    if (!app) return;                 // DOM not ready / mount point missing
+    if (!app) return;
     try {
       var html = "";
-      if (s.phase === "dash") {
+
+      if (s.phase === "brainTest") {
+        if (s.brainTestPhase === "results" && O.brainTest && O.brainTest.screens) {
+          html = '<div class="stage">' + O.brainTest.screens.results() + '</div>';
+        } else if (O.screens.brainTest) {
+          html = '<div class="stage">' + O.screens.brainTest() + '</div>';
+        }
+      } else if (s.phase === "reportView") {
+        if (O.reportEngine && O.reportEngine.screens && O.reportEngine.screens[s.reportPhase]) {
+          html = '<div class="stage">' + O.reportEngine.screens[s.reportPhase]() + '</div>';
+        }
+      } else if (s.phase === "payment") {
+        if (O.payment && O.payment.screens) {
+          html = '<div class="stage">' + O.payment.screens.gate() + '</div>';
+        }
+      } else if (s.phase === "intake") {
+        if (O.intakeForm && O.intakeForm.screens) {
+          html = '<div class="stage">' + O.intakeForm.screens.form() + '</div>';
+        }
+      } else if (s.phase === "academicEntry") {
+        if (O.academicRecords && O.academicRecords.screens) {
+          html = '<div class="stage">' + O.academicRecords.screens.entry() + '</div>';
+        }
+      } else if (s.phase === "dash") {
         var dark = s.dash === "developer";
         html =
           '<div class="stage' + (dark ? " dark" : "") + '">' +
@@ -46,10 +84,11 @@ window.OCRA = window.OCRA || {};
         var fn = O.screens[s.phase];
         html = '<div class="stage">' + (fn ? fn() : "") + '</div>';
       }
+
       app.innerHTML = html;
-      O.bindHold();   // (re)attach the hidden developer hold-to-reveal
+      O.bindHold();
     } catch (err) {
-      O.fail(err);    // never leave the user staring at a blank page
+      O.fail(err);
     }
   };
 
@@ -75,13 +114,15 @@ window.OCRA = window.OCRA || {};
       '</div>';
   };
 
-  // ---- delegated actions: any [data-action] element routes here ----
+  // ---- delegated actions ----
   document.addEventListener("click", function (e) {
     var t = e.target.closest("[data-action]");
     if (!t) return;
     var a = t.getAttribute("data-action");
     var v = t.getAttribute("data-value");
+
     switch (a) {
+      // ---- entry flow ----
       case "diveIn":      return O.go({ phase: "choose" });
       case "academics":   return O.go({ phase: "account" });
       case "pickAccount": return O.go({ account: v });
@@ -90,10 +131,110 @@ window.OCRA = window.OCRA || {};
       case "login":       return O.identity.login(t);
       case "signupNext":  return O.identity.signupNext();
       case "signupBack":  return O.identity.signupBack();
-      case "signupField": return; // handled live by inputs
+      case "signupField": return;
       case "enterDash":   return O.go({ phase: "dash", dash: O.state.account });
       case "switchDash":  return O.go({ dash: v });
-      case "restart":     return O.go({ phase: "intro", signupStage: 1, form: {} });
+      case "restart":
+        if (O.brainTest) {
+          O.brainTest.state.currentQuestion = 0;
+          O.brainTest.state.answers = [];
+          O.brainTest.state.responsePacingMs = [];
+          O.brainTest.state.rawScoresArray = [];
+          O.brainTest.state.isComplete = false;
+          O.brainTest.state.isValid = true;
+        }
+        return O.go({ phase: "intro", signupStage: 1, form: {}, brainTestPhase: "test", academicRecords: null, paymentStatus: null });
+
+      // ---- brain test ----
+      case "brainTestStart":
+      case "brainTestBegin":
+        O.brainTest.init({ sessionId: "sess_" + Date.now(), accountType: O.state.account, userId: O.state.user ? O.state.user.email : "guest" });
+        O.brainTest.startQuestionTimer();
+        return O.go({ phase: "brainTest", brainTestPhase: "test" });
+
+      case "brainTestAnswer":
+        var ansVal = t.getAttribute("data-value");
+        O.brainTest.recordAnswer(ansVal);
+        O.brainTest.state.currentQuestion++;
+        if (O.brainTest.state.currentQuestion >= 60) {
+          O.brainTest.state.completedAt = Date.now();
+          O.brainTest.scoreAnswers();
+          return O.go({ phase: "brainTest", brainTestPhase: "results" });
+        }
+        O.brainTest.startQuestionTimer();
+        return O.render();
+
+      case "brainTestBack":
+        if (O.brainTest.state.currentQuestion > 0) {
+          O.brainTest.state.currentQuestion--;
+          O.brainTest.state.answers.pop();
+          O.brainTest.state.responsePacingMs.pop();
+          O.brainTest.state.rawScoresArray.pop();
+          O.brainTest.startQuestionTimer();
+          return O.render();
+        }
+        return;
+
+      // ---- intake form ----
+      case "intakeStart":
+        return O.go({ phase: "intake" });
+
+      case "intakeNext":
+        if (O.intakeForm && O.intakeForm.next) { O.intakeForm.next(); }
+        return;
+      case "intakeBack":
+        if (O.intakeForm && O.intakeForm.back) { O.intakeForm.back(); }
+        return;
+      case "intakeSkip":
+        return O.go({ phase: "academicEntry" });
+
+      // ---- academic records entry ----
+      case "academicEntryNext":
+        if (O.academicRecords && O.academicRecords.save) { O.academicRecords.save(); }
+        return O.go({ phase: "brainTestStart" });
+      case "academicEntryBack":
+        return O.go({ phase: "intake" });
+
+      // ---- report flow ----
+      case "brainTestToReport":
+        var payload = O.brainTest.generateReportPayload();
+        O.reportEngine.state.brainTestPayload = payload;
+        O.reportEngine.state.userProfile = O.state.user || {};
+        O.reportEngine.state.academicRecords = O.state.academicRecords || {};
+        O.reportEngine.generateAllReports(payload, O.state.academicRecords || {}, O.state.user || {});
+        return O.go({ phase: "reportView", reportPhase: "summary" });
+
+      case "viewReportDoc":
+        var docType = t.getAttribute("data-doc-type");
+        return O.go({ phase: "reportView", reportPhase: "detail", currentDoc: docType });
+
+      case "reportBack":
+        return O.go({ phase: "reportView", reportPhase: "summary" });
+
+      // ---- payment / export ----
+      case "exportReportPDF":
+        var docT = t.getAttribute("data-doc-type");
+        var isDev = O.state.user && O.state.user.role === "developer";
+        if (isDev) {
+          if (O.pdfExport) { O.pdfExport.trigger(docT); }
+          else { alert("PDF export queued: " + docT); }
+        } else {
+          return O.go({ phase: "payment", paymentPending: { docType: docT, amount: 40 } });
+        }
+        return;
+
+      case "paymentMpesa":
+        if (O.payment) { O.payment.initiateMpesa(); }
+        return;
+      case "paymentStripe":
+        if (O.payment) { O.payment.initiateStripe(); }
+        return;
+      case "paymentBack":
+        return O.go({ phase: "reportView", reportPhase: "summary" });
+      case "paymentSuccess":
+        if (O.payment) { O.payment.unlock(); }
+        return;
+
       default: return;
     }
   });
@@ -112,7 +253,7 @@ window.OCRA = window.OCRA || {};
   };
   O.dot = function (c) { return '<span class="dot" style="background:' + c + '"></span>'; };
 
-  // ---- rotating ring logo (drop your real OCRA logo into ./assets and swap this) ----
+  // ---- rotating ring logo ----
   O.logo = function (size, dark) {
     var stroke = dark ? "rgba(255,255,255,.85)" : "#0E6BA8";
     var spin = dark ? "rgba(56,189,248,.6)" : "#38BDF8";
@@ -129,7 +270,7 @@ window.OCRA = window.OCRA || {};
     '</span>';
   };
 
-  // ---- tiny dependency-free SVG charts ----
+  // ---- SVG charts ----
   O.lineChart = function (series, opts) {
     opts = opts || {}; var w = 320, h = 170, pad = 22, max = 100, min = 40;
     var n = series[0].data.length;
@@ -162,7 +303,7 @@ window.OCRA = window.OCRA || {};
     return '<svg class="chart" viewBox="0 0 ' + w + ' ' + h + '">' + bars + '</svg>';
   };
 
-  // ---- mock analytics data (replaced by Analytics Engine later) ----
+  // ---- mock analytics data (replaced by Analytics Engine) ----
   O.data = {
     growth: { labels: ["Term 1", "Term 2", "Term 3"], sci: [55, 68, 74], hum: [48, 60, 71], all: [52, 65, 73] },
     termBars: [
@@ -174,7 +315,14 @@ window.OCRA = window.OCRA || {};
 
   // ---- topbar (shared across dashboards) ----
   O.topbar = function (dash, dark) {
-    var who = { personal: "Mr. Lees.", family: "The Lees", organization: "OCRA Org Dashboard", developer: "Developer Console" }[dash];
+    var s = O.state;
+    var displayName = s.user ? (s.user.firstName || s.user.email || "User") : "Guest";
+    var who = {
+      personal: displayName,
+      family: "Family Dashboard",
+      organization: s.user ? (s.user.organization || "Organization") : "Organization",
+      developer: "Developer Console"
+    }[dash] || displayName;
     var types = ["personal", "family", "organization", "developer"];
     var sw = types.map(function (k) {
       return '<button class="btn' + (dash === k ? " on" : "") + '" data-action="switchDash" data-value="' + k + '">' +
