@@ -89,7 +89,7 @@
 
         // Dive In (liquid glass button)
         '<div id="ocra-btn-wrap" style="opacity:0">' +
-          '<button class="ocra-dive" data-action="diveIn">Dive In</button>' +
+          '<button class="ocra-dive" id="diveHold" data-action="diveIn">Dive In</button>' +
         '</div>' +
 
       '</div>' +
@@ -246,55 +246,189 @@
     };
   })();
 
-  // CHOOSE — Academics / Finances
+  // helper: dark full-screen flow stage (continuation of the intro mood)
+  function fx(inner) {
+    return '<div class="fxstage">' + inner + '</div>';
+  }
+
+  // CHOOSE — two big glass buttons: Academics on top, Finances below
   O.screens.choose = function () {
-    return '' +
-    '<div class="center"><div class="choose-grid">' +
-      '<button class="glass choose-tile" data-action="academics">' +
-        '<div class="label" style="font-size:20px;color:var(--ink)">Academics</div>' +
-        '<div class="muted" style="font-size:13px;margin-top:8px">Records &middot; analysis &middot; careers</div>' +
-      '</button>' +
-      '<div class="glass choose-tile soon">' +
-        '<div class="label" style="font-size:20px;color:var(--ink)">Finances</div>' +
-        '<div class="muted" style="font-size:13px;margin-top:8px">Under development</div>' +
+    return fx('' +
+    '<div style="width:100%;max-width:560px;display:flex;flex-direction:column;gap:18px;padding:20px">' +
+      '<div class="rise" style="text-align:center;margin-bottom:8px">' +
+        '<div class="label" style="font-size:11px;color:rgba(220,232,242,.45);letter-spacing:.28em">OCRA</div>' +
+        '<div style="font-size:24px;font-weight:800;color:#fff;margin-top:6px">Where are we diving today?</div>' +
       '</div>' +
-    '</div></div>';
+
+      // ACADEMICS — primary, on top
+      '<button class="gbtn gbtn-academics rise" data-action="academics">' +
+        '<div style="text-align:left">' +
+          '<div style="font-size:24px;font-weight:800;letter-spacing:.04em">Academics</div>' +
+          '<div style="font-size:12.5px;opacity:.75;margin-top:5px">Records &middot; brain test &middot; career mapping</div>' +
+        '</div>' +
+        '<span style="font-size:24px;opacity:.8">&rarr;</span>' +
+      '</button>' +
+
+      // FINANCES — secondary colour, under development
+      '<button class="gbtn gbtn-finances rise" data-action="finances">' +
+        '<div style="text-align:left">' +
+          '<div style="font-size:24px;font-weight:800;letter-spacing:.04em">Finances</div>' +
+          '<div style="font-size:12.5px;opacity:.75;margin-top:5px">Money habits &middot; planning &middot; growth</div>' +
+          '<div id="finSoon" style="font-size:11px;font-weight:700;letter-spacing:.1em;margin-top:8px;opacity:0;color:#FFD66B">UNDER DEVELOPMENT &mdash; LAUNCHING SOON</div>' +
+        '</div>' +
+        '<span style="font-size:20px;opacity:.55">&#9203;</span>' +
+      '</button>' +
+    '</div>');
   };
 
-  // ACCOUNT — popup-style chooser then Dive In
+  // ACCOUNT — white professional board (Google-style account-type chooser)
   O.screens.account = function () {
     var s = O.state;
-    var opt = function (a) {
-      return '<button class="btn full" data-action="pickAccount" data-value="' + a + '" ' +
-        'style="padding:14px;text-transform:capitalize;' + (s.account === a ? "background:var(--ocean);color:#fff" : "") + '">' + a + ' Account</button>';
-    };
-    return '' +
-    '<div class="center"><div class="glass card-pad" style="max-width:460px;width:100%;text-align:center">' +
-      '<div class="label" style="font-size:13px;color:var(--ink);margin-bottom:18px">Choose your account</div>' +
-      '<div style="display:flex;flex-direction:column;gap:10px">' + opt("personal") + opt("family") + opt("organization") + '</div>' +
-      '<button class="btn deep full" data-action="accountNext" style="margin-top:18px;padding:14px;font-weight:700">Dive In</button>' +
-    '</div></div>';
+    var TYPES = [
+      { v: "personal",     t: "Personal account",     d: "One learner. Full analysis, reports & career mapping." },
+      { v: "family",       t: "Family account",        d: "Parents & children (members). Track every member’s growth." },
+      { v: "organization", t: "Organization account",  d: "Schools & institutions. Manage students at scale." },
+    ];
+    var rows = TYPES.map(function (o) {
+      var on = s.account === o.v;
+      return '<button class="acct-row' + (on ? " on" : "") + '" data-action="pickAccount" data-value="' + o.v + '">' +
+        '<span class="acct-radio' + (on ? " on" : "") + '"></span>' +
+        '<span style="text-align:left">' +
+          '<span style="display:block;font-size:14.5px;font-weight:700;color:var(--ink)">' + o.t + '</span>' +
+          '<span style="display:block;font-size:12px;color:var(--muted);margin-top:2px;line-height:1.45">' + o.d + '</span>' +
+        '</span>' +
+      '</button>';
+    }).join("");
+
+    return fx('' +
+    '<div class="wcard rise" style="max-width:440px;width:100%">' +
+      '<div style="display:grid;place-items:center;margin-bottom:14px">' + O.logo(44, false) + '</div>' +
+      '<div style="font-size:19px;font-weight:800;color:var(--ink);text-align:center">Choose your account type</div>' +
+      '<p class="muted" style="font-size:12.5px;text-align:center;margin:6px 0 18px">You can log in or create this account on the next step.</p>' +
+      '<div style="display:flex;flex-direction:column;gap:10px">' + rows + '</div>' +
+      '<button class="btn primary full" data-action="accountNext" style="margin-top:20px;padding:14px;font-weight:700">Get Started</button>' +
+    '</div>');
   };
 
-  // AUTH — login or signup (signup is multi-stage)
+  // AUTH — login / signup / password recovery
   O.screens.auth = function () {
-    return O.state.authMode === "signup" ? signup() : loginView();
+    if (O.state.authMode === "signup")  return signup();
+    if (O.state.authMode === "recover") return recoverView();
+    return loginView();
   };
 
+  // social sign-in — PRIMARY position (top). Seams until Firebase goes live.
+  function socialRow() {
+    var P = [["google", "G", "Google"], ["apple", "&#63743;", "Apple"], ["microsoft", "&#8862;", "Microsoft"]];
+    return '' +
+    '<div style="display:flex;flex-direction:column;gap:8px">' +
+      P.map(function (p) {
+        return '<button class="social-btn" data-action="socialAuth" data-value="' + p[0] + '" title="' + p[2] + '" style="padding:13px 6px">' +
+          '<span style="font-size:15px;font-weight:800">' + p[1] + '</span><span style="font-size:12.5px;font-weight:600">Continue with ' + p[2] + '</span>' +
+        '</button>';
+      }).join("") +
+    '</div>';
+  }
+
+  // EMAIL-FIRST smart login (2026 pattern): social on top; one email field;
+  // OCRA detects whether the email exists and routes to password or signup.
   function loginView() {
     var s = O.state;
-    return '' +
-    '<div class="center"><div class="glass card-pad" data-auth style="max-width:420px;width:100%">' +
-      '<div style="display:grid;place-items:center;margin-bottom:16px">' + O.logo(56, false) + '</div>' +
-      '<div class="label" style="font-size:13px;color:var(--ink);text-align:center;margin-bottom:16px;text-transform:capitalize">' + O.esc(s.account) + ' &middot; Log in</div>' +
-      '<div class="field"><label>Email</label><input data-field="email" type="email" placeholder="you@example.com"/></div>' +
-      '<div class="field"><label>Password</label><input data-field="password" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"/></div>' +
-      '<p id="authMsg" class="err"></p>' +
-      '<button class="btn primary full" data-action="login" style="padding:14px;font-weight:700;margin-top:6px">Enter</button>' +
-      '<div style="text-align:center;margin-top:12px;font-size:12px" class="muted">No account? ' +
+    var inner;
+
+    if (s.authStep === "password") {
+      // step 2 — returning user enters their password
+      inner =
+        '<div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px">' +
+          '<span class="muted" style="font-size:12.5px">' + O.esc(s.authEmail) + '</span>' +
+          '<button class="linklike" data-action="changeEmail">change</button>' +
+        '</div>' +
+        '<input type="hidden" data-field="email" value="' + O.esc(s.authEmail) + '"/>' +
+        '<div class="field"><label>Password</label>' +
+          '<div style="position:relative">' +
+            '<input id="loginPw" data-field="password" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" style="padding-right:46px"/>' +
+            '<button class="linklike" data-action="togglePw" data-target="loginPw" ' +
+              'style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:15px" title="Show / hide">&#128065;</button>' +
+          '</div>' +
+        '</div>' +
+        '<div style="text-align:right;margin-top:-2px">' +
+          '<button class="linklike" data-action="setAuthMode" data-value="recover">Forgot password?</button>' +
+        '</div>' +
+        '<p id="authMsg" class="err"></p>' +
+        '<button class="btn primary full" data-action="login" style="padding:14px;font-weight:700;margin-top:6px">Enter</button>';
+    } else {
+      // step 1 — social first (primary), then email continue
+      inner =
+        socialRow() +
+        '<div style="display:flex;align-items:center;gap:10px;margin:16px 0 12px">' +
+          '<span style="flex:1;height:1px;background:rgba(16,58,85,.12)"></span>' +
+          '<span class="muted" style="font-size:11px;white-space:nowrap">or use email</span>' +
+          '<span style="flex:1;height:1px;background:rgba(16,58,85,.12)"></span>' +
+        '</div>' +
+        '<div class="field"><label>Email</label><input data-field="loginEmail" type="email" placeholder="you@example.com" value="' + O.esc(s.authEmail || "") + '"/></div>' +
+        '<p id="authMsg" class="err"></p>' +
+        '<button class="btn primary full" data-action="emailNext" style="padding:14px;font-weight:700;margin-top:6px">Continue</button>' +
+        '<p class="muted" style="font-size:11px;text-align:center;margin:12px 0 0;line-height:1.6">New here? Enter your email &mdash; we&rsquo;ll start your account automatically.</p>';
+    }
+
+    return fx('' +
+    '<div class="wcard rise" data-auth style="max-width:420px;width:100%">' +
+      '<div style="display:grid;place-items:center;margin-bottom:14px">' + O.logo(50, false) + '</div>' +
+      '<div class="label" style="font-size:13px;color:var(--ink);text-align:center;margin-bottom:16px;text-transform:capitalize">' + O.esc(s.account) + ' &middot; Welcome</div>' +
+      inner +
+      '<div style="text-align:center;margin-top:14px;font-size:12px" class="muted">Prefer the full form? ' +
         '<button class="btn" data-action="setAuthMode" data-value="signup" style="padding:4px 10px">Sign up</button></div>' +
-    '</div></div>';
+    '</div>');
   }
+
+  // RECOVERY — locked spec: 2 facts + 2 favourites, then a new password
+  function recoverView() {
+    var qs = I.recovery.map(function (r) {
+      return '<div class="field"><label>' + O.esc(r.q) + '</label><input data-field="' + r.k + '"/></div>';
+    }).join("");
+    return fx('' +
+    '<div class="wcard rise" data-recover style="max-width:420px;width:100%">' +
+      '<div class="label" style="font-size:13px;color:var(--ink);text-align:center;margin-bottom:6px">Recover your account</div>' +
+      '<p class="muted" style="font-size:12px;text-align:center;margin:0 0 16px;line-height:1.6">Answer your 4 recovery questions to set a new password.</p>' +
+      '<div class="field"><label>Email</label><input data-field="email" type="email" placeholder="you@example.com"/></div>' +
+      qs +
+      '<div class="field"><label>New password</label><input data-field="newPassword" type="password"/>' +
+        '<div class="hint">9+ characters, a capital, a number and a symbol.</div></div>' +
+      '<p id="recMsg" class="err"></p>' +
+      '<button class="btn primary full" data-action="recoverSubmit" style="padding:14px;font-weight:700;margin-top:6px">Reset password</button>' +
+      '<div style="text-align:center;margin-top:12px;font-size:12px" class="muted">' +
+        '<button class="btn" data-action="setAuthMode" data-value="login" style="padding:4px 10px">Back to log in</button></div>' +
+    '</div>');
+  }
+
+  // DEVELOPER LOGIN — reached only by 5 s hold on logo or Dive In.
+  // OPEN DOOR pre-launch; locks to authorised credentials once Firebase is on.
+  O.screens.devLogin = function () {
+    return fx('' +
+    '<div class="dglass rise" style="max-width:400px;width:100%;padding:clamp(24px,4vw,38px)">' +
+      '<div class="label" style="font-size:12px;color:var(--cyan);text-align:center;margin-bottom:6px">Developer Console</div>' +
+      '<p style="font-size:11.5px;color:rgba(220,232,242,.55);text-align:center;margin:0 0 18px;line-height:1.6">' +
+        'Open door &mdash; pre-launch. This gate locks to authorised credentials the moment Firebase is configured.</p>' +
+      '<div class="field"><label style="color:rgba(220,232,242,.55)">Email</label>' +
+        '<input data-field="devEmail" type="email" placeholder="gitongalewis190@gmail.com" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);color:#dce8f2"/></div>' +
+      '<div class="field"><label style="color:rgba(220,232,242,.55)">Password</label>' +
+        '<input data-field="devPass" type="password" placeholder="not required yet" style="background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.15);color:#dce8f2"/></div>' +
+      '<button class="btn primary full" data-action="devEnter" style="padding:14px;font-weight:700;margin-top:8px">Enter Console</button>' +
+      '<button class="btn dark full" data-action="restart" style="padding:11px;margin-top:8px;font-size:12px">&larr; Back</button>' +
+    '</div>');
+  };
+
+  // GSAP entrance for flow screens (.rise elements); content is visible
+  // without GSAP, so no-JS-animation environments degrade gracefully.
+  O.flowAnimate = function () {
+    if (!window.gsap) return;
+    var els = document.querySelectorAll(".rise");
+    if (!els.length) return;
+    window.gsap.fromTo(els,
+      { opacity: 0, y: 26 },
+      { opacity: 1, y: 0, duration: 0.55, stagger: 0.09, ease: "power3.out", clearProps: "transform" }
+    );
+  };
 
   function signup() {
     var s = O.state, f = s.form;
@@ -309,12 +443,34 @@
         '<label style="display:flex;gap:10px;align-items:center;margin-top:14px;font-size:13px;color:var(--ink)">' +
           '<input type="checkbox" data-field="agreed" ' + (f.agreed ? "checked" : "") + ' onchange="OCRA.state.form.agreed=this.checked" style="width:18px;height:18px"/> I agree.' +
         '</label>';
+    } else if (stage.otp) {
+      // Email verification seam — six code boxes, waived until Firebase is live
+      var boxes = "";
+      for (var b = 0; b < 6; b++) {
+        boxes += '<span style="width:38px;height:46px;border:1.5px dashed rgba(16,58,85,.25);border-radius:10px;display:inline-grid;place-items:center;font-size:18px;color:rgba(16,58,85,.25)">&bull;</span>';
+      }
+      body =
+        '<div style="text-align:center;padding:6px 0 2px">' +
+          '<div style="font-size:32px;margin-bottom:10px">&#9993;&#65039;</div>' +
+          '<p class="muted" style="font-size:13px;line-height:1.7;margin:0 0 14px">A 6-digit verification code will be emailed to <strong style="color:var(--ink)">' + O.esc(f.email || f.momEmail || "your email") + '</strong> to confirm it&rsquo;s really you.</p>' +
+          '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px">' + boxes + '</div>' +
+          '<div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;color:var(--amber)">PRE-LAUNCH &mdash; VERIFICATION WAIVED UNTIL FIREBASE GOES LIVE</div>' +
+        '</div>';
     } else {
       body = (stage.fields || []).map(function (fl) {
         var key = fl[0], lab = fl[1], type = fl[2] || "text", val = O.esc(f[key] || "");
         if (type === "select") {
           var opts = (fl[3] || []).map(function (o) { return '<option ' + (f[key] === o ? "selected" : "") + '>' + O.esc(o) + '</option>'; }).join("");
           return '<div class="field"><label>' + O.esc(lab) + '</label><select data-field="' + key + '">' + opts + '</select></div>';
+        }
+        if (type === "list") {
+          // searchable list via native datalist — type to filter, free text
+          // always accepted so no user is ever limited by our options
+          var dlId = "dl_" + key;
+          var dlOpts = (I.DATA[fl[3]] || []).map(function (o) { return '<option value="' + O.esc(o) + '">'; }).join("");
+          return '<div class="field"><label>' + O.esc(lab) + '</label>' +
+            '<input data-field="' + key + '" list="' + dlId + '" value="' + val + '" placeholder="Type to search&hellip;" autocomplete="off"/>' +
+            '<datalist id="' + dlId + '">' + dlOpts + '</datalist></div>';
         }
         return '<div class="field"><label>' + O.esc(lab) + '</label><input data-field="' + key + '" type="' + type + '" value="' + val + '"/>' +
           (type === "password" ? '<div class="hint">9+ characters, a capital, a number and a symbol.</div>' : "") + '</div>';
@@ -329,8 +485,8 @@
     }
 
     var last = s.signupStage === stages.length;
-    return '' +
-    '<div class="center"><div class="glass card-pad" style="max-width:460px;width:100%">' +
+    return fx('' +
+    '<div class="wcard rise" style="max-width:460px;width:100%">' +
       '<div class="rail">' + rail + '</div>' +
       '<div class="label" style="font-size:13px;color:var(--ink);margin-bottom:14px;text-transform:capitalize">' + O.esc(s.account) + ' &middot; ' + O.esc(stage.title) + '</div>' +
       body +
@@ -341,7 +497,7 @@
       '</div>' +
       '<div style="text-align:center;margin-top:12px;font-size:12px" class="muted">Have an account? ' +
         '<button class="btn" data-action="setAuthMode" data-value="login" style="padding:4px 10px">Log in</button></div>' +
-    '</div></div>';
+    '</div>');
   }
 
 
