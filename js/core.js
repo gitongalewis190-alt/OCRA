@@ -336,6 +336,7 @@ window.OCRA = window.OCRA || {};
       '<div class="brand">' + O.logo(40, dark) + '<b>OCRA</b></div>' +
       '<div class="' + (dark ? "dglass" : "pill") + '" style="padding:8px 16px;display:flex;gap:8px;align-items:center">' +
         '<span style="font-size:16px">&#9881;</span><b style="font-weight:700">Settings</b>' +
+        '&nbsp;<button class="btn' + (dark ? " dark" : "") + '" data-action="logout" style="font-size:11px;padding:5px 10px">Sign out</button>' +
       '</div>' +
       '<div class="switcher">' + sw + '</div>' +
     '</div>';
