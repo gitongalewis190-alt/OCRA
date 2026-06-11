@@ -87,6 +87,7 @@ window.OCRA = window.OCRA || {};
 
       app.innerHTML = html;
       O.bindHold();
+      if (s.phase === "intro" && O.introAnimate) O.introAnimate();
     } catch (err) {
       O.fail(err);
     }
