@@ -55,6 +55,7 @@ window.OCRA = window.OCRA || {};
   };
 
   N.showToast = function (note) {
+    if (O.state && O.state.phase === "intro") return;
     var container = document.getElementById("toastContainer");
     if (!container) {
       container = document.createElement("div");
