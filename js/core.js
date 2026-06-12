@@ -11,7 +11,10 @@ window.OCRA = window.OCRA || {};
   O.state = {
     phase: "intro",          // intro | choose | account | auth | dash | brainTest | reportView | intake | academicEntry | payment
     account: "personal",     // personal | family | organization
-    authMode: "login",       // login | signup
+    authMode: "login",       // login | signup | recover
+    authStep: "email",       // email | password (email-first smart login)
+    authEmail: "",           // email captured at step 1
+    recoverSamePw: false,    // recovery: new password equals current one
     signupStage: 1,          // 1..N
     dash: "personal",        // personal | family | organization | developer
     form: {},                // collected signup fields
@@ -91,6 +94,7 @@ window.OCRA = window.OCRA || {};
       app.innerHTML = html;
       O.bindHold();
       if (s.phase === "intro" && O.introAnimate) O.introAnimate();
+      else if (O.flowAnimate) O.flowAnimate();
     } catch (err) {
       O.fail(err);
     }
@@ -127,8 +131,23 @@ window.OCRA = window.OCRA || {};
 
     switch (a) {
       // ---- entry flow ----
-      case "diveIn":      return O.go({ phase: "choose" });
+      case "diveIn":
+        if (O._held) { O._held = false; return; }
+        return O.go({ phase: "choose" });
+
       case "academics":   return O.go({ phase: "account" });
+      case "backToChoose": return O.go({ phase: "choose" });
+
+      case "finances": {
+        if (window.gsap) {
+          window.gsap.fromTo(t, { x: 0 }, { x: 7, duration: 0.05, repeat: 9, yoyo: true, ease: "none", clearProps: "x" });
+        } else {
+          t.classList.add("auth-shake");
+          t.addEventListener("animationend", function () { t.classList.remove("auth-shake"); }, { once: true });
+        }
+        return;
+      }
+
       case "pickAccount": return O.go({ account: v });
       case "accountNext": return O.go({ phase: "auth", authMode: "login" });
       case "setAuthMode": return O.go({ authMode: v, signupStage: 1, form: {} });
@@ -287,7 +306,7 @@ window.OCRA = window.OCRA || {};
           O.brainTest.state.isComplete = false;
           O.brainTest.state.isValid = true;
         }
-        return O.go({ phase: "intro", signupStage: 1, form: {}, brainTestPhase: "test", academicRecords: null, paymentStatus: null });
+        return O.go({ phase: "intro", signupStage: 1, form: {}, authStep: "email", authEmail: "", recoverSamePw: false, brainTestPhase: "test", academicRecords: null, paymentStatus: null });
 
       // ---- brain test ----
       case "brainTestStart":

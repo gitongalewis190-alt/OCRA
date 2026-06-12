@@ -442,8 +442,7 @@
       var btnW  = document.getElementById("ocra-btn-wrap");
       if (!line1) return;
       function type(el, text, ms, done) {
-        var i = 0;
-        el.textContent = "";
+        var i = 0; el.textContent = "";
         (function step() {
           if (!ok()) return;
           if (i <= text.length) { el.textContent = text.slice(0, i++); _t.push(setTimeout(step, ms)); }
@@ -510,7 +509,7 @@
         '<div class="label" style="font-size:20px;color:var(--ink)">Finances</div>' +
         '<div class="muted" style="font-size:13px;margin-top:8px">Under development</div>' +
       '</div>' +
-    '</div></div>';
+    '</div>';
   };
 
   // ── ACCOUNT ───────────────────────────────────────────────────

@@ -1,21 +1,31 @@
-MIT License
+OCRA — PROPRIETARY & CONFIDENTIAL
+Copyright (c) 2026 Lewis Gitonga. All Rights Reserved.
 
-Copyright (c) 2026 Lewis Gitonga
+OCRA (the "Software") is the private, proprietary property of Lewis Gitonga
+(the "Owner"), a project operated under Artist Life Foundation. It is NOT
+open-source software and is NOT offered for sale, licensing, or public reuse.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+NO LICENSE OR RIGHTS ARE GRANTED. Without the prior, explicit, written
+permission of the Owner, no person or entity may:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+  1. Copy, clone, download, mirror, or retain any part of the Software;
+  2. Use, run, or deploy the Software or any derivative of it;
+  3. Modify, adapt, translate, or create derivative works from it;
+  4. Distribute, publish, sublicense, sell, rent, lease, or transfer it;
+  5. Reverse-engineer, decompile, or disassemble it;
+  6. Access, view, or inspect its source code or contents.
+
+The source code, design, data models, content, and all associated materials
+are confidential trade secrets of the Owner. Any unauthorised access, use,
+copying, or disclosure is strictly prohibited and may result in civil and
+criminal liability.
+
+This repository and its contents are intended for the Owner's sole and
+exclusive use while the Software remains under private development. Nothing in
+this notice grants any third party any right, title, or interest of any kind.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+IMPLIED. IN NO EVENT SHALL THE OWNER BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+OTHER LIABILITY ARISING FROM OR IN CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+For permissions or enquiries, contact the Owner: gitongalewis190@gmail.com

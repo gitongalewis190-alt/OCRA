@@ -12,6 +12,14 @@ const { window } = dom;
 globalThis.window   = window;
 globalThis.document = window.document;
 
+// Safety net: jsdom can leave open handles that prevent Node from exiting,
+// which would hang CI until the run is cancelled. Never let this process
+// outlive the assertions. The timer is unref'd so it can't itself keep us alive.
+setTimeout(() => {
+  console.error("\nSMOKE TEST TIMED OUT (30s) — forcing exit\n");
+  process.exit(1);
+}, 30000).unref();
+
 // localStorage mock (jsdom's window.localStorage is a getter — must use defineProperty)
 const _store = {};
 const _ls = {
@@ -72,15 +80,32 @@ assert("O.fail defined",                typeof O.fail === "function");
 // Entry-flow screens
 O.go({ phase: "choose" });
 assert("choose screen",                 app().includes("academics"));
+assert("choose: finances button",       app().includes("finances"));
 
 O.go({ phase: "account" });
 assert("account screen",                app().includes("pickAccount"));
+assert("account: Get Started",          app().includes("accountNext"));
 
-O.go({ phase: "auth", authMode: "login" });
+O.go({ phase: "auth", authMode: "login", authStep: "email" });
 assert("login screen",                  app().includes("data-auth"));
+assert("login: email-first step",       app().includes("emailNext"));
+assert("login: social sign-in seams",   app().includes("socialAuth"));
 
-O.go({ phase: "auth", authMode: "signup" });
+O.go({ phase: "auth", authMode: "recover" });
+assert("recovery screen",               app().includes("recoverSubmit"));
+
+O.go({ phase: "devLogin" });
+assert("developer login screen",        app().includes("devEnter"));
+
+O.go({ phase: "auth", authMode: "signup", signupStage: 1, account: "organization" });
 assert("signup screen",                 app().includes("signupNext"));
+assert("signup: 5-section banner",      app().includes("auth-seg"));
+assert("signup: searchable lists",      app().includes("datalist"));
+assert("signup: progress captions",     app().includes("Get started with account creation"));
+// congratulations stage carries the create action
+O.go({ phase: "auth", authMode: "signup", signupStage: 5, account: "organization" });
+assert("signup: congratulations",       app().includes("signupCreate"));
+O.go({ account: "personal" });
 
 // Brain Test start screen
 O.go({ phase: "brainTestStart" });
@@ -194,3 +219,9 @@ assert("developer bypasses payment",    O.payment.isDeveloper());
 console.log("\n── Result: " + passed + " passed, " + failed + " failed ──────────────────");
 if (failed) console.error("SMOKE TEST FAILED\n");
 else        console.log("SMOKE TEST PASSED\n");
+
+// Tear down jsdom and force a deterministic exit. Without this the pending
+// in-app timers (e.g. the notifications welcome toast) keep the event loop
+// alive on CI, hanging the deploy until it gets cancelled.
+try { window.close(); } catch (e) {}
+process.exit(failed ? 1 : 0);

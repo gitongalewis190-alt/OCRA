@@ -5,21 +5,21 @@ Works like a playlist. Every session picks up exactly where the last one left of
 
 ---
 
-## Confirmed Design Decisions (bring these up when relevant)
+## Confirmed Design Decisions (surface these when relevant)
 
 | Decision | Detail | Confirmed |
 |---|---|---|
-| Intro background | Dark navy (`--bg-dark`) default; black (`#000`) also available; toggled from developer dashboard | ✅ 2026-06-11 |
-| Intro animation | Logo spirals from far below, atom orbital rings (3 × tilted), typewriter sequence | ✅ 2026-06-11 |
-| Typewriter copy | "Introducing....." → cursor → O·C·R·A → OCRA brief → "a subsidiary of Artist Life Foundation" | ✅ 2026-06-11 |
+| Intro background | Dark navy default; **black** (`#000`) also available; toggled live from developer dashboard | ✅ 2026-06-11 |
+| Intro animation | Logo spirals from far below, 3-ring atom orbits, typewriter sequence | ✅ 2026-06-11 |
+| Typewriter copy | "Introducing....." → cursor blink → O·C·R·A → OCRA brief → "a subsidiary of Artist Life Foundation" | ✅ 2026-06-11 |
 | OCRA name colour | `#38BDF8` electric cyan — distinct from all surrounding text | ✅ 2026-06-11 |
-| Developer access | Logo press-and-hold 5 s → developer dashboard, zero hint text | ✅ 2026-06-11 |
-| Payment bypass | `gitongalewis190@gmail.com` always developer; never pays | ✅ locked |
+| Developer access | Logo press-and-hold 5 s → developer dashboard — zero hint text | ✅ 2026-06-11 |
+| Developer never pays | `gitongalewis190@gmail.com` is highest hierarchy, bypasses payment always | ✅ locked |
 | Password rules | 9+ chars, 1 capital, 1 number, 1 symbol | ✅ locked |
 | Recovery questions | 2 facts (mother's name, best friend) + 2 favourites (pet, subject) | ✅ locked |
 | Soft delete | 30-day recovery window for all user data | ✅ locked |
 | Price | KES 40 per document download, 30-day unlock | ✅ locked |
-| Subsidiary | "a subsidiary of Artist Life Foundation" | ✅ locked |
+| Subsidiary line | "a subsidiary of Artist Life Foundation" | ✅ locked |
 
 ---
 
