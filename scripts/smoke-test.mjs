@@ -50,6 +50,7 @@ const coreModules = [
   "modules/pdf-export/pdf-export.js",
   "modules/developer-console/developer-console.js",
   "modules/auth/auth.js",
+  "modules/anti-cheat/anti-cheat.js",
   "js/app.js",
 ];
 
@@ -181,6 +182,54 @@ assert("O.notifications loaded",        typeof O.notifications === "object");
 assert("O.pdfExport loaded",            typeof O.pdfExport === "object");
 assert("O.developerConsole loaded",     typeof O.developerConsole === "object");
 assert("O.auth loaded",                 typeof O.auth === "object");
+assert("O.antiCheat loaded",            typeof O.antiCheat === "object");
+
+// Anti-cheat unit tests
+var AC = O.antiCheat;
+AC.reset();
+assert("AC: score starts at 0",         AC.score() === 0);
+AC.flag("BULK_PASTE");
+assert("AC: flag raises score",         AC.score() > 0);
+AC.flag("BULK_PASTE");  // idempotent — same code
+assert("AC: flag is idempotent",        AC.score() === AC.SEV.MED);
+
+// Honeypot
+AC.reset();
+AC.startSignup();
+AC.checkHoneypot("hp_name", "John Bot");
+assert("AC: honeypot fires flag",       AC.score() >= AC.SEV.HIGH);
+assert("AC: honeypot fires flag (session)", AC.session.honeypotFired === true);
+
+// finalCheck with honeypot should fail
+var _fc = AC.finalCheck({});
+assert("AC: finalCheck fails on honeypot", _fc.passed === false || _fc.honeypot === true);
+
+// Math challenge
+AC.reset();
+var _ch = AC.generateChallenge();
+assert("AC: challenge has question",    typeof _ch.q === "string" && _ch.q.length > 0);
+assert("AC: challenge has answer",      typeof _ch.answer === "number");
+assert("AC: correct answer passes",     AC.checkChallenge(_ch.answer) === true);
+assert("AC: challengePassed set",       AC.session.challengePassed === true);
+
+// Wrong answer on fresh challenge
+AC.reset();
+var _ch2 = AC.generateChallenge();
+assert("AC: wrong answer rejects",      AC.checkChallenge(_ch2.answer + 9999) === false);
+
+// Brain test analysis
+AC.reset();
+var _fastRTs  = Array.from({length: 20}, function () { return 150; });
+var _sameKeys = Array.from({length: 20}, function () { return "A"; });
+AC.analyzeBrainTest(_fastRTs, _sameKeys);
+assert("AC: flags fast brain test",     AC.session.flags.some(function (f) { return f.code === "BRAIN_TOO_FAST"; }));
+assert("AC: flags uniform brain test",  AC.session.flags.some(function (f) { return f.code === "BRAIN_UNIFORM_SPEED"; }));
+assert("AC: flags same-answer bias",    AC.session.flags.some(function (f) { return f.code === "BRAIN_SAME_ANSWER"; }));
+
+// Reset clears everything
+AC.reset();
+assert("AC: reset clears flags",        AC.score() === 0);
+assert("AC: reset clears honeypot",     AC.session.honeypotFired === false);
 
 // Auth: sign up a test user
 var signedUp = false, signupErr = null;
