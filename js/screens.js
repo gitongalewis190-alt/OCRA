@@ -431,116 +431,207 @@
     '</div>';
   };
 
-  // ── INTRO — cinematic landing ──────────────────────────────────
+  // ── INTRO — cinematic landing: PNG logo, GSAP, 5 presets ─────
+  function ifeat(accent, title, sub) {
+    return '<div class="ifeat" style="opacity:0">' +
+      '<div style="font-size:12px;font-weight:700;color:' + accent + ';letter-spacing:.06em;margin-bottom:3px">' + title + '</div>' +
+      '<div style="font-size:10px;color:rgba(220,232,242,.45);letter-spacing:.03em">' + sub + '</div>' +
+    '</div>';
+  }
+
   O.screens.intro = function () {
-    var logo  = O.logo(112, true);
-    var bgMap = {black:"#000000", light:"var(--bg-light)", dark:"var(--bg-dark)"};
-    var bgKey = O.developerConsole && O.developerConsole.flags && O.developerConsole.flags.introBackground || "dark";
-    var bg    = bgMap[bgKey] || "var(--bg-dark)";
-    function orbit(tiltStyle, dur) {
-      return '<div style="position:absolute;inset:0;transform-style:preserve-3d;' + tiltStyle + '">' +
-        '<div style="position:absolute;inset:0;border-radius:50%;border:1px solid rgba(56,189,248,.28);animation:ocraOrbitSpin ' + dur + 's linear infinite">' +
-          '<div style="position:absolute;width:7px;height:7px;background:#38BDF8;border-radius:50%;top:50%;left:3px;transform:translateY(-50%);box-shadow:0 0 10px 3px rgba(56,189,248,.42)"></div>' +
-        '</div>' +
-      '</div>';
-    }
+    var DC  = O.developerConsole;
+    var key = DC && DC.flags && DC.flags.introPreset || "stellar";
+    var p   = O._introPresets && O._introPresets[key] || { bg:"#080c14", accent:"#38BDF8", nc:"#38BDF8", glowC:"rgba(56,189,248,.22)" };
+
+    var iLetters = "INTRODUCING".split("").map(function (c) {
+      return '<span class="iletter" style="display:inline-block;opacity:0">' + c + '</span>';
+    }).join("");
+    var nLetters = "OCRA".split("").map(function (c) {
+      return '<span class="nletter" style="display:inline-block;opacity:0;color:' + p.nc + '">' + c + '</span>';
+    }).join("");
+
     return '' +
-    '<div style="position:fixed;inset:0;background:' + bg + ';display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;z-index:100;overflow:hidden">' +
-      '<div style="position:relative;width:200px;height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:28px">' +
-        '<div style="position:absolute;inset:0;perspective:900px;transform-style:preserve-3d;pointer-events:none">' +
-          orbit("", 3.3) +
-          orbit("transform:rotateX(62deg)", 5.2) +
-          orbit("transform:rotateY(62deg)", 7.8) +
-        '</div>' +
-        '<div id="devHold" class="ocra-logo-enter" style="position:relative;cursor:pointer;z-index:1;display:flex;align-items:center;justify-content:center">' +
-          logo +
-          '<svg width="112" height="112" viewBox="0 0 100 100" style="position:absolute;width:112px;height:112px;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-90deg)">' +
-            '<circle id="devRing" cx="50" cy="50" r="46" fill="none" stroke="#38BDF8" stroke-width="2.5" stroke-dasharray="289" stroke-dashoffset="289" opacity=".85"/>' +
-          '</svg>' +
+    '<div id="ocra-intro-stage" style="position:fixed;inset:0;background:' + p.bg + ';overflow:hidden;z-index:100">' +
+      '<div id="intro-glow" style="position:absolute;inset:0;pointer-events:none;opacity:0;' +
+           'background:radial-gradient(ellipse 60% 60% at 50% 50%,' + p.glowC + ' 0%,transparent 70%)"></div>' +
+      '<div class="intro-left" style="position:absolute;top:50%;left:0;width:22%;display:none;opacity:0;padding:0 28px;pointer-events:none">' +
+        '<div style="display:flex;flex-direction:column;gap:24px">' +
+          ifeat(p.accent, "Academic Records",  "Grades \xb7 subjects \xb7 trajectories") +
+          ifeat(p.accent, "Brain Test",        "60-question cognitive deep-dive") +
+          ifeat(p.accent, "Career Analysis",   "Mapped to 400+ real career paths") +
         '</div>' +
       '</div>' +
-      '<div style="text-align:center;min-height:88px">' +
-        '<div id="ocra-line1" style="font-size:15px;font-weight:300;color:rgba(220,232,242,.68);letter-spacing:.06em;min-height:22px"></div>' +
-        '<div id="ocra-line2" style="font-size:54px;font-weight:900;color:#38BDF8;letter-spacing:.22em;min-height:66px;line-height:1.1;margin-top:6px"></div>' +
+      '<div class="intro-right" style="position:absolute;top:50%;right:0;width:22%;display:none;opacity:0;padding:0 28px;pointer-events:none">' +
+        '<div style="display:flex;flex-direction:column;gap:24px">' +
+          ifeat(p.accent, "AI-Powered Insights", "Claude Sonnet analysis engine") +
+          ifeat(p.accent, "4-Document Reports",  "Full diagnostic \xb7 career \xb7 study \xb7 wellness") +
+          ifeat(p.accent, "KES 40 / Download",   "30-day access per document") +
+        '</div>' +
       '</div>' +
-      '<p id="ocra-brief" style="max-width:420px;text-align:center;font-size:13px;line-height:1.82;color:rgba(220,232,242,.56);margin:12px 24px 4px;display:none"></p>' +
-      '<div id="ocra-sub" style="font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(220,232,242,.28);margin-bottom:34px;display:none"></div>' +
-      '<div id="ocra-btn-wrap" style="display:none">' +
-        '<button class="ocra-dive" data-action="diveIn">Dive In</button>' +
+      '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">' +
+        '<div id="ocra-logo-wrap" style="position:relative;margin-bottom:32px;perspective:1200px">' +
+          '<div id="devHold" style="position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center">' +
+            '<div id="logo-halo" style="position:absolute;inset:-40px;border-radius:50%;opacity:0;pointer-events:none;' +
+                 'background:radial-gradient(circle,' + p.glowC + ' 0%,transparent 70%)"></div>' +
+            '<img id="ocra-logo-img" src="./assets/ocra-logo.png" width="176" height="176" alt="OCRA" ' +
+                 'style="border-radius:50%;position:relative;z-index:1;opacity:0;display:block"/>' +
+            '<svg width="196" height="196" viewBox="0 0 100 100" ' +
+                 'style="position:absolute;width:196px;height:196px;top:50%;left:50%;' +
+                 'transform:translate(-50%,-50%) rotate(-90deg);z-index:2;pointer-events:none">' +
+              '<circle id="devRing" cx="50" cy="50" r="46" fill="none" stroke="' + p.accent + '" ' +
+                      'stroke-width="2" stroke-dasharray="289" stroke-dashoffset="289" opacity=".8"/>' +
+            '</svg>' +
+          '</div>' +
+        '</div>' +
+        '<div id="ocra-label" style="font-size:11px;font-weight:400;letter-spacing:.32em;text-transform:uppercase;' +
+             'color:rgba(220,232,242,.5);margin-bottom:10px;min-height:16px">' + iLetters + '</div>' +
+        '<div id="ocra-name" style="font-size:72px;font-weight:900;letter-spacing:.18em;line-height:1;' +
+             'margin-bottom:18px;min-height:80px">' + nLetters + '</div>' +
+        '<p id="ocra-brief" style="max-width:460px;text-align:center;font-size:13px;line-height:1.85;' +
+           'color:rgba(220,232,242,.55);margin:0 24px 8px;opacity:0"></p>' +
+        '<div id="ocra-sub" style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;' +
+             'color:rgba(220,232,242,.25);margin-bottom:40px;opacity:0"></div>' +
+        '<div id="ocra-btn-wrap" style="opacity:0">' +
+          '<button class="ocra-dive" data-action="diveIn">Dive In</button>' +
+        '</div>' +
       '</div>' +
     '</div>';
   };
 
+  // GSAP cinematic animation — runs after intro screen renders
   O.introAnimate = (function () {
-    var _t = [], _run = 0;
-    function clear() { _t.forEach(clearTimeout); _t = []; }
-    function later(ms, fn) { _t.push(setTimeout(fn, ms)); }
-    var BRIEF = "OCRA performs deep analysis across different stratums — academics, finances, and more coming soon. It delivers insights, remedies, and reveals your true potential. Defining who you really are, better than any system would.";
-    var SUB   = "a subsidiary of Artist Life Foundation";
+    var _spinTween = null;
+    var _paraFn    = null;
+
+    O._introPresets = {
+      stellar: { bg:"#080c14", accent:"#38BDF8", nc:"#38BDF8", glowC:"rgba(56,189,248,.22)", spinDur:22, ease:"power3.out",         letterEase:"back.out(2)"        },
+      surge:   { bg:"#0c0500", accent:"#FF6B35", nc:"#FF6B35", glowC:"rgba(255,107,53,.22)",  spinDur:8,  ease:"power4.out",         letterEase:"back.out(1.5)"      },
+      drift:   { bg:"#080e1c", accent:"#7E7BD8", nc:"#7E7BD8", glowC:"rgba(126,123,216,.18)", spinDur:35, ease:"power2.out",         letterEase:"power3.out"         },
+      neon:    { bg:"#000000", accent:"#00ff88", nc:"#00ff88", glowC:"rgba(0,255,136,.18)",   spinDur:14, ease:"elastic.out(1,0.3)", letterEase:"elastic.out(1,0.4)" },
+      minimal: { bg:"#090d14", accent:"#e8eaf0", nc:"#e8eaf0", glowC:"rgba(255,255,255,.07)", spinDur:30, ease:"power3.out",         letterEase:"power3.out"         }
+    };
+
     return function () {
-      clear();
-      var run = ++_run;
-      function ok() { return run === _run && !!document.getElementById("ocra-line1"); }
-      var line1 = document.getElementById("ocra-line1");
-      var line2 = document.getElementById("ocra-line2");
-      var brief = document.getElementById("ocra-brief");
-      var sub   = document.getElementById("ocra-sub");
-      var btnW  = document.getElementById("ocra-btn-wrap");
-      if (!line1) return;
-      function type(el, text, ms, done) {
-        var i = 0; el.textContent = "";
-        (function step() {
-          if (!ok()) return;
-          if (i <= text.length) { el.textContent = text.slice(0, i++); _t.push(setTimeout(step, ms)); }
-          else if (done) { done(); }
-        })();
+      if (_spinTween) { _spinTween.kill(); _spinTween = null; }
+      if (_paraFn)    { document.removeEventListener("mousemove", _paraFn); _paraFn = null; }
+
+      var stage    = document.getElementById("ocra-intro-stage");
+      var glow     = document.getElementById("intro-glow");
+      var logoWrap = document.getElementById("ocra-logo-wrap");
+      var halo     = document.getElementById("logo-halo");
+      var logoImg  = document.getElementById("ocra-logo-img");
+      var brief    = document.getElementById("ocra-brief");
+      var sub      = document.getElementById("ocra-sub");
+      var btnW     = document.getElementById("ocra-btn-wrap");
+      var leftEl   = document.querySelector(".intro-left");
+      var rightEl  = document.querySelector(".intro-right");
+
+      if (!stage || !logoImg) return;
+
+      var DC      = O.developerConsole;
+      var key     = DC && DC.flags && DC.flags.introPreset || "stellar";
+      var p       = O._introPresets[key] || O._introPresets.stellar;
+      var BRIEF   = "OCRA performs deep analysis across different stratums — academics, finances, and more coming soon. It delivers insights, remedies, and reveals your true potential.";
+      var SUB     = "a subsidiary of Artist Life Foundation";
+      var desktop = window.innerWidth > 820;
+      var hw      = window.innerWidth  / 2;
+      var vh      = window.innerHeight / 2;
+
+      // No GSAP (smoke test / offline) — instant reveal
+      if (!window.gsap) {
+        [logoImg, brief, sub, btnW].forEach(function (el) { if (el) el.style.opacity = "1"; });
+        if (brief) brief.textContent = BRIEF;
+        if (sub)   sub.textContent   = SUB;
+        [].forEach.call(document.querySelectorAll(".iletter,.nletter"), function (s) { s.style.opacity = "1"; });
+        if (desktop && leftEl && rightEl) {
+          leftEl.style.display  = "block"; leftEl.style.opacity  = "1";
+          rightEl.style.display = "block"; rightEl.style.opacity = "1";
+          [].forEach.call(document.querySelectorAll(".ifeat"), function (f) { f.style.opacity = "1"; });
+        }
+        return;
       }
-      later(1700, function () {
-        if (!ok()) return;
-        type(line1, "Introducing", 55, function () {
-          if (!ok()) return;
-          var d = 0;
-          (function dot() {
-            if (!ok()) return;
-            if (d < 5) { line1.textContent += "."; d++; _t.push(setTimeout(dot, 160)); }
-            else {
-              var cur = document.createElement("span");
-              cur.className = "ocra-cursor";
-              line1.appendChild(cur);
-              later(1500, function () {
-                if (!ok()) return;
-                if (cur.parentNode) cur.parentNode.removeChild(cur);
-                var letters = ["O","C","R","A"], li = 0;
-                line2.textContent = "";
-                (function letter() {
-                  if (!ok()) return;
-                  if (li < letters.length) { line2.textContent += letters[li++]; _t.push(setTimeout(letter, 115)); }
-                  else {
-                    later(220, function () {
-                      if (!ok()) return;
-                      brief.style.display = "block";
-                      type(brief, BRIEF, 11, function () {
-                        if (!ok()) return;
-                        later(160, function () {
-                          if (!ok()) return;
-                          sub.style.display = "block";
-                          type(sub, SUB, 22, function () {
-                            if (!ok()) return;
-                            later(240, function () {
-                              if (!ok()) return;
-                              btnW.style.display = "block";
-                            });
-                          });
-                        });
-                      });
-                    });
-                  }
-                })();
-              });
-            }
-          })();
-        });
-      });
+
+      var gsap = window.gsap;
+
+      if (desktop && leftEl && rightEl) {
+        gsap.set(leftEl,  { display: "block", yPercent: -50, x: -(hw * 0.85), opacity: 0 });
+        gsap.set(rightEl, { display: "block", yPercent: -50, x:  (hw * 0.85), opacity: 0 });
+      }
+
+      var tl = gsap.timeline();
+
+      // Logo rises from deep z-space with clockwise spiral
+      tl.fromTo(logoImg,
+        { opacity: 0, z: -2200, rotation: -360, scale: 0.5 },
+        { opacity: 1, z: 0,     rotation: 0,    scale: 1,   duration: 1.1, ease: p.ease },
+        0
+      );
+
+      // Continuous clockwise spin starts the moment entrance ends
+      tl.call(function () {
+        _spinTween = gsap.to(logoImg, { rotation: "+=360", duration: p.spinDur, ease: "none", repeat: -1 });
+      }, null, 1.1);
+
+      tl.to([glow, halo], { opacity: 1, duration: 1.2, ease: "power2.out" }, 0.4);
+
+      if (desktop && leftEl && rightEl) {
+        tl.to(leftEl,  { x: 0, opacity: 1, duration: 0.9, ease: "power3.out" }, 0.65);
+        tl.to(rightEl, { x: 0, opacity: 1, duration: 0.9, ease: "power3.out" }, 0.65);
+        tl.to(".intro-left .ifeat, .intro-right .ifeat",
+          { opacity: 1, stagger: { each: 0.1, from: "start" }, duration: 0.35, ease: "power2.out" },
+          1.25
+        );
+      }
+
+      tl.fromTo(".iletter",
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0,  stagger: 0.04, duration: 0.28, ease: p.letterEase },
+        1.3
+      );
+
+      tl.fromTo(".nletter",
+        { opacity: 0, y: 28, scale: 1.35 },
+        { opacity: 1, y: 0,  scale: 1, stagger: 0.12, duration: 0.52, ease: p.letterEase },
+        2.05
+      );
+
+      var bProxy = { v: 0 };
+      tl.to(bProxy, {
+        v: BRIEF.length, duration: 1.5, ease: "none",
+        onStart:  function () { gsap.set(brief, { opacity: 1 }); brief.textContent = ""; },
+        onUpdate: function () { brief.textContent = BRIEF.slice(0, Math.round(bProxy.v)); }
+      }, 2.9);
+
+      var sProxy = { v: 0 };
+      tl.to(sProxy, {
+        v: SUB.length, duration: 0.8, ease: "none",
+        onStart:  function () { gsap.set(sub, { opacity: 1 }); sub.textContent = ""; },
+        onUpdate: function () { sub.textContent = SUB.slice(0, Math.round(sProxy.v)); }
+      }, 4.55);
+
+      tl.fromTo(btnW,
+        { opacity: 0, scale: 0.82, y: 18 },
+        { opacity: 1, scale: 1,    y: 0,  duration: 0.65, ease: "back.out(1.7)" },
+        5.5
+      );
+
+      // Mouse parallax (activates after panels land)
+      tl.call(function () {
+        _paraFn = function (e) {
+          if (!document.getElementById("ocra-intro-stage")) {
+            document.removeEventListener("mousemove", _paraFn); _paraFn = null; return;
+          }
+          var dx = (e.clientX - hw) / hw;
+          var dy = (e.clientY - vh) / vh;
+          gsap.to(logoWrap, { rotateY: dx * 16, rotateX: -dy * 11, duration: 0.5, ease: "power2.out", overwrite: "auto" });
+          if (desktop && leftEl && rightEl) {
+            gsap.to(leftEl,  { x: dx * -18, duration: 0.9, ease: "power2.out", overwrite: "auto" });
+            gsap.to(rightEl, { x: dx *  18, duration: 0.9, ease: "power2.out", overwrite: "auto" });
+          }
+        };
+        document.addEventListener("mousemove", _paraFn);
+      }, null, 1.65);
     };
   })();
 
