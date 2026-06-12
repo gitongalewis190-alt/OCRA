@@ -188,6 +188,31 @@ window.OCRA = window.OCRA || {};
   };
 
   // ---- ACCOUNT RECOVERY ----
+
+  // Verify the four recovery answers WITHOUT touching the password.
+  // Returns null on success, or an error message. Used to gate the
+  // "set new password" step before any change is made.
+  AUTH.verifyRecoveryAnswers = function (email, answers) {
+    var record = AUTH.findAccount(email);
+    if (!record) return "No account found with that email.";
+    var rec = record.recoveryAnswers || {};
+    var keys = ["rq_mother", "rq_friend", "rq_pet", "rq_subject"];
+    for (var k = 0; k < keys.length; k++) {
+      if ((answers[keys[k]] || "").toLowerCase().trim() !== (rec[keys[k]] || "").toLowerCase().trim()) {
+        return "One or more recovery answers are incorrect.";
+      }
+    }
+    return null;
+  };
+
+  // True if `password` is already the account's current password.
+  // Compares hashes only — the stored password is never exposed.
+  AUTH.passwordMatches = function (email, password) {
+    var record = AUTH.findAccount(email);
+    if (!record) return false;
+    return record.passwordHash === AUTH.hashPassword(password);
+  };
+
   AUTH.recover = function (email, answers, newPassword, onSuccess, onError) {
     var accounts = AUTH.loadAccounts();
     var idx = -1;

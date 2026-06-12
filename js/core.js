@@ -14,6 +14,7 @@ window.OCRA = window.OCRA || {};
     authMode: "login",       // login | signup | recover
     authStep: "email",       // email | password (email-first smart login)
     authEmail: "",           // email captured at step 1
+    recoverSamePw: false,    // recovery: new password equals current one
     signupStage: 1,          // 1..N
     dash: "personal",        // personal | family | organization | developer
     form: {},                // collected signup fields
@@ -150,7 +151,7 @@ window.OCRA = window.OCRA || {};
         return O.go({ phase: "auth", authMode: "login", authStep: "email", authEmail: "" });
 
       case "setAuthMode":
-        return O.go({ authMode: v, signupStage: 1, authStep: "email", authEmail: "" });
+        return O.go({ authMode: v, signupStage: 1, authStep: "email", authEmail: "", recoverSamePw: false });
 
       // ── Email-first login flow ──────────────────────────
       case "emailNext": {
@@ -255,26 +256,57 @@ window.OCRA = window.OCRA || {};
         var eEl   = w3 ? w3.querySelector('input[data-field="recoverEmail"]') : null;
         var npEl  = w3 ? w3.querySelector('input[data-field="newPassword"]') : null;
         var errEl3 = document.getElementById("authErr");
-        var recEmail = (eEl ? eEl.value : "").trim();
-        var newPw    = npEl ? npEl.value : "";
+        var recEmail = (eEl ? eEl.value : (O.state.form.recoverEmail || "")).trim();
+        var newPw    = npEl ? npEl.value : (O.state.form.newPassword || "");
         var answers  = {
           rq_mother:  (O.state.form.rq_mother  || ""),
           rq_friend:  (O.state.form.rq_friend  || ""),
           rq_pet:     (O.state.form.rq_pet     || ""),
           rq_subject: (O.state.form.rq_subject || ""),
         };
+        O.state.form.recoverEmail = recEmail;
+        O.state.form.newPassword  = newPw;
+
         if (!recEmail) {
           if (errEl3) { errEl3.textContent = "Enter your email."; errEl3.style.display = "block"; }
           return;
         }
+        // 1. verify recovery answers first (no change made yet)
+        var vErr = O.auth.verifyRecoveryAnswers(recEmail, answers);
+        if (vErr) {
+          if (errEl3) { errEl3.textContent = vErr; errEl3.style.display = "block"; }
+          return;
+        }
+        // 2. enforce password rules
+        if (!O.identity.validPassword(newPw)) {
+          if (errEl3) { errEl3.textContent = "Password needs 9+ characters, a capital, a number and a symbol."; errEl3.style.display = "block"; }
+          return;
+        }
+        // 3. detect: did they just type their CURRENT password?
+        if (O.auth.passwordMatches(recEmail, newPw)) {
+          return O.go({ authMode: "recover", recoverSamePw: true, authEmail: recEmail });
+        }
+        // 4. genuinely new — reset it
         O.auth.recover(recEmail, answers, newPw, function () {
           if (O.notifications) O.notifications.push("Password updated. Sign in with your new password.", "success");
-          O.go({ authMode: "login", authStep: "email", authEmail: recEmail, form: { email: recEmail } });
+          O.go({ authMode: "login", authStep: "email", authEmail: recEmail, recoverSamePw: false, form: { email: recEmail } });
         }, function (msg) {
           if (errEl3) { errEl3.textContent = msg; errEl3.style.display = "block"; }
         });
         return;
       }
+
+      // ── Recovery: keep the existing (remembered) password ──
+      case "recoverKeepOld": {
+        var keepEmail = (O.state.authEmail || O.state.form.recoverEmail || "").trim();
+        if (O.notifications) O.notifications.push("Good — keep using your current password to sign in.", "success");
+        return O.go({ authMode: "login", authStep: "email", authEmail: keepEmail, recoverSamePw: false, form: { email: keepEmail } });
+      }
+
+      // ── Recovery: choose a different password instead ──────
+      case "recoverChangePw":
+        O.state.form.newPassword = "";
+        return O.go({ authMode: "recover", recoverSamePw: false });
 
       // ── Developer login ────────────────────────────────
       case "devEnter": {
@@ -322,7 +354,7 @@ window.OCRA = window.OCRA || {};
           O.brainTest.state.isComplete = false;
           O.brainTest.state.isValid = true;
         }
-        return O.go({ phase: "intro", signupStage: 1, form: {}, authStep: "email", authEmail: "", brainTestPhase: "test", academicRecords: null, paymentStatus: null });
+        return O.go({ phase: "intro", signupStage: 1, form: {}, authStep: "email", authEmail: "", recoverSamePw: false, brainTestPhase: "test", academicRecords: null, paymentStatus: null });
 
       // ---- brain test ----
       case "brainTestStart":

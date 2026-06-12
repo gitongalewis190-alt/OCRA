@@ -683,6 +683,28 @@
   // ── Recovery ────────────────────────────────────────────
 
   function recoverView() {
+    var s = O.state;
+    var f = s.form || {};
+    var emailVal = O.esc(f.recoverEmail || s.authEmail || f.email || '');
+
+    // Same-password state: identity verified, but the "new" password they
+    // typed is already their current one. Let them keep it or change it.
+    // (The password itself is never shown — only its match is detected.)
+    if (s.recoverSamePw) {
+      return '' +
+      '<div class="auth-stage">' +
+        brandBar() +
+        '<div class="auth-card" style="max-width:460px;text-align:center">' +
+          '<div style="font-size:34px;margin-bottom:10px">&#128273;</div>' +
+          '<h1 class="auth-h1">That\'s your current password</h1>' +
+          '<p class="auth-sub" style="margin-bottom:20px">Good news — the password you entered is already the one on your account. You can keep using it, or set a different one.</p>' +
+          '<button class="auth-submit" style="margin-top:0" data-action="recoverKeepOld">Keep using it ' + _arr + '</button>' +
+          '<button class="auth-btn-sec" style="width:100%;margin-top:12px;justify-content:center" data-action="recoverChangePw">Choose a different one</button>' +
+          '<p class="auth-toggle-line"><button class="auth-link" data-action="setAuthMode" data-value="login">Back to Sign In</button></p>' +
+        '</div>' +
+      '</div>';
+    }
+
     return '' +
     '<div class="auth-stage">' +
       brandBar() +
@@ -691,14 +713,14 @@
         '<p class="auth-sub">Answer your four recovery questions and set a new password.</p>' +
         '<div data-auth>' +
           '<div class="auth-section-lbl">Your email</div>' +
-          holder(_mail, '<input data-field="recoverEmail" type="email" placeholder="your@email.com" value="' + O.esc((O.state.authEmail || (O.state.form && O.state.form.email) || '')) + '" autocomplete="email"/>') +
+          holder(_mail, '<input data-field="recoverEmail" type="email" placeholder="your@email.com" value="' + emailVal + '" autocomplete="email"/>') +
           '<div class="auth-section-lbl">Recovery questions</div>' +
           I.recovery.map(function (r) {
-            return holder(_lock, '<input data-field="' + r.k + '" placeholder="' + O.esc(r.q) + '"/>');
+            return holder(_lock, '<input data-field="' + r.k + '" placeholder="' + O.esc(r.q) + '" value="' + O.esc(f[r.k] || '') + '"/>');
           }).join("") +
           '<div class="auth-section-lbl">New password</div>' +
           pwHolder('newPassword', 'Create a new password', 'new-password') +
-          pwChecklist('newPassword', (O.state.form && O.state.form.newPassword) || '') +
+          pwChecklist('newPassword', f.newPassword || '') +
           errBox() +
           '<button class="auth-submit" data-action="recoverSubmit">Reset Password</button>' +
         '</div>' +
