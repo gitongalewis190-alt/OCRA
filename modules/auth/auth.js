@@ -264,6 +264,61 @@ window.OCRA = window.OCRA || {};
     return "";
   };
 
+  // ---- PASSWORD MATCH (for same-password recovery detection) ----
+  AUTH.passwordMatches = function (email, password) {
+    var record = AUTH.findAccount(email);
+    if (!record) return false;
+    return record.passwordHash === AUTH.hashPassword(password);
+  };
+
+  // ---- VERIFY RECOVERY ANSWERS (without changing password) ----
+  AUTH.verifyRecoveryAnswers = function (email, answers) {
+    var record = AUTH.findAccount(email);
+    if (!record) return false;
+    var rec = record.recoveryAnswers || {};
+    var keys = ["rq_mother", "rq_friend", "rq_pet", "rq_subject"];
+    for (var k = 0; k < keys.length; k++) {
+      if ((answers[keys[k]] || "").toLowerCase().trim() !== (rec[keys[k]] || "").toLowerCase().trim()) return false;
+    }
+    return true;
+  };
+
+  // ---- SOCIAL AUTH SEAM ----
+  AUTH.PROVIDERS = { GOOGLE: "google", APPLE: "apple", MICROSOFT: "microsoft" };
+  AUTH.socialAuth = function (provider, profile, onLogin, onSignup, onError) {
+    // Developer shortcut via social: if profile email matches dev emails
+    if (profile && profile.email && AUTH.DEV_EMAILS.indexOf((profile.email || "").toLowerCase()) >= 0) {
+      var devUser = {
+        id: "dev_social", email: profile.email, firstName: profile.displayName || "Lewis",
+        lastName: "", accountType: "developer", role: AUTH.ROLES.DEVELOPER,
+        educationSystem: "KCSE", createdAt: new Date().toISOString(),
+      };
+      AUTH.createSession(devUser);
+      onLogin(devUser);
+      return;
+    }
+    // Check if account exists — if so, passwordless login; if not, prefill signup
+    if (profile && profile.email) {
+      var existing = AUTH.findAccount(profile.email);
+      if (existing) {
+        AUTH.createSession(existing.user);
+        onLogin(existing.user);
+        return;
+      }
+      // New identity: pre-fill signup form
+      if (O.state) {
+        O.state.form.email       = profile.email || "";
+        O.state.form.first       = profile.givenName || profile.displayName || "";
+        O.state.form.last        = profile.familyName || "";
+        O.state.form.socialProvider = provider;
+      }
+      onSignup();
+      return;
+    }
+    // No profile: redirect to signup for user to fill details
+    onSignup();
+  };
+
   // ---- FIREBASE SEAM (swap this in when credentials are ready) ----
   AUTH.providers = {
     firebase: {
@@ -308,31 +363,8 @@ window.OCRA = window.OCRA || {};
       );
     };
 
-    var _origSignupNext = O.identity.signupNext;
-    O.identity.signupNext = function () {
-      var stages = O.identity.stages[O.state.account];
-      var idx = O.state.signupStage - 1;
-      var stage = stages[idx];
-      var f = O.state.form;
-      var err = O.identity.validateStage(stage, f);
-      var box = document.getElementById("stageErr");
-      if (err) { if (box) box.textContent = err; return; }
-
-      if (O.state.signupStage < stages.length) {
-        O.go({ signupStage: O.state.signupStage + 1 });
-      } else {
-        // Final stage — create real account
-        AUTH.signUp(O.state.account, f,
-          function (user) {
-            var dash = user.role === AUTH.ROLES.DEVELOPER ? "developer" : user.accountType;
-            O.go({ phase: "dash", dash: dash, signupStage: 1, form: {} });
-          },
-          function (signupErr) {
-            if (box) box.textContent = signupErr;
-          }
-        );
-      }
-    };
+    // signupNext is now handled entirely by identity.js + signupCreate action in core.js
+    // No override needed — just delegate to identity.signupNext which validates + advances.
   }
 
   // ---- LOGOUT ACTION ----

