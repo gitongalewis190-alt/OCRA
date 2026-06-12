@@ -338,6 +338,81 @@ window.OCRA = window.OCRA || {};
         return;
       }
 
+      // ── Multi-step signup field interactions ────────────
+      case "multiToggle": {
+        var fld = t.getAttribute("data-field");
+        var arr = (O.state.form[fld] || []).slice();
+        var ix  = arr.indexOf(v);
+        if (ix >= 0) arr.splice(ix, 1); else arr.push(v);
+        O.state.form[fld] = arr;
+        return O.render();
+      }
+
+      case "logoColor":
+        O.state.form.logoBuilt = Object.assign({}, O.state.form.logoBuilt, { color: v });
+        O.state.form.logoData = null;
+        return O.render();
+
+      case "logoSymbol":
+        O.state.form.logoBuilt = Object.assign({}, O.state.form.logoBuilt, { symbol: v });
+        O.state.form.logoData = null;
+        return O.render();
+
+      // ── Email verification code (OTP seam) ──────────────
+      case "otpSend": {
+        var emEl = document.querySelector('[data-field="email"]');
+        var em   = (emEl ? emEl.value : O.state.form.email || "").trim();
+        var obx  = document.getElementById("stageErr");
+        if (!O.identity.validEmail(em)) {
+          if (obx) { obx.textContent = "Enter a valid email first."; obx.style.display = "block"; }
+          return;
+        }
+        O.state.form.email = em;
+        O.state.form.emailVerified = false;
+        O._otpCode   = String(Math.floor(100000 + Math.random() * 900000));
+        O._otpSentTo = em.toLowerCase();
+        if (O.notifications) O.notifications.push("OCRA verification code: " + O._otpCode + "  (demo — real email arrives once Firebase is wired).", "info");
+        return O.render();
+      }
+
+      case "otpVerify": {
+        var codeEl = document.querySelector('[data-field="otpCode"]');
+        var code   = (codeEl ? codeEl.value : O.state.form.otpCode || "").trim();
+        var vbx    = document.getElementById("stageErr");
+        if (code && O._otpCode && code === O._otpCode) {
+          O.state.form.emailVerified = true;
+          if (vbx) vbx.style.display = "none";
+          if (O.notifications) O.notifications.push("Email verified.", "success");
+          return O.render();
+        }
+        if (vbx) { vbx.textContent = "That code doesn't match. Check it and try again."; vbx.style.display = "block"; }
+        return;
+      }
+
+      // ── Create account (congratulations stage) ──────────
+      case "signupCreate": {
+        var f  = O.state.form;
+        var fd = Object.assign({}, f);
+        if (O.state.account === "family")   { fd.momEmail = f.email; }
+        if (O.state.account === "personal") { fd.grade = f.level || f.grade || ""; }
+        if (Array.isArray(f.systems) && f.systems.length) { fd.system = fd.system || f.systems[0]; }
+        O._creating = true;
+        O.render();
+        setTimeout(function () {
+          O.auth.signUp(O.state.account, fd, function (user) {
+            O._creating = false;
+            var dest = (user.role === "developer") ? "developer" : (user.accountType || O.state.account);
+            O.go({ phase: "dash", dash: dest, user: user, signupStage: 1, form: {} });
+          }, function (msg) {
+            O._creating = false;
+            O.render();
+            var cbx = document.getElementById("stageErr");
+            if (cbx) { cbx.textContent = msg; cbx.style.display = "block"; }
+          });
+        }, 1500);
+        return;
+      }
+
       // ── Legacy ─────────────────────────────────────────
       case "login":       return O.identity && O.identity.login && O.identity.login(t);
       case "signupNext":  return O.identity.signupNext();
@@ -456,6 +531,13 @@ window.OCRA = window.OCRA || {};
     if (!f) return;
     O.state.form[f] = e.target.value;
 
+    // logo abbreviation keeps the built-logo object in sync (live preview text)
+    if (f === "logoAbbr") {
+      O.state.form.logoBuilt = Object.assign({}, O.state.form.logoBuilt, { abbr: e.target.value });
+      var built = document.querySelector(".auth-logo-built b");
+      if (built) built.textContent = e.target.value;
+    }
+
     // live password-requirements checklist: tick rules as they're met
     if (O.PW_RULES) {
       var list = document.querySelector('.auth-pwreq[data-pwfor="' + f + '"]');
@@ -467,7 +549,66 @@ window.OCRA = window.OCRA || {};
         });
       }
     }
+
+    // live signup chrome: banner fill + country "chirp" confirmation
+    if (O.state.phase === "auth" && O.state.authMode === "signup") O._refreshSignupChrome();
   });
+
+  // change events: file uploads + dependency re-renders (system → level)
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (!t || !t.getAttribute) return;
+    var fld = t.getAttribute("data-field");
+    if (fld) O.state.form[fld] = t.value;  // selects fire change, not always input
+
+    var act = t.getAttribute("data-action");
+    if (act === "logoUpload" && t.files && t.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        O.state.form.logoData = reader.result;
+        O.state.form.logoBuilt = null;
+        O.render();
+      };
+      reader.readAsDataURL(t.files[0]);
+      return;
+    }
+
+    // academic system changed → reset & repopulate the dependent level list
+    if (fld === "system" && O.state.phase === "auth" && O.state.authMode === "signup") {
+      O.state.form.level = "";
+      O.render();
+      return;
+    }
+    if (fld && O.state.phase === "auth" && O.state.authMode === "signup") O._refreshSignupChrome();
+  });
+
+  // live progress banner + country confirmation hint during signup
+  O._refreshSignupChrome = function () {
+    var I = O.identity;
+    if (!I || !I.stages) return;
+    var idx = O.state.signupStage - 1;
+    var stages = I.stages[O.state.account] || [];
+    var stage = stages[idx];
+    if (!stage) return;
+
+    var fill = I.sectionFill(idx);
+    var seg = document.querySelector(".auth-seg.active");
+    if (seg) {
+      var bar = seg.querySelector(".auth-seg-fill");
+      if (bar) bar.style.width = Math.round(fill * 100) + "%";
+      seg.classList.toggle("full", fill >= 1);
+    }
+
+    (stage.fields || []).forEach(function (fl) {
+      if (fl[2] !== "country") return;
+      var hint = document.getElementById("hint_" + fl[0]);
+      if (!hint) return;
+      var valc = O.state.form[fl[0]];
+      if (!valc) { hint.textContent = "Type your country — we'll confirm it exists."; hint.className = "auth-hint"; }
+      else if (I.validCountry(valc)) { hint.textContent = "✓ " + valc + " confirmed."; hint.className = "auth-hint ok"; }
+      else { hint.textContent = "We can't find that country — check the spelling."; hint.className = "auth-hint bad"; }
+    });
+  };
 
   // ---- helpers ----
   O.esc = function (x) {

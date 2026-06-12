@@ -266,6 +266,7 @@
   var _appl = '<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>';
   var _msft = '<svg width="17" height="17" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>';
   var _chevDown = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
+  var _phone = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>';
 
   O._svgEye  = _eye;
   O._svgEyeX = _eyex;
@@ -402,6 +403,24 @@
         '<li>Retain student data after an organization closes its account (30-day window)</li>' +
       '</ul>';
 
+    var credentials =
+      '<div class="auth-policy-h">Your account credentials — what &amp; why</div>' +
+      '<ul>' +
+        '<li><b>Names</b> — printed on your documents and used to personalise remarks, insights and recommendations</li>' +
+        '<li><b>Email</b> — your login identity, account-recovery channel, and where we send verification codes and notifications</li>' +
+        '<li><b>Password</b> — stored only as a one-way hash (never in readable form); it secures every future login</li>' +
+        '<li><b>Recovery answers</b> — stored hashed; the only way to regain access if you forget your password</li>' +
+      '</ul>';
+
+    var liability =
+      '<div class="auth-policy-h">Limitation of liability — please read</div>' +
+      '<ul>' +
+        '<li>OCRA is provided on a best-effort basis; while we protect your data carefully, the system is <b>not liable for data loss</b> caused by events beyond our reasonable control</li>' +
+        '<li>We are <b>not liable for unauthorised account access</b> resulting from shared, weak, or compromised credentials — keep your password and recovery answers private</li>' +
+        '<li>Insights, reports and career guidance are decision-support tools, not guarantees of any outcome</li>' +
+        '<li>You are responsible for the accuracy of the information you enter</li>' +
+      '</ul>';
+
     var common =
       '<div class="auth-policy-h">Universal protections (all account types)</div>' +
       '<ul>' +
@@ -413,7 +432,7 @@
       '</ul>';
 
     var specific = { personal: personal, family: family, organization: organization }[accountType] || personal;
-    return specific + common;
+    return specific + credentials + common + liability;
   }
 
   // ─────────────────────────────────────────────────────────
@@ -731,128 +750,291 @@
 
   // ── Signup (multi-stage) ──────────────────────────────
 
+  // Five-section progress banner. Each section is 20% of the journey; the
+  // active/earlier sections fill red→green by completion, and the caption
+  // underneath changes with the stage.
+  function progressBanner(stages, idx) {
+    var seg = stages.map(function (st, i) {
+      var fill = 0;
+      if (i < idx) fill = 1;
+      else if (i === idx) fill = I.sectionFill(i);
+      var cls = fill >= 1 ? 'full' : (i === idx ? 'active' : '');
+      return '<div class="auth-seg ' + cls + '">' +
+        '<div class="auth-seg-fill" style="width:' + Math.round(fill * 100) + '%"></div>' +
+      '</div>';
+    }).join('');
+    var caption = (I.SECTION_LABELS && I.SECTION_LABELS[idx]) || stages[idx].title;
+    return '<div class="auth-banner">' +
+      '<div class="auth-segs">' + seg + '</div>' +
+      '<div class="auth-banner-cap">' + O.esc(caption) + '</div>' +
+    '</div>';
+  }
+
+  // Render one signup field by type.
+  function signupField(fl, f) {
+    var key  = fl[0];
+    var lab  = fl[1];
+    var type = fl[2] || 'text';
+    var extra = fl[3];
+    var sample = fl[4];
+    var val  = O.esc(f[key] == null ? '' : f[key]);
+    var ph   = sample ? ('e.g. ' + sample) : lab;
+    var label = '<div class="ah-label">' + O.esc(lab) + '</div>';
+
+    if (type === 'select') {
+      var opts = (extra || []).map(function (o) {
+        return '<option value="' + O.esc(o) + '"' + (f[key] === o ? ' selected' : '') + '>' + O.esc(o || 'Choose…') + '</option>';
+      }).join('');
+      return '<div class="af">' + label +
+        '<div class="ah"><select data-field="' + key + '">' + opts + '</select></div>' +
+      '</div>';
+    }
+
+    if (type === 'list' || type === 'country') {
+      var listKey  = (type === 'country') ? 'countries' : extra;
+      var listData = (I.DATA && I.DATA[listKey]) || [];
+      var dataOpts = listData.map(function (o) { return '<option value="' + O.esc(o) + '">'; }).join('');
+      var icon = (type === 'country') ? _glob : (listKey === 'systems' ? _school : _glob);
+      return '<div class="af">' + label +
+        holder(icon,
+          '<input data-field="' + key + '" list="dl_' + key + '" placeholder="' + O.esc(ph) + '" value="' + val + '" autocomplete="off"/>' +
+          '<datalist id="dl_' + key + '">' + dataOpts + '</datalist>'
+        ) +
+        (type === 'country' ? '<div class="auth-hint" id="hint_' + key + '">Type your country — we\'ll confirm it exists.</div>' : '') +
+      '</div>';
+    }
+
+    if (type === 'level') {
+      var sysVal = f[extra];
+      var levels = I.levelsForSystem(sysVal);
+      var lopts = '<option value="">' + (sysVal ? 'Choose your level…' : 'Pick an academic system first') + '</option>' +
+        levels.map(function (o) { return '<option value="' + O.esc(o) + '"' + (f[key] === o ? ' selected' : '') + '>' + O.esc(o) + '</option>'; }).join('');
+      return '<div class="af">' + label +
+        '<div class="ah"><select data-field="' + key + '"' + (sysVal ? '' : ' disabled') + '>' + lopts + '</select></div>' +
+      '</div>';
+    }
+
+    if (type === 'password') {
+      return '<div class="af">' + label +
+        pwHolder(key, 'Create a strong password', 'new-password') +
+        pwChecklist(key, f[key] || '') +
+      '</div>';
+    }
+
+    if (type === 'phone') {
+      var codes = (I.DATA && I.DATA.phoneCodes) || [];
+      var copts = codes.map(function (c) {
+        var lblc = c.d + '  ' + c.n;
+        return '<option value="' + O.esc(c.d) + '"' + (f[key + '_code'] === c.d ? ' selected' : '') + '>' + O.esc(lblc) + '</option>';
+      }).join('');
+      return '<div class="af">' + label +
+        '<div class="ah auth-phone">' +
+          '<span class="ah-icon">' + _phone + '</span>' +
+          '<select data-field="' + key + '_code" class="auth-phone-code">' + '<option value="">Code</option>' + copts + '</select>' +
+          '<input data-field="' + key + '" type="tel" inputmode="numeric" placeholder="' + O.esc(ph) + '" value="' + val + '" autocomplete="tel"/>' +
+        '</div>' +
+      '</div>';
+    }
+
+    if (type === 'multiselect') {
+      var msData = (I.DATA && I.DATA[extra]) || [];
+      var chosen = f[key] || [];
+      var chips = msData.map(function (o) {
+        var on = chosen.indexOf(o) >= 0;
+        return '<button type="button" class="auth-chip' + (on ? ' on' : '') + '" data-action="multiToggle" data-field="' + key + '" data-value="' + O.esc(o) + '">' +
+          (on ? '<span class="auth-chip-ic">' + _chk + '</span>' : '') + O.esc(o) +
+        '</button>';
+      }).join('');
+      return '<div class="af">' + label +
+        '<div class="auth-hint" style="margin-top:0;margin-bottom:8px">Choose every system your learners follow — don\'t leave anyone behind.</div>' +
+        '<div class="auth-chips" id="chips_' + key + '">' + chips + '</div>' +
+        '<div class="auth-chip-count" id="count_' + key + '">' + chosen.length + ' selected</div>' +
+      '</div>';
+    }
+
+    if (type === 'logo') {
+      return '<div class="af">' + label + logoField(f) + '</div>';
+    }
+
+    if (type === 'date') {
+      return '<div class="af">' + label + holder(_user, '<input data-field="' + key + '" type="date" value="' + val + '"/>') + '</div>';
+    }
+
+    if (type === 'number') {
+      return '<div class="af">' + label + holder(_user, '<input data-field="' + key + '" type="number" min="0" placeholder="' + O.esc(ph) + '" value="' + val + '"/>') + '</div>';
+    }
+
+    if (type === 'url') {
+      return '<div class="af">' + label + holder(_glob, '<input data-field="' + key + '" type="url" placeholder="' + O.esc(ph) + '" value="' + val + '" autocomplete="url"/>') + '</div>';
+    }
+
+    if (type === 'email') {
+      return '<div class="af">' + label + emailVerifyField(key, ph, f) + '</div>';
+    }
+
+    // default text
+    var ic = /school|grade|system|org|principal|director|location|family|slogan/i.test(key) ? _school : _user;
+    return '<div class="af">' + label +
+      holder(ic, '<input data-field="' + key + '" type="text" placeholder="' + O.esc(ph) + '" value="' + val + '"/>') +
+    '</div>';
+  }
+
+  // Logo: upload an image OR build one (colour + abbreviation + symbol).
+  function logoField(f) {
+    var preview;
+    if (f.logoData) {
+      preview = '<img src="' + f.logoData + '" alt="logo" class="auth-logo-img"/>';
+    } else if (f.logoBuilt) {
+      var b = f.logoBuilt;
+      preview = '<div class="auth-logo-built" style="background:' + O.esc(b.color || '#0E6BA8') + '">' +
+        '<span>' + O.esc(b.symbol || '') + '</span><b>' + O.esc(b.abbr || '') + '</b></div>';
+    } else {
+      preview = '<div class="auth-logo-empty">' + _school + '</div>';
+    }
+    var palette = ['#0E6BA8','#38BDF8','#7E7BD8','#34C759','#FF6B35','#FF3B30','#F5A623','#111827'];
+    var symbols = ['🎓','📚','🏫','🔬','✏️','🌍','⭐','🦉'];
+    var b2 = f.logoBuilt || {};
+    var colorRow = palette.map(function (c) {
+      return '<button type="button" class="auth-swatch' + (b2.color === c ? ' on' : '') + '" style="background:' + c + '" data-action="logoColor" data-value="' + c + '"></button>';
+    }).join('');
+    var symRow = symbols.map(function (sy) {
+      return '<button type="button" class="auth-symbol' + (b2.symbol === sy ? ' on' : '') + '" data-action="logoSymbol" data-value="' + sy + '">' + sy + '</button>';
+    }).join('');
+    return '<div class="auth-logo">' +
+      '<div class="auth-logo-top">' +
+        preview +
+        '<div class="auth-logo-actions">' +
+          '<label class="auth-logo-upload">' + 'Upload image' +
+            '<input type="file" accept="image/*" data-action="logoUpload" style="display:none"/>' +
+          '</label>' +
+          '<span class="auth-hint" style="margin:6px 0 0">PNG/JPG, or build one below</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="auth-logo-build">' +
+        '<div class="ah-label" style="margin-top:4px">Abbreviation</div>' +
+        '<div class="ah"><span class="ah-icon">' + _school + '</span>' +
+          '<input data-field="logoAbbr" maxlength="4" placeholder="e.g. BFA" value="' + O.esc(b2.abbr || '') + '" data-action="logoAbbr"/></div>' +
+        '<div class="ah-label">Colour</div><div class="auth-swatches">' + colorRow + '</div>' +
+        '<div class="ah-label">Symbol</div><div class="auth-symbols">' + symRow + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  // Email + verification code (the OTP the system "sends").
+  function emailVerifyField(key, ph, f) {
+    var val = O.esc(f[key] || '');
+    var verified = (f.emailVerified === true);
+    var sent = (O._otpSentTo && O._otpSentTo === (f[key] || '').toLowerCase());
+    var row =
+      '<div class="ah">' +
+        '<span class="ah-icon">' + _mail + '</span>' +
+        '<input data-field="' + key + '" type="email" placeholder="' + O.esc(ph) + '" value="' + val + '" autocomplete="email"' + (verified ? ' readonly' : '') + '/>' +
+        (verified
+          ? '<span class="auth-verified">' + _chk + ' Verified</span>'
+          : '<button type="button" class="auth-mini-btn" data-action="otpSend">' + (sent ? 'Resend' : 'Send code') + '</button>') +
+      '</div>';
+    var codeRow = (sent && !verified)
+      ? '<div class="ah" style="margin-top:8px">' +
+          '<span class="ah-icon">' + _lock + '</span>' +
+          '<input data-field="otpCode" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit code" value="' + O.esc(f.otpCode || '') + '"/>' +
+          '<button type="button" class="auth-mini-btn" data-action="otpVerify">Verify</button>' +
+        '</div>' +
+        '<div class="auth-hint">We sent a code to your email. Enter it to confirm ownership.</div>'
+      : '';
+    return row + codeRow;
+  }
+
   function signup() {
     var s      = O.state;
     var f      = s.form;
     var stages = (I.stages && I.stages[s.account]) || I.stages.personal;
     var idx    = s.signupStage - 1;
     var stage  = stages[idx];
-    var isLast = s.signupStage === stages.length;
 
-    // Progress rail
-    var rail = '<div class="auth-rail">' +
-      stages.map(function (st, i) {
-        var cls = i < idx ? 'done' : (i === idx ? 'active' : '');
-        return '<div class="auth-rail-step ' + cls + '">' +
-          '<div class="auth-rail-dot">' + (i < idx ? _chk : (i + 1)) + '</div>' +
-        '</div>';
-      }).join("") +
-    '</div>';
+    // ── Congratulations stage ──────────────────────────────
+    if (stage.congrats) {
+      var creating = !!O._creating;
+      var noun = (s.account === 'organization') ? 'students' : (s.account === 'family' ? 'children' : 'you');
+      var headline = (s.account === 'personal')
+        ? 'Welcome aboard!'
+        : 'Thank you for choosing us!';
+      var blurb = (s.account === 'personal')
+        ? 'Everything is ready. Let\'s uncover who you really are and map the path ahead.'
+        : 'We\'re ready to work with your ' + noun + ' and grow with them. Together, we go far.';
+      return '' +
+      '<div class="auth-stage">' +
+        brandBar() +
+        '<div class="auth-card" style="max-width:460px;text-align:center">' +
+          progressBanner(stages, idx) +
+          '<div class="auth-congrats">' +
+            '<div class="auth-congrats-burst">' + (creating ? '<span class="auth-spinner"></span>' : '🎉') + '</div>' +
+            '<h1 class="auth-h1" style="margin-top:6px">' + O.esc(headline) + '</h1>' +
+            '<p class="auth-sub" style="margin-bottom:22px">' + O.esc(blurb) + '</p>' +
+          '</div>' +
+          errBox('stageErr') +
+          (creating
+            ? '<button class="auth-submit" style="margin-top:0" disabled>Creating your account…</button>'
+            : '<button class="auth-submit" style="margin-top:0" data-action="signupCreate">Create account ' + _arr + '</button>') +
+          (creating ? '' : '<button class="auth-btn-sec" style="width:100%;margin-top:12px;justify-content:center" data-action="signupBack">' + _bck + ' Back</button>') +
+        '</div>' +
+      '</div>';
+    }
 
-    // Stage body
+    // ── Normal field stage — every concern in its own panel ─
+    // Each data group sits in a respected, separated section so unrelated
+    // fields are never visually mixed. The credentials stage (email +
+    // password) splits each datum into its own titled group.
     var body = '';
+    var isSecure = !!(stage.recovery || stage.policy);
+
+    if (isSecure) {
+      // split credentials into individually-respected groups
+      (stage.fields || []).forEach(function (fl) {
+        var head = (fl[2] === 'email')
+          ? { ic: _mail, t: 'Verify your email', sub: "We'll send a one-time code to confirm it's really you." }
+          : (fl[2] === 'password')
+            ? { ic: _lock, t: 'Choose a password', sub: 'This secures every future login — make it strong.' }
+            : null;
+        body += '<div class="auth-group">' +
+          (head ? '<div class="auth-group-head"><span class="auth-group-ic">' + head.ic + '</span>' + head.t + '</div><div class="auth-group-sub">' + head.sub + '</div>' : '') +
+          signupField(fl, f) +
+        '</div>';
+      });
+    } else {
+      body += '<div class="auth-group">' +
+        (stage.fields || []).map(function (fl) { return signupField(fl, f); }).join('') +
+      '</div>';
+    }
+
+    if (stage.recovery) {
+      body += '<div class="auth-group">' +
+        '<div class="auth-group-head"><span class="auth-group-ic">' + _lock + '</span>Password recovery</div>' +
+        '<div class="auth-group-sub">Two facts and two favourites — so only you can ever recover this account.</div>' +
+        I.recovery.map(function (r) {
+          return '<div class="af"><div class="ah-label">' + O.esc(r.q) + '</div>' +
+            holder(_lock, '<input data-field="' + r.k + '" type="text" placeholder="Your answer" value="' + O.esc(f[r.k] || '') + '"/>') +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }
 
     if (stage.policy) {
-      // Per-account privacy policy with single checkbox
-      var acctLabel = { personal: 'Personal', family: 'Family', organization: 'Organization' }[s.account] || s.account;
-      body =
-        '<p class="auth-sub" style="margin-bottom:14px">Before you continue, read how OCRA handles your ' + acctLabel.toLowerCase() + ' account data.</p>' +
+      var acctLabel = { personal: 'personal', family: 'family', organization: 'organization' }[s.account] || s.account;
+      body += '<div class="auth-group auth-group-policy">' +
+        '<div class="auth-group-head"><span class="auth-group-ic">&#128737;</span>Terms &amp; Privacy</div>' +
         '<button class="auth-policy-btn" data-action="togglePolicy" id="policyToggleBtn">' +
-          '<span>&#128274; View Privacy Policy &amp; Data Practices</span>' +
+          '<span>&#128274; Read how we handle your ' + acctLabel + ' data</span>' +
           '<span class="auth-policy-arrow">' + _chevDown + '</span>' +
         '</button>' +
-        '<div class="auth-policy-body" id="policyContent">' +
-          policyContent(s.account) +
-        '</div>' +
+        '<div class="auth-policy-body" id="policyContent">' + policyContent(s.account) + '</div>' +
         '<label class="auth-agree-row">' +
           '<input type="checkbox" data-field="agreed"' + (f.agreed ? ' checked' : '') + ' onchange="OCRA.state.form.agreed=this.checked"/>' +
           '<span class="auth-agree-lbl">I have read and agree to OCRA\'s <button class="auth-link" style="font-size:13px" data-action="togglePolicy">Terms &amp; Privacy Policy</button></span>' +
-        '</label>';
-
-    } else if (stage.otp) {
-      body =
-        '<div class="auth-otp-box">' +
-          '<div class="auth-otp-icon">&#9993;</div>' +
-          '<p>A verification link has been sent to <strong style="color:rgba(220,232,242,.85)">' + O.esc(f.email || f.momEmail || 'your inbox') + '</strong>. Check your inbox and click the link.</p>' +
-          '<p class="auth-hint" style="margin-top:10px;display:block">(OTP is a Firebase seam — wired when credentials are configured.)</p>' +
-        '</div>';
-
-    } else {
-      body = (stage.fields || []).map(function (fl) {
-        var key  = fl[0];
-        var lab  = fl[1];
-        var type = fl[2] || 'text';
-        var val  = O.esc(f[key] || '');
-        var opt  = /optional/i.test(lab);
-
-        var label = '<div class="ah-label">' + O.esc(lab) + '</div>';
-
-        if (type === 'select') {
-          var opts = (fl[3] || []).map(function (o) {
-            return '<option' + (f[key] === o ? ' selected' : '') + '>' + O.esc(o) + '</option>';
-          }).join('');
-          return '<div class="af">' + label +
-            '<div class="ah">' +
-              '<select data-field="' + key + '">' + opts + '</select>' +
-            '</div></div>';
-        }
-
-        if (type === 'list') {
-          var listKey  = fl[3];
-          var listData = (I.DATA && I.DATA[listKey]) || [];
-          var dataOpts = listData.map(function (o) { return '<option value="' + O.esc(o) + '">'; }).join('');
-          return '<div class="af">' + label +
-            holder(_glob,
-              '<input data-field="' + key + '" list="dl_' + key + '" placeholder="Search or type..." value="' + val + '" autocomplete="off"/>' +
-              '<datalist id="dl_' + key + '">' + dataOpts + '</datalist>'
-            ) + '</div>';
-        }
-
-        if (type === 'password') {
-          return '<div class="af">' + label +
-            pwHolder(key, 'Create a strong password', 'new-password') +
-            pwChecklist(key, f[key] || '') +
-          '</div>';
-        }
-
-        if (type === 'date') {
-          return '<div class="af">' + label +
-            holder(_user,
-              '<input data-field="' + key + '" type="date" value="' + val + '"/>'
-            ) + '</div>';
-        }
-
-        if (type === 'email') {
-          return '<div class="af">' + label +
-            holder(_mail,
-              '<input data-field="' + key + '" type="email" placeholder="' + O.esc(lab) + '" value="' + val + '" autocomplete="email"/>'
-            ) + '</div>';
-        }
-
-        // Default text
-        var icon = /school|grade|system|org|principal/i.test(key) ? _school : _user;
-        return '<div class="af">' + label +
-          holder(icon,
-            '<input data-field="' + key + '" type="text" placeholder="' + O.esc(lab) + '" value="' + val + '"/>'
-          ) + '</div>';
-      }).join('');
-
-      if (stage.recovery) {
-        body += '<div class="auth-section-lbl">Recovery questions</div>';
-        body += I.recovery.map(function (r) {
-          return '<div class="af"><div class="ah-label">' + O.esc(r.q) + '</div>' +
-            holder(_lock,
-              '<input data-field="' + r.k + '" type="text" placeholder="Your answer" value="' + O.esc(f[r.k] || '') + '"/>'
-            ) + '</div>';
-        }).join('');
-      }
+        '</label>' +
+      '</div>';
     }
 
     var acctName = { personal: 'Personal', family: 'Family', organization: 'Organization' }[s.account] || s.account;
-
-    // On the very first step, offer one-click sign-up with a provider —
-    // same as big platforms. Choosing one verifies identity and pre-fills
-    // (or signs in if the account already exists).
     var socialBlock = (s.signupStage === 1)
       ? socialRow() + '<div class="auth-divider">or sign up with email</div>'
       : '';
@@ -860,16 +1042,16 @@
     return '' +
     '<div class="auth-stage">' +
       brandBar() +
-      '<div class="auth-card" style="max-width:460px">' +
-        rail +
+      '<div class="auth-card auth-signup">' +
+        progressBanner(stages, idx) +
         '<h1 class="auth-h1">' + O.esc(stage.title) + '</h1>' +
-        '<p class="auth-sub" style="margin-bottom:' + (stage.policy ? '6' : '18') + 'px">' + O.esc(acctName) + ' &middot; Step ' + s.signupStage + ' of ' + stages.length + '</p>' +
+        '<p class="auth-sub" style="margin-bottom:18px">' + O.esc(acctName) + ' account &middot; Step ' + s.signupStage + ' of ' + stages.length + '</p>' +
         socialBlock +
         body +
         errBox('stageErr') +
         '<div class="auth-nav-row">' +
           '<button class="auth-btn-sec" data-action="signupBack">' + _bck + ' Back</button>' +
-          '<button class="auth-submit" style="margin-top:0" data-action="signupNext">' + (isLast ? 'Create Account' : 'Continue') + '</button>' +
+          '<button class="auth-submit" style="margin-top:0" data-action="signupNext">Continue ' + _arr + '</button>' +
         '</div>' +
         '<p class="auth-toggle-line">Have an account? <button class="auth-link" data-action="setAuthMode" data-value="login">Sign in</button></p>' +
       '</div>' +

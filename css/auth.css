@@ -512,9 +512,10 @@
   font-weight: 700;
   letter-spacing: .07em;
   text-transform: uppercase;
-  color: #38BDF8;
+  color: #b692ff;
   margin: 14px 0 6px;
 }
+.auth-policy-body b { color: #c9adff; font-weight: 700; }
 
 .auth-policy-h:first-child { margin-top: 0; }
 
@@ -567,59 +568,6 @@
 .auth-agree-lbl .auth-link { font-size: 13px; }
 
 /* ── Signup Progress Rail ─────────────────────────────── */
-.auth-rail {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 24px;
-}
-
-.auth-rail-step {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
-
-.auth-rail-step:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  top: 12px;
-  left: 50%;
-  right: -50%;
-  height: 2px;
-  background: rgba(255,255,255,.1);
-  z-index: 0;
-  transition: background .3s;
-}
-
-.auth-rail-step.done::after { background: rgba(56,189,248,.5); }
-
-.auth-rail-dot {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  border: 2px solid rgba(255,255,255,.15);
-  background: rgba(255,255,255,.05);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10.5px; font-weight: 700;
-  color: rgba(220,232,242,.35);
-  position: relative; z-index: 1;
-  transition: background .2s, border-color .2s, color .2s, box-shadow .2s;
-}
-
-.auth-rail-step.done .auth-rail-dot {
-  background: rgba(56,189,248,.85);
-  border-color: transparent;
-  color: #fff;
-}
-
-.auth-rail-step.active .auth-rail-dot {
-  background: transparent;
-  border-color: #38BDF8;
-  color: #38BDF8;
-  box-shadow: 0 0 0 3px rgba(56,189,248,.15);
-}
-
 /* ── Choose Screen ───────────────────────────────────── */
 .auth-choose-wrap {
   width: 100%;
@@ -788,4 +736,203 @@
   .auth-nav-row { grid-template-columns: 1fr; }
   .auth-nav-row .auth-btn-sec { order: 2; }
   .auth-nav-row .auth-submit  { order: 1; margin-top: 0; }
+}
+
+/* ════════════════════════════════════════════════════════
+   FIVE-SECTION PROGRESS BANNER (red → green)
+   ════════════════════════════════════════════════════════ */
+.auth-banner { margin: 0 0 20px; }
+.auth-segs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.auth-seg {
+  position: relative;
+  height: 7px;
+  border-radius: 99px;
+  background: rgba(255,80,80,.22);
+  overflow: hidden;
+}
+.auth-seg-fill {
+  position: absolute; inset: 0 auto 0 0;
+  width: 0;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #FF5A5A, #FF7A45);
+  transition: width .35s ease, background .35s ease;
+}
+.auth-seg.active .auth-seg-fill { background: linear-gradient(90deg, #FF7A45, #F5C24B); }
+.auth-seg.full   .auth-seg-fill { width: 100% !important; background: linear-gradient(90deg, #2FBF71, #34D399); }
+.auth-banner-cap {
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  color: rgba(220,232,242,.6);
+  text-align: center;
+}
+
+/* ── Phone: dialing code + number ─────────────────────── */
+.auth-phone { gap: 6px; }
+.auth-phone-code {
+  background: none; border: none; outline: none;
+  color: rgba(220,232,242,.9);
+  font-size: 13px; max-width: 116px;
+  padding: 12px 4px; cursor: pointer;
+  border-right: 1px solid rgba(255,255,255,.12);
+}
+.auth-phone-code option { background: #0c2238; color: #dce8f2; }
+.auth-phone input { padding-left: 8px; }
+
+/* ── Multi-select chips ───────────────────────────────── */
+.auth-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.auth-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px;
+  font-size: 12px; font-weight: 600;
+  color: rgba(220,232,242,.72);
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 99px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.auth-chip:hover { border-color: rgba(56,189,248,.4); color: #dce8f2; }
+.auth-chip.on {
+  background: rgba(52,211,153,.16);
+  border-color: rgba(52,211,153,.5);
+  color: #34D399;
+}
+.auth-chip-ic { display: inline-flex; }
+.auth-chip-ic svg { width: 11px; height: 9px; }
+.auth-chip-count { margin-top: 8px; font-size: 11px; color: rgba(220,232,242,.4); }
+
+/* ── Logo: upload or build ────────────────────────────── */
+.auth-logo {
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 14px;
+}
+.auth-logo-top { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+.auth-logo-img, .auth-logo-built, .auth-logo-empty {
+  width: 64px; height: 64px; flex-shrink: 0;
+  border-radius: 14px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.auth-logo-img { object-fit: cover; }
+.auth-logo-empty { background: rgba(255,255,255,.06); color: rgba(220,232,242,.4); }
+.auth-logo-built { color: #fff; line-height: 1; }
+.auth-logo-built span { font-size: 22px; }
+.auth-logo-built b { font-size: 13px; letter-spacing: .04em; margin-top: 3px; }
+.auth-logo-actions { flex: 1; }
+.auth-logo-upload {
+  display: inline-block;
+  padding: 9px 14px;
+  font-size: 12.5px; font-weight: 600;
+  color: #38BDF8;
+  background: rgba(56,189,248,.1);
+  border: 1px solid rgba(56,189,248,.3);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.auth-logo-upload:hover { background: rgba(56,189,248,.18); }
+.auth-swatches, .auth-symbols { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 4px; }
+.auth-swatch {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer;
+}
+.auth-swatch.on { border-color: #fff; box-shadow: 0 0 0 2px rgba(56,189,248,.6); }
+.auth-symbol {
+  width: 34px; height: 34px;
+  font-size: 17px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 9px; cursor: pointer;
+}
+.auth-symbol.on { background: rgba(56,189,248,.18); border-color: rgba(56,189,248,.5); }
+
+/* ── Email verify (OTP) ───────────────────────────────── */
+.auth-mini-btn {
+  flex-shrink: 0;
+  padding: 7px 12px;
+  font-size: 12px; font-weight: 700;
+  color: #38BDF8;
+  background: rgba(56,189,248,.12);
+  border: 1px solid rgba(56,189,248,.32);
+  border-radius: 9px; cursor: pointer;
+  white-space: nowrap;
+}
+.auth-mini-btn:hover { background: rgba(56,189,248,.2); }
+.auth-verified {
+  display: inline-flex; align-items: center; gap: 5px;
+  flex-shrink: 0;
+  font-size: 12px; font-weight: 700; color: #34D399;
+}
+.auth-verified svg { width: 11px; height: 9px; }
+
+/* ── Hint states ──────────────────────────────────────── */
+.auth-hint.ok  { color: #34D399; }
+.auth-hint.bad { color: #ff8b8b; }
+
+/* ── Congratulations ──────────────────────────────────── */
+.auth-congrats { padding: 14px 0 6px; }
+.auth-congrats-burst { font-size: 46px; line-height: 1; margin-bottom: 6px; }
+.auth-spinner {
+  display: inline-block;
+  width: 40px; height: 40px;
+  border: 4px solid rgba(56,189,248,.25);
+  border-top-color: #38BDF8;
+  border-radius: 50%;
+  animation: authSpin .8s linear infinite;
+}
+@keyframes authSpin { to { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+  .auth-banner-cap { font-size: 11.5px; }
+  .auth-phone-code { max-width: 92px; font-size: 12px; }
+}
+
+/* ════════════════════════════════════════════════════════
+   SIGNUP-ONLY GROUPED LAYOUT  (login page is untouched)
+   Each data concern sits in its own respected panel so
+   unrelated fields are never visually mixed together.
+   ════════════════════════════════════════════════════════ */
+.auth-signup { max-width: 500px; }
+
+.auth-signup .auth-group {
+  background: rgba(255,255,255,.025);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 16px;
+  padding: 6px 16px;
+  margin-bottom: 14px;
+}
+.auth-signup .auth-group-policy { padding-top: 16px; padding-bottom: 16px; }
+
+.auth-signup .auth-group-head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 700; letter-spacing: .01em;
+  color: rgba(228,238,247,.9);
+  padding-top: 12px;
+  margin-bottom: 3px;
+}
+.auth-signup .auth-group-ic { display: inline-flex; color: #38BDF8; }
+.auth-signup .auth-group-ic svg { width: 15px; height: 15px; }
+.auth-signup .auth-group-sub {
+  font-size: 11.5px; line-height: 1.5;
+  color: rgba(220,232,242,.42);
+  margin-bottom: 12px;
+}
+
+/* Inside a group, each datum is separated by a hairline so it reads as
+   its own respected unit — never blurred into the field above or below. */
+.auth-signup .auth-group .af {
+  margin: 0;
+  padding: 13px 0;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.auth-signup .auth-group .af:last-child { border-bottom: none; }
+
+/* Tighter rhythm for the labels inside grouped fields */
+.auth-signup .auth-group .ah-label { margin-bottom: 7px; }
+
+@media (max-width: 480px) {
+  .auth-signup .auth-group { padding: 4px 12px; }
 }
