@@ -14,6 +14,7 @@ window.OCRA = window.OCRA || {};
     authMode: "login",       // login | signup | recover
     authStep: "email",       // email | password (email-first smart login)
     authEmail: "",           // email captured at step 1
+    recoverSamePw: false,    // recovery: new password equals current one
     signupStage: 1,          // 1..N
     dash: "personal",        // personal | family | organization | developer
     form: {},                // collected signup fields
@@ -128,85 +129,292 @@ window.OCRA = window.OCRA || {};
     switch (a) {
       // ---- entry flow ----
       case "diveIn":
-        if (O._held) { O._held = false; return; } // 5s hold already routed to devLogin
+        if (O._held) { O._held = false; return; }
         return O.go({ phase: "choose" });
+
       case "academics":   return O.go({ phase: "account" });
+      case "backToChoose": return O.go({ phase: "choose" });
+
       case "finances": {
-        // under development — playful shake + reveal the "launching soon" tag
-        var soon = document.getElementById("finSoon");
         if (window.gsap) {
           window.gsap.fromTo(t, { x: 0 }, { x: 7, duration: 0.05, repeat: 9, yoyo: true, ease: "none", clearProps: "x" });
-          if (soon) window.gsap.to(soon, { opacity: 1, duration: 0.4 });
-        } else if (soon) { soon.style.opacity = "1"; }
+        } else {
+          t.classList.add("auth-shake");
+          t.addEventListener("animationend", function () { t.classList.remove("auth-shake"); }, { once: true });
+        }
         return;
       }
+
       case "pickAccount": return O.go({ account: v });
-      case "accountNext": return O.go({ phase: "auth", authMode: "login", authStep: "email" });
-      case "setAuthMode": return O.go({ authMode: v, signupStage: 1, authStep: "email" });
-      case "login":       return O.identity.login(t);
 
-      // email-first smart routing: existing email -> password; new -> signup
+      case "accountNext":
+        return O.go({ phase: "auth", authMode: "login", authStep: "email", authEmail: "" });
+
+      case "setAuthMode":
+        return O.go({ authMode: v, signupStage: 1, authStep: "email", authEmail: "", recoverSamePw: false });
+
+      // ── Email-first login flow ──────────────────────────
       case "emailNext": {
-        var leEl = document.querySelector('[data-field="loginEmail"]');
-        var le = leEl ? leEl.value.trim() : "";
-        var leMsg = document.getElementById("authMsg");
-        if (!O.identity.validEmail(le)) { if (leMsg) leMsg.textContent = "Please enter a valid email."; return; }
-        var known = (O.auth && (O.auth.findAccount(le) || O.auth.DEV_EMAILS.indexOf(le.toLowerCase()) >= 0));
-        if (known) return O.go({ authEmail: le, authStep: "password" });
-        // brand new — carry the email straight into signup
-        O.state.form.email = le;
-        if (O.notifications) O.notifications.push("No account for that email yet — let's create one.", "info");
-        return O.go({ authMode: "signup", signupStage: 1, authEmail: le });
+        var w = document.querySelector("[data-auth]");
+        var emailEl = w ? w.querySelector('input[data-field="email"]') : null;
+        var errEl   = document.getElementById("authErr");
+        var email   = (emailEl ? emailEl.value : O.state.form.email || "").trim();
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          if (errEl) { errEl.textContent = "Enter a valid email address."; errEl.style.display = "block"; }
+          return;
+        }
+        if (errEl) errEl.textContent = "";
+        O.state.form.email = email;
+        var known = O.auth && O.auth.findAccount && (O.auth.findAccount(email) ||
+          (O.auth.DEV_EMAILS && O.auth.DEV_EMAILS.indexOf(email.toLowerCase()) >= 0));
+        if (known) {
+          return O.go({ authStep: "password", authEmail: email });
+        } else {
+          if (O.notifications) O.notifications.push("No account found — let’s create one.", "info");
+          return O.go({ authMode: "signup", authStep: "email", authEmail: email, signupStage: 1, form: { email: email } });
+        }
       }
-      case "changeEmail": return O.go({ authStep: "email" });
 
+      case "changeEmail":
+        return O.go({ authStep: "email", authEmail: "" });
+
+      // ── Password toggle ────────────────────────────────
       case "togglePw": {
-        var pwEl = document.getElementById(t.getAttribute("data-target"));
-        if (pwEl) pwEl.type = pwEl.type === "password" ? "text" : "password";
+        var inp  = t.closest(".ah") && t.closest(".ah").querySelector("input");
+        if (!inp) return;
+        var showing = inp.type === "text";
+        inp.type = showing ? "password" : "text";
+        t.innerHTML = showing ? (O._svgEye || "") : (O._svgEyeX || "");
         return;
       }
 
-      case "socialAuth":
-        if (O.notifications) O.notifications.push(v.charAt(0).toUpperCase() + v.slice(1) + " sign-in goes live once Firebase is configured.", "info");
-        return;
+      // ── Social auth (Google / Apple / Microsoft) ────────
+      // Same flow big platforms use: provider verifies identity, returns a
+      // profile; existing account signs straight in (passwordless), a new
+      // identity is carried into signup pre-filled. Works on both the login
+      // and signup screens.
+      case "socialAuth": {
+        if (!O.auth || !O.auth.socialAuth) return;
+        // Simulated provider account picker (replaced by Firebase popup on wire).
+        var picked = window.prompt(
+          "Continue with " + v + "\n\nChoose the " + v + " account to use — enter its email address:",
+          O.state.authEmail || (O.state.form && O.state.form.email) || ""
+        );
+        if (picked == null) return; // user dismissed the picker
+        picked = picked.trim();
+        if (!picked) return;
 
-      case "recoverSubmit": {
-        var rc = t.closest("[data-recover]");
-        if (!rc || !O.auth) return;
-        var gv = function (k) { var el = rc.querySelector('[data-field="' + k + '"]'); return el ? el.value : ""; };
-        var rMsg = rc.querySelector("#recMsg");
-        var np = gv("newPassword");
-        if (!O.identity.validPassword(np)) { if (rMsg) rMsg.textContent = "Password needs 9+ characters, a capital, a number and a symbol."; return; }
-        O.auth.recover(gv("email"),
-          { rq_mother: gv("rq_mother"), rq_friend: gv("rq_friend"), rq_pet: gv("rq_pet"), rq_subject: gv("rq_subject") },
-          np,
-          function () {
-            if (O.notifications) O.notifications.push("Password updated. Log in with your new password.", "success");
-            O.go({ authMode: "login" });
+        var nameGuess = picked.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+
+        O.auth.socialAuth(v, { email: picked, firstName: nameGuess },
+          function (user) {
+            // existing account — straight in
+            var dest = (user.role === "developer") ? "developer" : (user.accountType || O.state.account);
+            if (O.notifications) O.notifications.push("Signed in with " + v + ".", "success");
+            O.go({ phase: "dash", dash: dest, user: user });
           },
-          function (err) { if (rMsg) rMsg.textContent = err; }
+          function (profile) {
+            // new identity — pre-fill signup with the provider profile
+            if (O.notifications) O.notifications.push("Welcome! Finish setting up your " + v + " account.", "info");
+            O.go({
+              authMode: "signup", authStep: "email", signupStage: 1,
+              authEmail: profile.email,
+              form: { email: profile.email, first: profile.firstName, authProvider: profile.provider }
+            });
+          },
+          function (msg) {
+            if (O.notifications) O.notifications.push(msg, "error");
+          }
         );
         return;
       }
 
-      // developer console entry — OPEN DOOR pre-Firebase, locks after config
-      case "devEnter": {
-        var deEl = document.querySelector('[data-field="devEmail"]');
-        var dpEl = document.querySelector('[data-field="devPass"]');
-        var dEmail = (deEl && deEl.value) ? deEl.value : "gitongalewis190@gmail.com";
-        var enter = function () { O.go({ phase: "dash", dash: "developer" }); };
-        if (O.auth) {
-          O.auth.logIn(dEmail, (dpEl && dpEl.value) || "opendoor", enter, function () {
-            // pre-launch open door: unknown credentials still enter
-            O.state.user = { email: dEmail, role: "developer", accountType: "developer", firstName: "Developer" };
-            enter();
-          });
-        } else {
-          O.state.user = { email: dEmail, type: "developer" };
-          enter();
+      // ── Login submit ───────────────────────────────────
+      case "loginSubmit": {
+        var s2 = O.state;
+        var w2 = document.querySelector("[data-auth]");
+        var pwEl  = w2 ? w2.querySelector('input[data-field="password"]') : null;
+        var errEl2 = document.getElementById("authErr");
+        var em2   = s2.authEmail || (s2.form && s2.form.email) || "";
+        var pw2   = (pwEl ? pwEl.value : "") || "";
+        if (!em2 || !pw2) {
+          if (errEl2) { errEl2.textContent = "Enter your email and password."; errEl2.style.display = "block"; }
+          return;
         }
+        O.auth.logIn(em2, pw2, function (user) {
+          var dest = (user.role === "developer") ? "developer" : (user.accountType || O.state.account);
+          O.go({ phase: "dash", dash: dest, user: user });
+        }, function (msg) {
+          if (errEl2) { errEl2.textContent = msg; errEl2.style.display = "block"; }
+        });
         return;
       }
+
+      // ── Recovery submit ────────────────────────────────
+      case "recoverSubmit": {
+        var w3    = document.querySelector("[data-auth]");
+        var eEl   = w3 ? w3.querySelector('input[data-field="recoverEmail"]') : null;
+        var npEl  = w3 ? w3.querySelector('input[data-field="newPassword"]') : null;
+        var errEl3 = document.getElementById("authErr");
+        var recEmail = (eEl ? eEl.value : (O.state.form.recoverEmail || "")).trim();
+        var newPw    = npEl ? npEl.value : (O.state.form.newPassword || "");
+        var answers  = {
+          rq_mother:  (O.state.form.rq_mother  || ""),
+          rq_friend:  (O.state.form.rq_friend  || ""),
+          rq_pet:     (O.state.form.rq_pet     || ""),
+          rq_subject: (O.state.form.rq_subject || ""),
+        };
+        O.state.form.recoverEmail = recEmail;
+        O.state.form.newPassword  = newPw;
+
+        if (!recEmail) {
+          if (errEl3) { errEl3.textContent = "Enter your email."; errEl3.style.display = "block"; }
+          return;
+        }
+        // 1. verify recovery answers first (no change made yet)
+        var vErr = O.auth.verifyRecoveryAnswers(recEmail, answers);
+        if (vErr) {
+          if (errEl3) { errEl3.textContent = vErr; errEl3.style.display = "block"; }
+          return;
+        }
+        // 2. enforce password rules
+        if (!O.identity.validPassword(newPw)) {
+          if (errEl3) { errEl3.textContent = "Password needs 9+ characters, a capital, a number and a symbol."; errEl3.style.display = "block"; }
+          return;
+        }
+        // 3. detect: did they just type their CURRENT password?
+        if (O.auth.passwordMatches(recEmail, newPw)) {
+          return O.go({ authMode: "recover", recoverSamePw: true, authEmail: recEmail });
+        }
+        // 4. genuinely new — reset it
+        O.auth.recover(recEmail, answers, newPw, function () {
+          if (O.notifications) O.notifications.push("Password updated. Sign in with your new password.", "success");
+          O.go({ authMode: "login", authStep: "email", authEmail: recEmail, recoverSamePw: false, form: { email: recEmail } });
+        }, function (msg) {
+          if (errEl3) { errEl3.textContent = msg; errEl3.style.display = "block"; }
+        });
+        return;
+      }
+
+      // ── Recovery: keep the existing (remembered) password ──
+      case "recoverKeepOld": {
+        var keepEmail = (O.state.authEmail || O.state.form.recoverEmail || "").trim();
+        if (O.notifications) O.notifications.push("Good — keep using your current password to sign in.", "success");
+        return O.go({ authMode: "login", authStep: "email", authEmail: keepEmail, recoverSamePw: false, form: { email: keepEmail } });
+      }
+
+      // ── Recovery: choose a different password instead ──────
+      case "recoverChangePw":
+        O.state.form.newPassword = "";
+        return O.go({ authMode: "recover", recoverSamePw: false });
+
+      // ── Developer login ────────────────────────────────
+      case "devEnter": {
+        var w4    = document.getElementById("devLoginForm");
+        var deEl  = w4 ? w4.querySelector('input[data-field="email"]') : null;
+        var dpEl  = w4 ? w4.querySelector('input[data-field="password"]') : null;
+        var errEl4 = document.getElementById("authErr");
+        var devEm = (deEl ? deEl.value : "").trim() || "gitongalewis190@gmail.com";
+        var devPw = dpEl ? dpEl.value : "";
+        var enterDev = function (user) { O.go({ phase: "dash", dash: "developer", user: user }); };
+        O.auth.logIn(devEm, devPw, enterDev, function (msg) {
+          // open-door pre-Firebase: any dev-email still enters
+          if (O.auth.DEV_EMAILS && O.auth.DEV_EMAILS.indexOf(devEm.toLowerCase()) >= 0) {
+            O.state.user = { email: devEm, role: "developer", accountType: "developer", firstName: "Lewis" };
+            O.go({ phase: "dash", dash: "developer" });
+          } else if (errEl4) { errEl4.textContent = msg; errEl4.style.display = "block"; }
+        });
+        return;
+      }
+
+      // ── Policy toggle ──────────────────────────────────
+      case "togglePolicy": {
+        var body   = document.getElementById("policyContent");
+        var arrow  = document.querySelector(".auth-policy-arrow");
+        if (!body) return;
+        var open = body.classList.toggle("open");
+        body.style.display = open ? "block" : "none";
+        if (arrow) arrow.style.transform = open ? "rotate(180deg)" : "";
+        return;
+      }
+
+      // ── Multi-step signup field interactions ────────────
+      case "multiToggle": {
+        var fld = t.getAttribute("data-field");
+        var arr = (O.state.form[fld] || []).slice();
+        var ix  = arr.indexOf(v);
+        if (ix >= 0) arr.splice(ix, 1); else arr.push(v);
+        O.state.form[fld] = arr;
+        return O.render();
+      }
+
+      case "logoColor":
+        O.state.form.logoBuilt = Object.assign({}, O.state.form.logoBuilt, { color: v });
+        O.state.form.logoData = null;
+        return O.render();
+
+      case "logoSymbol":
+        O.state.form.logoBuilt = Object.assign({}, O.state.form.logoBuilt, { symbol: v });
+        O.state.form.logoData = null;
+        return O.render();
+
+      // ── Email verification code (OTP seam) ──────────────
+      case "otpSend": {
+        var emEl = document.querySelector('[data-field="email"]');
+        var em   = (emEl ? emEl.value : O.state.form.email || "").trim();
+        var obx  = document.getElementById("stageErr");
+        if (!O.identity.validEmail(em)) {
+          if (obx) { obx.textContent = "Enter a valid email first."; obx.style.display = "block"; }
+          return;
+        }
+        O.state.form.email = em;
+        O.state.form.emailVerified = false;
+        O._otpCode   = String(Math.floor(100000 + Math.random() * 900000));
+        O._otpSentTo = em.toLowerCase();
+        if (O.notifications) O.notifications.push("OCRA verification code: " + O._otpCode + "  (demo — real email arrives once Firebase is wired).", "info");
+        return O.render();
+      }
+
+      case "otpVerify": {
+        var codeEl = document.querySelector('[data-field="otpCode"]');
+        var code   = (codeEl ? codeEl.value : O.state.form.otpCode || "").trim();
+        var vbx    = document.getElementById("stageErr");
+        if (code && O._otpCode && code === O._otpCode) {
+          O.state.form.emailVerified = true;
+          if (vbx) vbx.style.display = "none";
+          if (O.notifications) O.notifications.push("Email verified.", "success");
+          return O.render();
+        }
+        if (vbx) { vbx.textContent = "That code doesn't match. Check it and try again."; vbx.style.display = "block"; }
+        return;
+      }
+
+      // ── Create account (congratulations stage) ──────────
+      case "signupCreate": {
+        var f  = O.state.form;
+        var fd = Object.assign({}, f);
+        if (O.state.account === "family")   { fd.momEmail = f.email; }
+        if (O.state.account === "personal") { fd.grade = f.level || f.grade || ""; }
+        if (Array.isArray(f.systems) && f.systems.length) { fd.system = fd.system || f.systems[0]; }
+        O._creating = true;
+        O.render();
+        setTimeout(function () {
+          O.auth.signUp(O.state.account, fd, function (user) {
+            O._creating = false;
+            var dest = (user.role === "developer") ? "developer" : (user.accountType || O.state.account);
+            O.go({ phase: "dash", dash: dest, user: user, signupStage: 1, form: {} });
+          }, function (msg) {
+            O._creating = false;
+            O.render();
+            var cbx = document.getElementById("stageErr");
+            if (cbx) { cbx.textContent = msg; cbx.style.display = "block"; }
+          });
+        }, 1500);
+        return;
+      }
+
+      // ── Legacy ─────────────────────────────────────────
+      case "login":       return O.identity && O.identity.login && O.identity.login(t);
       case "signupNext":  return O.identity.signupNext();
       case "signupBack":  return O.identity.signupBack();
       case "signupField": return;
@@ -221,7 +429,7 @@ window.OCRA = window.OCRA || {};
           O.brainTest.state.isComplete = false;
           O.brainTest.state.isValid = true;
         }
-        return O.go({ phase: "intro", signupStage: 1, form: {}, brainTestPhase: "test", academicRecords: null, paymentStatus: null });
+        return O.go({ phase: "intro", signupStage: 1, form: {}, authStep: "email", authEmail: "", recoverSamePw: false, brainTestPhase: "test", academicRecords: null, paymentStatus: null });
 
       // ---- brain test ----
       case "brainTestStart":
@@ -320,8 +528,87 @@ window.OCRA = window.OCRA || {};
   // capture input changes into form state
   document.addEventListener("input", function (e) {
     var f = e.target.getAttribute && e.target.getAttribute("data-field");
-    if (f) O.state.form[f] = e.target.value;
+    if (!f) return;
+    O.state.form[f] = e.target.value;
+
+    // logo abbreviation keeps the built-logo object in sync (live preview text)
+    if (f === "logoAbbr") {
+      O.state.form.logoBuilt = Object.assign({}, O.state.form.logoBuilt, { abbr: e.target.value });
+      var built = document.querySelector(".auth-logo-built b");
+      if (built) built.textContent = e.target.value;
+    }
+
+    // live password-requirements checklist: tick rules as they're met
+    if (O.PW_RULES) {
+      var list = document.querySelector('.auth-pwreq[data-pwfor="' + f + '"]');
+      if (list) {
+        var val = e.target.value || "";
+        O.PW_RULES.forEach(function (r) {
+          var item = list.querySelector('[data-rule="' + r.k + '"]');
+          if (item) item.classList.toggle("met", r.test(val));
+        });
+      }
+    }
+
+    // live signup chrome: banner fill + country "chirp" confirmation
+    if (O.state.phase === "auth" && O.state.authMode === "signup") O._refreshSignupChrome();
   });
+
+  // change events: file uploads + dependency re-renders (system → level)
+  document.addEventListener("change", function (e) {
+    var t = e.target;
+    if (!t || !t.getAttribute) return;
+    var fld = t.getAttribute("data-field");
+    if (fld) O.state.form[fld] = t.value;  // selects fire change, not always input
+
+    var act = t.getAttribute("data-action");
+    if (act === "logoUpload" && t.files && t.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        O.state.form.logoData = reader.result;
+        O.state.form.logoBuilt = null;
+        O.render();
+      };
+      reader.readAsDataURL(t.files[0]);
+      return;
+    }
+
+    // academic system changed → reset & repopulate the dependent level list
+    if (fld === "system" && O.state.phase === "auth" && O.state.authMode === "signup") {
+      O.state.form.level = "";
+      O.render();
+      return;
+    }
+    if (fld && O.state.phase === "auth" && O.state.authMode === "signup") O._refreshSignupChrome();
+  });
+
+  // live progress banner + country confirmation hint during signup
+  O._refreshSignupChrome = function () {
+    var I = O.identity;
+    if (!I || !I.stages) return;
+    var idx = O.state.signupStage - 1;
+    var stages = I.stages[O.state.account] || [];
+    var stage = stages[idx];
+    if (!stage) return;
+
+    var fill = I.sectionFill(idx);
+    var seg = document.querySelector(".auth-seg.active");
+    if (seg) {
+      var bar = seg.querySelector(".auth-seg-fill");
+      if (bar) bar.style.width = Math.round(fill * 100) + "%";
+      seg.classList.toggle("full", fill >= 1);
+    }
+
+    (stage.fields || []).forEach(function (fl) {
+      if (fl[2] !== "country") return;
+      var hint = document.getElementById("hint_" + fl[0]);
+      if (!hint) return;
+      var valc = O.state.form[fl[0]];
+      if (!valc) { hint.textContent = "Type your country — we'll confirm it exists."; hint.className = "auth-hint"; }
+      else if (I.validCountry(valc)) { hint.textContent = "✓ " + valc + " confirmed."; hint.className = "auth-hint ok"; }
+      else { hint.textContent = "We can't find that country — check the spelling."; hint.className = "auth-hint bad"; }
+    });
+  };
 
   // ---- helpers ----
   O.esc = function (x) {

@@ -97,9 +97,15 @@ assert("recovery screen",               app().includes("recoverSubmit"));
 O.go({ phase: "devLogin" });
 assert("developer login screen",        app().includes("devEnter"));
 
-O.go({ phase: "auth", authMode: "signup", signupStage: 1 });
+O.go({ phase: "auth", authMode: "signup", signupStage: 1, account: "organization" });
 assert("signup screen",                 app().includes("signupNext"));
+assert("signup: 5-section banner",      app().includes("auth-seg"));
 assert("signup: searchable lists",      app().includes("datalist"));
+assert("signup: progress captions",     app().includes("Get started with account creation"));
+// congratulations stage carries the create action
+O.go({ phase: "auth", authMode: "signup", signupStage: 5, account: "organization" });
+assert("signup: congratulations",       app().includes("signupCreate"));
+O.go({ account: "personal" });
 
 // Brain Test start screen
 O.go({ phase: "brainTestStart" });

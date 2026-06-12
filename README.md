@@ -1,5 +1,11 @@
 # OCRA — Optimised Career & Results Analytics
 
+> **PRIVATE & CONFIDENTIAL — © 2026 Lewis Gitonga. All Rights Reserved.**
+> OCRA is proprietary software under active private development. It is **not**
+> open-source, **not** for sale, and **not** licensed for reuse. No copying,
+> use, distribution, or access is permitted without the owner's explicit
+> written permission. See [`LICENSE`](LICENSE).
+
 > Reads academic records and cognitive signals to decode each learner's potential and map it to real career paths.
 
 ## Live site
