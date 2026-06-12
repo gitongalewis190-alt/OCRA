@@ -150,9 +150,18 @@ window.OCRA = window.OCRA || {};
 
       case "pickAccount": return O.go({ account: v });
       case "accountNext": return O.go({ phase: "auth", authMode: "login" });
-      case "setAuthMode": return O.go({ authMode: v, signupStage: 1, form: {} });
+      case "setAuthMode": {
+        if (v === "signup" && O.antiCheat) O.antiCheat.startSignup();
+        return O.go({ authMode: v, signupStage: 1, form: {} });
+      }
       case "login":       return O.identity.login(t);
-      case "signupNext":  return O.identity.signupNext();
+      case "signupNext": {
+        if (O.antiCheat) {
+          var _acStg = (O.identity.stages[O.state.account] || [])[O.state.signupStage - 1];
+          if (_acStg) O.antiCheat.analyzeStage(_acStg, O.state.form);
+        }
+        return O.identity.signupNext();
+      }
       case "signupBack":  return O.identity.signupBack();
       case "signupField": return;
       case "enterDash":   return O.go({ phase: "dash", dash: O.state.account });
@@ -267,6 +276,17 @@ window.OCRA = window.OCRA || {};
       }
 
       case "signupCreate": {
+        if (O.antiCheat) {
+          var _acRes = O.antiCheat.finalCheck(O.state.form);
+          if (!_acRes.passed) {
+            if (!document.getElementById("ac-modal")) {
+              document.body.insertAdjacentHTML("beforeend", O.antiCheat.renderChallengeModal());
+            }
+            O._pendingCreate = true;
+            return;
+          }
+        }
+        O._pendingCreate = false;
         O._creating = true;
         O.render();
         var f = O.state.form, acct = O.state.account;
@@ -345,6 +365,7 @@ window.OCRA = window.OCRA || {};
       // ---- brain test ----
       case "brainTestStart":
       case "brainTestBegin":
+        if (O.antiCheat) O.antiCheat.startBrainTestTracking();
         O.brainTest.init({ sessionId: "sess_" + Date.now(), accountType: O.state.account, userId: O.state.user ? O.state.user.email : "guest" });
         O.brainTest.startQuestionTimer();
         return O.go({ phase: "brainTest", brainTestPhase: "test" });
@@ -356,6 +377,13 @@ window.OCRA = window.OCRA || {};
         if (O.brainTest.state.currentQuestion >= 60) {
           O.brainTest.state.completedAt = Date.now();
           O.brainTest.scoreAnswers();
+          if (O.antiCheat) {
+            O.antiCheat.stopBrainTestTracking();
+            O.antiCheat.analyzeBrainTest(
+              O.brainTest.state.responsePacingMs || [],
+              O.brainTest.state.answers || []
+            );
+          }
           return O.go({ phase: "brainTest", brainTestPhase: "results" });
         }
         O.brainTest.startQuestionTimer();
@@ -432,6 +460,56 @@ window.OCRA = window.OCRA || {};
         if (O.payment) { O.payment.unlock(); }
         return;
 
+      // ---- anti-cheat ----
+      case "acDismiss":
+        if (O.antiCheat && O.antiCheat.dismissBanner) O.antiCheat.dismissBanner();
+        return;
+
+      case "acChallenge":
+        if (O.antiCheat && !document.getElementById("ac-modal")) {
+          document.body.insertAdjacentHTML("beforeend", O.antiCheat.renderChallengeModal());
+        }
+        return;
+
+      case "acChallengeSubmit": {
+        var _acIn = (document.getElementById("ac-ch-input") || {}).value || "";
+        if (!O.antiCheat || !O.antiCheat.checkChallenge(_acIn)) {
+          var _acEr = document.getElementById("ac-ch-err");
+          if (_acEr) _acEr.textContent = "Wrong answer — try again.";
+          if (O.antiCheat) {
+            var _nc  = O.antiCheat.generateChallenge();
+            var _qel = document.getElementById("ac-ch-q");
+            var _iel = document.getElementById("ac-ch-input");
+            if (_qel) _qel.textContent = _nc.q + " = ?";
+            if (_iel) { _iel.value = ""; _iel.focus(); }
+          }
+          return;
+        }
+        if (O.antiCheat) O.antiCheat.closeChallengeModal();
+        if (O._pendingCreate) {
+          O._pendingCreate = false;
+          O._creating = true;
+          O.render();
+          var _pf = O.state.form, _pa = O.state.account;
+          setTimeout(function () {
+            if (O.auth) {
+              O.auth.signUp(_pa, _pf,
+                function (user) {
+                  O._creating = false;
+                  O.go({ phase: "dash", dash: user.role === "developer" ? "developer" : user.accountType, form: {}, signupStage: 1 });
+                },
+                function (err) {
+                  O._creating = false;
+                  O.go({ signupStage: O.state.signupStage });
+                  setTimeout(function () { var _eb = document.getElementById("stageErr"); if (_eb) _eb.textContent = err; }, 50);
+                }
+              );
+            }
+          }, 400);
+        }
+        return;
+      }
+
       default: return;
     }
   });
@@ -439,7 +517,13 @@ window.OCRA = window.OCRA || {};
   // capture input changes into form state + live pw checklist
   document.addEventListener("input", function (e) {
     var f = e.target.getAttribute && e.target.getAttribute("data-field");
-    if (f) O.state.form[f] = e.target.value;
+    if (f) {
+      O.state.form[f] = e.target.value;
+      if (O.antiCheat) {
+        O.antiCheat.recordValueChange(f, e.target.value.length);
+        O.antiCheat.checkHoneypot(f, e.target.value);
+      }
+    }
 
     // live password checklist
     var isPw = e.target.id === "pwField" || e.target.id === "loginPw" || e.target.id === "recoverPw";
@@ -478,6 +562,13 @@ window.OCRA = window.OCRA || {};
         O.state.form.level = "";
       }
     }
+  });
+
+  // keystroke timing telemetry for anti-cheat
+  document.addEventListener("keydown", function (e) {
+    var kf = e.target && e.target.getAttribute && e.target.getAttribute("data-field");
+    if (!kf || !O.antiCheat) return;
+    O.antiCheat.recordKeydown(kf, e.key === "Backspace" || e.key === "Delete");
   });
 
   O._refreshSystemHint = function () {

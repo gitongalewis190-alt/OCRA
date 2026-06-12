@@ -273,6 +273,12 @@
         progressBanner(stages, idx) +
         '<div style="font-size:15px;font-weight:800;color:#dce8f2;margin-bottom:18px">' + O.esc(stage.title) + '</div>' +
         body +
+        /* honeypot — off-screen, aria-hidden; bots fill these, humans never see them */
+        '<div style="position:absolute;left:-99999px;opacity:0;height:0;overflow:hidden;pointer-events:none" aria-hidden="true">' +
+          '<input data-field="hp_name"    type="text"  name="name"    tabindex="-1" autocomplete="off"/>' +
+          '<input data-field="hp_email"   type="email" name="email"   tabindex="-1" autocomplete="off"/>' +
+          '<input data-field="hp_website" type="url"   name="website" tabindex="-1" autocomplete="off"/>' +
+        '</div>' +
         '<p id="stageErr" class="auth-err"></p>' +
         (isCongrats ? '' :
           '<div style="display:flex;gap:10px;margin-top:4px">' +

@@ -343,3 +343,73 @@
   animation: blink .85s step-end infinite;
 }
 @keyframes blink { 50% { opacity: 0; } }
+
+/* ── Anti-cheat transparent banner (body-appended by AC module) ── */
+.ac-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px 11px 14px;
+  border-radius: 16px;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  font-family: inherit;
+  font-size: 13px;
+  max-width: 520px;
+  width: calc(100% - 40px);
+  box-shadow: 0 6px 30px rgba(0,0,0,.38);
+  animation: acBannerIn .3s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes acBannerIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(24px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.ac-banner-info {
+  background: rgba(14,107,168,.80);
+  border: 1px solid rgba(56,189,248,.35);
+  color: #dce8f2;
+}
+.ac-banner-warn {
+  background: rgba(120,60,0,.88);
+  border: 1px solid rgba(251,146,60,.45);
+  color: #fed7aa;
+}
+.ac-banner-high {
+  background: rgba(130,10,10,.9);
+  border: 1px solid rgba(255,107,107,.45);
+  color: #fecaca;
+}
+.ac-icon  { font-size: 16px; flex-shrink: 0; }
+.ac-msg   { flex: 1; font-size: 12.5px; line-height: 1.45; }
+.ac-cta {
+  padding: 7px 14px;
+  background: rgba(255,255,255,.18);
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 10px;
+  color: #fff; font-size: 12px; font-weight: 700;
+  cursor: pointer; white-space: nowrap;
+  font-family: inherit; flex-shrink: 0;
+  transition: background .18s;
+}
+.ac-cta:hover { background: rgba(255,255,255,.28); }
+.ac-dismiss {
+  background: none; border: none;
+  color: rgba(255,255,255,.52);
+  font-size: 18px; cursor: pointer;
+  padding: 2px 6px; line-height: 1;
+  flex-shrink: 0; transition: color .15s;
+}
+.ac-dismiss:hover { color: rgba(255,255,255,.88); }
+
+/* shake animation for "finances" tile */
+@keyframes authShake {
+  0%,100% { transform: translateX(0); }
+  20%,60%  { transform: translateX(-6px); }
+  40%,80%  { transform: translateX(6px); }
+}
+.auth-shake { animation: authShake .35s ease both; }
