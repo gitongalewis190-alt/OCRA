@@ -83,7 +83,7 @@ window.OCRA = window.OCRA || {};
               '<button class="btn' + (dark ? " dark" : "") + '" data-action="restart" style="font-size:11px">&larr; Restart flow</button>' +
             '</div>' +
           '</div>';
-      } else if (s.phase === "auth" || s.phase === "recover") {
+      } else if (s.phase === "auth" || s.phase === "recover" || s.phase === "devLogin") {
         var fn = O.screens[s.phase];
         html = fn ? fn() : ""; // auth screens own their full-page container
       } else {
@@ -174,8 +174,42 @@ window.OCRA = window.OCRA || {};
         return O.go({ phase: "recover", recoverEmail: em, recoverSamePw: false });
       }
 
+      case "emailNext": {
+        var emailEl2 = document.getElementById("loginEmail") || document.querySelector('[data-field="email"]');
+        var em2 = emailEl2 ? emailEl2.value.trim() : "";
+        var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        var m3 = document.getElementById("authMsg");
+        if (!em2 || !re.test(em2)) { if (m3) m3.textContent = "Enter a valid email address."; return; }
+        O.state.form.email = em2;
+        return O.go({ authStep: "password", authEmail: em2 });
+      }
+
+      case "changeEmail":
+        return O.go({ authStep: "email", authEmail: "" });
+
+      case "devEnter": {
+        var devEmailEl = document.getElementById("devEmail") || document.querySelector('[data-field="devEmail"]');
+        var devPwEl    = document.getElementById("devPw")    || document.querySelector('[data-field="devPassword"]');
+        var devEm = devEmailEl ? devEmailEl.value.trim() : "";
+        var devPw = devPwEl    ? devPwEl.value           : "";
+        var devMsg = document.getElementById("devMsg");
+        if (O.auth) {
+          O.auth.logIn(devEm, devPw,
+            function (user) {
+              if (user.role !== "developer") {
+                if (devMsg) devMsg.textContent = "This account does not have developer access.";
+                return;
+              }
+              O.go({ phase: "dash", dash: "developer" });
+            },
+            function (err) { if (devMsg) devMsg.textContent = err; }
+          );
+        }
+        return;
+      }
+
       case "backToLogin":
-        return O.go({ phase: "auth", authMode: "login" });
+        return O.go({ phase: "auth", authMode: "login", authStep: "email" });
 
       case "socialAuth": {
         if (O.auth && O.auth.socialAuth) {

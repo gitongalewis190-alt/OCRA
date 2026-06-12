@@ -27,11 +27,11 @@
 
   // ---- 5-section banner labels ----
   I.SECTION_LABELS = [
-    "Get started",
-    "Tell us more",
-    "Nearly there",
-    "Secure account",
-    "Congratulations",
+    "Get started with account creation",
+    "Good job — tell us more",
+    "You nailed it — one more push",
+    "Now secure your account",
+    "Congratulations — it's all yours",
   ];
 
   // ---- reference data ----

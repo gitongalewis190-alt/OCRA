@@ -289,43 +289,57 @@
     '</div>';
   }
 
-  // ── login view ─────────────────────────────────────────────────
+  function _socialRow() {
+    return '<div class="auth-social">' +
+      '<button class="auth-soc-btn" data-action="socialAuth" data-value="google">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24"><path fill="#EA4335" d="M5.26 14.58A6.48 6.48 0 015 12c0-.9.16-1.77.44-2.58L2.96 7.64A10.7 10.7 0 001.5 12c0 1.55.3 3.04.85 4.41l2.91-1.83z"/><path fill="#FBBC05" d="M12 5.5c1.47 0 2.8.5 3.84 1.32l2.85-2.85A9.55 9.55 0 0012 1.5C8.15 1.5 4.84 3.72 3.24 6.97l2.77 2.1A6.48 6.48 0 0112 5.5z"/><path fill="#34A853" d="M12 18.5a6.48 6.48 0 01-5.99-4.07l-2.77 2.1C4.84 19.78 8.15 22 12 22c2.52 0 4.83-.93 6.59-2.46l-2.73-2.08A6.43 6.43 0 0112 18.5z"/><path fill="#4285F4" d="M22.5 12c0-.76-.07-1.5-.2-2.22H12v4.22h5.9a5.03 5.03 0 01-2.04 3.08l2.73 2.08C20.56 17.5 22.5 15 22.5 12z"/></svg>' +
+        'Google</button>' +
+      '<button class="auth-soc-btn" data-action="socialAuth" data-value="apple">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>' +
+        'Apple</button>' +
+      '<button class="auth-soc-btn" data-action="socialAuth" data-value="microsoft">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24"><path fill="#F25022" d="M1 1h10.5v10.5H1z"/><path fill="#00A4EF" d="M12.5 1H23v10.5H12.5z"/><path fill="#7FBA00" d="M1 12.5h10.5V23H1z"/><path fill="#FFB900" d="M12.5 12.5H23V23H12.5z"/></svg>' +
+        'Microsoft</button>' +
+    '</div>';
+  }
+
+  // ── login view (email-first) ───────────────────────────────────
   function loginView() {
     var s = O.state;
+    var step = s.authStep || "email";
+    var capturedEmail = s.authEmail || s.form.email || "";
     return '' +
     '<div class="auth-bg">' +
       '<div class="auth-card" data-auth>' +
         '<div class="auth-logorow">' + O.logo(56, true) + '</div>' +
         '<div class="auth-title" style="text-transform:capitalize">' + O.esc(s.account) + ' &middot; Sign in</div>' +
 
-        '<div class="auth-social">' +
-          '<button class="auth-soc-btn" data-action="socialAuth" data-value="google">' +
-            '<svg width="15" height="15" viewBox="0 0 24 24"><path fill="#EA4335" d="M5.26 14.58A6.48 6.48 0 015 12c0-.9.16-1.77.44-2.58L2.96 7.64A10.7 10.7 0 001.5 12c0 1.55.3 3.04.85 4.41l2.91-1.83z"/><path fill="#FBBC05" d="M12 5.5c1.47 0 2.8.5 3.84 1.32l2.85-2.85A9.55 9.55 0 0012 1.5C8.15 1.5 4.84 3.72 3.24 6.97l2.77 2.1A6.48 6.48 0 0112 5.5z"/><path fill="#34A853" d="M12 18.5a6.48 6.48 0 01-5.99-4.07l-2.77 2.1C4.84 19.78 8.15 22 12 22c2.52 0 4.83-.93 6.59-2.46l-2.73-2.08A6.43 6.43 0 0112 18.5z"/><path fill="#4285F4" d="M22.5 12c0-.76-.07-1.5-.2-2.22H12v4.22h5.9a5.03 5.03 0 01-2.04 3.08l2.73 2.08C20.56 17.5 22.5 15 22.5 12z"/></svg>' +
-            'Google</button>' +
-          '<button class="auth-soc-btn" data-action="socialAuth" data-value="apple">' +
-            '<svg width="15" height="15" viewBox="0 0 24 24"><path fill="currentColor" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>' +
-            'Apple</button>' +
-          '<button class="auth-soc-btn" data-action="socialAuth" data-value="microsoft">' +
-            '<svg width="15" height="15" viewBox="0 0 24 24"><path fill="#F25022" d="M1 1h10.5v10.5H1z"/><path fill="#00A4EF" d="M12.5 1H23v10.5H12.5z"/><path fill="#7FBA00" d="M1 12.5h10.5V23H1z"/><path fill="#FFB900" d="M12.5 12.5H23V23H12.5z"/></svg>' +
-            'Microsoft</button>' +
-        '</div>' +
+        (step === "email" ?
+          // ── Step 1: email + social
+          _socialRow() +
+          '<div class="auth-divider">or</div>' +
+          '<div class="ah">' + ic.mail +
+            '<input id="loginEmail" data-field="email" type="email" placeholder="you@example.com" value="' + O.esc(capturedEmail) + '" autofocus/>' +
+          '</div>' +
+          '<p id="authMsg" class="auth-err"></p>' +
+          '<button class="auth-btn auth-btn-primary" data-action="emailNext">Continue &rarr;</button>'
+        :
+          // ── Step 2: password
+          '<div style="font-size:13px;color:rgba(220,232,242,.55);text-align:center;margin-bottom:14px">' +
+            O.esc(capturedEmail) +
+            ' &nbsp;<button class="auth-sw-btn sm" data-action="changeEmail">Change</button>' +
+          '</div>' +
+          '<div class="ah">' + ic.lock +
+            '<input id="loginPw" data-field="password" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autofocus/>' +
+            '<button class="ah-eye" data-action="togglePw" type="button">' + ic.eye + '</button>' +
+          '</div>' +
+          '<div style="text-align:right;margin:-4px 0 10px">' +
+            '<button class="auth-sw-btn sm" data-action="forgotPassword">Forgot password?</button>' +
+          '</div>' +
+          '<p id="authMsg" class="auth-err"></p>' +
+          '<button class="auth-btn auth-btn-primary" data-action="login">Sign in</button>'
+        ) +
 
-        '<div class="auth-divider">or</div>' +
-
-        '<div class="ah">' + ic.mail +
-          '<input data-field="email" type="email" placeholder="you@example.com" value="' + O.esc(O.state.form.email || "") + '"/>' +
-        '</div>' +
-        '<div class="ah">' + ic.lock +
-          '<input id="loginPw" data-field="password" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"/>' +
-          '<button class="ah-eye" data-action="togglePw" type="button">' + ic.eye + '</button>' +
-        '</div>' +
-
-        '<div style="text-align:right;margin:-4px 0 10px">' +
-          '<button class="auth-sw-btn sm" data-action="forgotPassword">Forgot password?</button>' +
-        '</div>' +
-
-        '<p id="authMsg" class="auth-err"></p>' +
-        '<button class="auth-btn auth-btn-primary" data-action="login">Sign in</button>' +
         '<div class="auth-switch">No account? ' +
           '<button class="auth-sw-btn" data-action="setAuthMode" data-value="signup">Sign up</button>' +
         '</div>' +
@@ -382,8 +396,34 @@
   }
 
   // ── public screen renderers ────────────────────────────────────
-  O.screens.auth    = function () { return O.state.authMode === "signup" ? signup() : loginView(); };
-  O.screens.recover = recoverView;
+  O.screens.auth = function () {
+    var m = O.state.authMode;
+    if (m === "signup")  return signup();
+    if (m === "recover") return recoverView();
+    return loginView();
+  };
+  O.screens.recover  = recoverView;
+
+  O.screens.devLogin = function () {
+    return '' +
+    '<div class="auth-bg">' +
+      '<div class="auth-card" data-auth>' +
+        '<div class="auth-logorow">' + O.logo(48, true) + '</div>' +
+        '<div class="auth-title">Developer access</div>' +
+        '<div class="ah">' + ic.mail +
+          '<input id="devEmail" data-field="devEmail" type="email" placeholder="developer@ocra.app"/>' +
+        '</div>' +
+        '<div class="ah">' + ic.lock +
+          '<input id="devPw" data-field="devPassword" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"/>' +
+        '</div>' +
+        '<p id="devMsg" class="auth-err"></p>' +
+        '<button class="auth-btn auth-btn-primary" data-action="devEnter">Enter developer console</button>' +
+        '<div class="auth-switch">' +
+          '<button class="auth-sw-btn sm" data-action="backToLogin">&larr; Back</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  };
 
   // ── INTRO — cinematic landing ──────────────────────────────────
   O.screens.intro = function () {
@@ -505,10 +545,10 @@
         '<div class="label" style="font-size:20px;color:var(--ink)">Academics</div>' +
         '<div class="muted" style="font-size:13px;margin-top:8px">Records &middot; analysis &middot; careers</div>' +
       '</button>' +
-      '<div class="glass choose-tile soon">' +
+      '<button class="glass choose-tile soon" data-action="finances">' +
         '<div class="label" style="font-size:20px;color:var(--ink)">Finances</div>' +
         '<div class="muted" style="font-size:13px;margin-top:8px">Under development</div>' +
-      '</div>' +
+      '</button>' +
     '</div>';
   };
 
