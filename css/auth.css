@@ -294,6 +294,50 @@
   line-height: 1.4;
 }
 
+/* ── Live password-requirements checklist ────────────── */
+.auth-pwreq {
+  list-style: none;
+  margin: 8px 0 6px;
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px 14px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+}
+.auth-pwreq-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: rgba(220,232,242,.4);
+  transition: color .2s ease;
+}
+.auth-pwreq-ic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  color: rgba(220,232,242,.3);
+  transition: background .2s ease, color .2s ease, transform .2s ease;
+}
+.auth-pwreq-item.met {
+  color: rgba(52,211,153,.95);
+}
+.auth-pwreq-item.met .auth-pwreq-ic {
+  background: rgba(52,211,153,.18);
+  color: #34D399;
+  transform: scale(1.05);
+}
+@media (max-width: 480px) {
+  .auth-pwreq { grid-template-columns: 1fr; }
+}
+
 /* Section divider label */
 .auth-section-lbl {
   font-size: 10.5px;

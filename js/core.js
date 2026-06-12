@@ -187,12 +187,46 @@ window.OCRA = window.OCRA || {};
         return;
       }
 
-      // ── Social auth ────────────────────────────────────
-      case "socialAuth":
-        if (O.notifications) {
-          O.notifications.push(v + " sign-in goes live once Firebase is configured.", "info");
-        }
+      // ── Social auth (Google / Apple / Microsoft) ────────
+      // Same flow big platforms use: provider verifies identity, returns a
+      // profile; existing account signs straight in (passwordless), a new
+      // identity is carried into signup pre-filled. Works on both the login
+      // and signup screens.
+      case "socialAuth": {
+        if (!O.auth || !O.auth.socialAuth) return;
+        // Simulated provider account picker (replaced by Firebase popup on wire).
+        var picked = window.prompt(
+          "Continue with " + v + "\n\nChoose the " + v + " account to use — enter its email address:",
+          O.state.authEmail || (O.state.form && O.state.form.email) || ""
+        );
+        if (picked == null) return; // user dismissed the picker
+        picked = picked.trim();
+        if (!picked) return;
+
+        var nameGuess = picked.split("@")[0].replace(/[._-]+/g, " ").replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+
+        O.auth.socialAuth(v, { email: picked, firstName: nameGuess },
+          function (user) {
+            // existing account — straight in
+            var dest = (user.role === "developer") ? "developer" : (user.accountType || O.state.account);
+            if (O.notifications) O.notifications.push("Signed in with " + v + ".", "success");
+            O.go({ phase: "dash", dash: dest, user: user });
+          },
+          function (profile) {
+            // new identity — pre-fill signup with the provider profile
+            if (O.notifications) O.notifications.push("Welcome! Finish setting up your " + v + " account.", "info");
+            O.go({
+              authMode: "signup", authStep: "email", signupStage: 1,
+              authEmail: profile.email,
+              form: { email: profile.email, first: profile.firstName, authProvider: profile.provider }
+            });
+          },
+          function (msg) {
+            if (O.notifications) O.notifications.push(msg, "error");
+          }
+        );
         return;
+      }
 
       // ── Login submit ───────────────────────────────────
       case "loginSubmit": {
@@ -387,7 +421,20 @@ window.OCRA = window.OCRA || {};
   // capture input changes into form state
   document.addEventListener("input", function (e) {
     var f = e.target.getAttribute && e.target.getAttribute("data-field");
-    if (f) O.state.form[f] = e.target.value;
+    if (!f) return;
+    O.state.form[f] = e.target.value;
+
+    // live password-requirements checklist: tick rules as they're met
+    if (O.PW_RULES) {
+      var list = document.querySelector('.auth-pwreq[data-pwfor="' + f + '"]');
+      if (list) {
+        var val = e.target.value || "";
+        O.PW_RULES.forEach(function (r) {
+          var item = list.querySelector('[data-rule="' + r.k + '"]');
+          if (item) item.classList.toggle("met", r.test(val));
+        });
+      }
+    }
   });
 
   // ---- helpers ----

@@ -302,6 +302,28 @@
     return '<p id="' + (id || 'authErr') + '" class="auth-err"></p>';
   }
 
+  // ── Live password-requirements checklist ─────────────────
+  // The four rules are LOCKED: 9+ chars, a capital, a number, a symbol.
+  // core.js updates the `.met` state live on every keystroke of the
+  // matching password field (matched by data-pwfor).
+  O.PW_RULES = [
+    { k: 'len',   label: 'At least 9 characters', test: function (p) { return /.{9,}/.test(p); } },
+    { k: 'upper', label: 'One capital letter',    test: function (p) { return /[A-Z]/.test(p); } },
+    { k: 'num',   label: 'One number',            test: function (p) { return /[0-9]/.test(p); } },
+    { k: 'sym',   label: 'One symbol',            test: function (p) { return /[^A-Za-z0-9]/.test(p); } },
+  ];
+
+  function pwChecklist(fieldName, currentVal) {
+    var items = O.PW_RULES.map(function (r) {
+      var met = r.test(currentVal || '');
+      return '<li class="auth-pwreq-item' + (met ? ' met' : '') + '" data-rule="' + r.k + '">' +
+        '<span class="auth-pwreq-ic">' + _chk + '</span>' +
+        '<span>' + r.label + '</span>' +
+      '</li>';
+    }).join('');
+    return '<ul class="auth-pwreq" data-pwfor="' + fieldName + '">' + items + '</ul>';
+  }
+
   // ── Privacy policy content per account type ──────────────
 
   function policyContent(accountType) {
@@ -650,6 +672,9 @@
           errBox() +
           '<button class="auth-submit" data-action="emailNext">Continue ' + _arr + '</button>' +
         '</div>' +
+        '<div style="text-align:center;margin-top:14px">' +
+          '<button class="auth-link" style="font-size:12.5px" data-action="setAuthMode" data-value="recover">Forgot password?</button>' +
+        '</div>' +
         '<p class="auth-toggle-line">New to OCRA? <button class="auth-link" data-action="setAuthMode" data-value="signup">Create an account</button></p>' +
       '</div>' +
     '</div>';
@@ -666,14 +691,14 @@
         '<p class="auth-sub">Answer your four recovery questions and set a new password.</p>' +
         '<div data-auth>' +
           '<div class="auth-section-lbl">Your email</div>' +
-          holder(_mail, '<input data-field="recoverEmail" type="email" placeholder="your@email.com" autocomplete="email"/>') +
+          holder(_mail, '<input data-field="recoverEmail" type="email" placeholder="your@email.com" value="' + O.esc((O.state.authEmail || (O.state.form && O.state.form.email) || '')) + '" autocomplete="email"/>') +
           '<div class="auth-section-lbl">Recovery questions</div>' +
           I.recovery.map(function (r) {
             return holder(_lock, '<input data-field="' + r.k + '" placeholder="' + O.esc(r.q) + '"/>');
           }).join("") +
           '<div class="auth-section-lbl">New password</div>' +
-          pwHolder('newPassword', '9+ chars, capital, number, symbol', 'new-password') +
-          '<div class="auth-hint">9+ characters, one capital, one number, one symbol.</div>' +
+          pwHolder('newPassword', 'Create a new password', 'new-password') +
+          pwChecklist('newPassword', (O.state.form && O.state.form.newPassword) || '') +
           errBox() +
           '<button class="auth-submit" data-action="recoverSubmit">Reset Password</button>' +
         '</div>' +
@@ -763,8 +788,8 @@
 
         if (type === 'password') {
           return '<div class="af">' + label +
-            pwHolder(key, '9+ chars, capital, number, symbol', 'new-password') +
-            '<div class="auth-hint">9+ characters, a capital, a number and a symbol.</div>' +
+            pwHolder(key, 'Create a strong password', 'new-password') +
+            pwChecklist(key, f[key] || '') +
           '</div>';
         }
 
@@ -803,6 +828,13 @@
 
     var acctName = { personal: 'Personal', family: 'Family', organization: 'Organization' }[s.account] || s.account;
 
+    // On the very first step, offer one-click sign-up with a provider —
+    // same as big platforms. Choosing one verifies identity and pre-fills
+    // (or signs in if the account already exists).
+    var socialBlock = (s.signupStage === 1)
+      ? socialRow() + '<div class="auth-divider">or sign up with email</div>'
+      : '';
+
     return '' +
     '<div class="auth-stage">' +
       brandBar() +
@@ -810,6 +842,7 @@
         rail +
         '<h1 class="auth-h1">' + O.esc(stage.title) + '</h1>' +
         '<p class="auth-sub" style="margin-bottom:' + (stage.policy ? '6' : '18') + 'px">' + O.esc(acctName) + ' &middot; Step ' + s.signupStage + ' of ' + stages.length + '</p>' +
+        socialBlock +
         body +
         errBox('stageErr') +
         '<div class="auth-nav-row">' +

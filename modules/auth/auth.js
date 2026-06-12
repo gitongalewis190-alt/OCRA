@@ -131,6 +131,52 @@ window.OCRA = window.OCRA || {};
     onSuccess(record.user);
   };
 
+  // ---- SOCIAL / OAUTH SIGN-IN ----
+  // Mirrors how Google / Apple / Microsoft sign-in works: the provider
+  // verifies identity and returns a profile (email + name). We then either
+  // sign the user straight in (account exists — no password needed, identity
+  // is provider-verified) or hand the profile to signup to create one.
+  //
+  // TODAY:  the provider profile is supplied by a simulated account picker.
+  // WIRE:   replace the picker with Firebase signInWithPopup(provider);
+  //         pass the resulting { email, displayName } here. Nothing else changes.
+  AUTH.PROVIDERS = { Google: "google.com", Apple: "apple.com", Microsoft: "microsoft.com" };
+
+  AUTH.socialAuth = function (provider, profile, onLogin, onSignup, onError) {
+    profile = profile || {};
+    var email = (profile.email || "").trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if (onError) onError("That " + provider + " account did not return a valid email.");
+      return;
+    }
+
+    var record = AUTH.findAccount(email);
+    var isDev = AUTH.DEV_EMAILS.indexOf(email.toLowerCase()) >= 0;
+
+    if (record) {
+      // identity verified by the provider — passwordless session
+      AUTH.createSession(record.user);
+      if (O.dataManagement) O.dataManagement.log("LOGIN_SOCIAL", provider + " sign-in: " + email);
+      if (onLogin) onLogin(record.user);
+      return;
+    }
+
+    if (isDev) {
+      var devUser = {
+        id: "dev_001", email: email, firstName: "Lewis", lastName: "Gitonga",
+        accountType: "developer", role: AUTH.ROLES.DEVELOPER,
+        authProvider: provider, educationSystem: "KCSE", createdAt: new Date().toISOString(),
+      };
+      AUTH.createSession(devUser);
+      if (O.dataManagement) O.dataManagement.log("LOGIN_SOCIAL", provider + " dev sign-in: " + email);
+      if (onLogin) onLogin(devUser);
+      return;
+    }
+
+    // brand-new identity — carry the provider profile into signup
+    if (onSignup) onSignup({ email: email, firstName: profile.firstName || "", provider: provider });
+  };
+
   // ---- LOG OUT ----
   AUTH.logOut = function () {
     if (O.dataManagement && AUTH.session) {
