@@ -93,6 +93,7 @@ window.OCRA = window.OCRA || {};
 
       app.innerHTML = html;
       O.bindHold();
+      O._updateGates();
       if (s.phase === "intro" && O.introAnimate) O.introAnimate();
       else if (O.flowAnimate) O.flowAnimate();
     } catch (err) {
@@ -154,7 +155,15 @@ window.OCRA = window.OCRA || {};
         if (v === "signup" && O.antiCheat) O.antiCheat.startSignup();
         return O.go({ authMode: v, signupStage: 1, form: {} });
       }
-      case "login":       return O.identity.login(t);
+      case "login": {
+        var loginPwEl = document.getElementById("loginPw");
+        var loginMsg  = document.getElementById("authMsg");
+        if (!loginPwEl || !loginPwEl.value) {
+          if (loginMsg) loginMsg.textContent = "Enter your password.";
+          return;
+        }
+        return O.identity.login(t);
+      }
       case "signupNext": {
         if (O.antiCheat) {
           var _acStg = (O.identity.stages[O.state.account] || [])[O.state.signupStage - 1];
@@ -202,6 +211,7 @@ window.OCRA = window.OCRA || {};
         var devEm = devEmailEl ? devEmailEl.value.trim() : "";
         var devPw = devPwEl    ? devPwEl.value           : "";
         var devMsg = document.getElementById("devMsg");
+        if (!devEm || !devPw) { if (devMsg) devMsg.textContent = "Enter email and password."; return; }
         if (O.auth) {
           O.auth.logIn(devEm, devPw,
             function (user) {
@@ -322,6 +332,15 @@ window.OCRA = window.OCRA || {};
           answers2[r.k] = el ? el.value : "";
         });
         var msgEl = document.getElementById("recoverMsg");
+        if (!O.identity.validEmail(email2)) {
+          if (msgEl) msgEl.textContent = "Enter a valid email address.";
+          return;
+        }
+        var emptyAnswer = O.identity.recovery.find(function (r) { return !answers2[r.k] || !answers2[r.k].trim(); });
+        if (emptyAnswer) {
+          if (msgEl) msgEl.textContent = emptyAnswer.q + " is required.";
+          return;
+        }
         if (!O.identity.validPassword(newPw)) {
           if (msgEl) msgEl.textContent = "Password needs 9+ chars, a capital, a number and a symbol.";
           return;
@@ -538,6 +557,9 @@ window.OCRA = window.OCRA || {};
       }
     }
 
+    // live gate update on every field change
+    O._updateGates();
+
     // when country changes: auto-set phone code
     if (f === "country" && O.identity && O.identity.dialCodeForCountry) {
       var code = O.identity.dialCodeForCountry(e.target.value);
@@ -570,6 +592,82 @@ window.OCRA = window.OCRA || {};
     if (!kf || !O.antiCheat) return;
     O.antiCheat.recordKeydown(kf, e.key === "Backspace" || e.key === "Delete");
   });
+
+  // ---- live button gating ----
+  // Called after every render and every input event.
+  // Sets button.disabled via live validation — no re-render needed.
+  // CSS .auth-btn:disabled already handles visual (opacity .4, no-pointer).
+  O._updateGates = function () {
+    if (!O.identity) return;
+    var s = O.state;
+
+    function gate(btn, enabled) {
+      if (!btn) return;
+      btn.disabled = !enabled;
+      btn.title = enabled ? "" : (btn._gateMsg || "");
+    }
+
+    // ── signup Continue ─────────────────────────────────────────────
+    if (s.phase === "auth" && s.authMode === "signup") {
+      var stages  = O.identity.stages[s.account];
+      var stage   = stages && stages[s.signupStage - 1];
+      var nextBtn = document.querySelector('[data-action="signupNext"]');
+      if (nextBtn && stage && !stage.congrats) {
+        var sErr = O.identity.validateStage(stage, s.form);
+        if (!sErr && s.form.system && s.form.country &&
+            !O.identity.systemValidForCountry(s.form.system, s.form.country)) {
+          sErr = s.form.system + " is not typical for " + s.form.country;
+        }
+        nextBtn._gateMsg = sErr;
+        gate(nextBtn, !sErr);
+      }
+    }
+
+    // ── login step 1: email Continue ────────────────────────────────
+    if (s.phase === "auth" && s.authMode === "login" && s.authStep === "email") {
+      var eInp   = document.getElementById("loginEmail");
+      var eBtn   = document.querySelector('[data-action="emailNext"]');
+      var eValid = eInp && O.identity.validEmail(eInp.value.trim());
+      if (eBtn) eBtn._gateMsg = "Enter a valid email address.";
+      gate(eBtn, eValid);
+    }
+
+    // ── login step 2: password Sign in ──────────────────────────────
+    if (s.phase === "auth" && s.authMode === "login" && s.authStep === "password") {
+      var pInp = document.getElementById("loginPw");
+      var pBtn = document.querySelector('[data-action="login"]');
+      if (pBtn) pBtn._gateMsg = "Enter your password.";
+      gate(pBtn, pInp && pInp.value.length > 0);
+    }
+
+    // ── recovery Reset password ─────────────────────────────────────
+    if (s.phase === "auth" && s.authMode === "recover" && !s.recoverSamePw) {
+      var rCard = document.querySelector('[data-auth]');
+      var rBtn  = document.querySelector('[data-action="recoverSubmit"]');
+      if (rBtn && rCard) {
+        var rEmail = ((rCard.querySelector('[data-field="email"]') || {}).value || "").trim();
+        var rPw    = (rCard.querySelector('[data-field="newPassword"]') || {}).value || "";
+        var rAns   = O.identity.recovery.every(function (r) {
+          var el = rCard.querySelector('[data-field="' + r.k + '"]');
+          return el && el.value.trim().length > 0;
+        });
+        var rOk = O.identity.validEmail(rEmail) && O.identity.validPassword(rPw) && rAns;
+        rBtn._gateMsg = !O.identity.validEmail(rEmail) ? "Enter a valid email." :
+                        !rAns ? "Answer all four recovery questions." :
+                        "Password needs 9+ chars, a capital, a number and a symbol.";
+        gate(rBtn, rOk);
+      }
+    }
+
+    // ── developer login Enter ───────────────────────────────────────
+    if (s.phase === "devLogin") {
+      var dEml = document.getElementById("devEmail");
+      var dPwd = document.getElementById("devPw");
+      var dBtn = document.querySelector('[data-action="devEnter"]');
+      if (dBtn) dBtn._gateMsg = "Enter email and password.";
+      gate(dBtn, dEml && dPwd && dEml.value.trim().length > 0 && dPwd.value.length > 0);
+    }
+  };
 
   O._refreshSystemHint = function () {
     var hints = document.querySelectorAll(".auth-hint");
