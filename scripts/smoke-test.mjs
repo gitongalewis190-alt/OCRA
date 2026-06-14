@@ -51,6 +51,7 @@ const coreModules = [
   "modules/developer-console/developer-console.js",
   "modules/auth/auth.js",
   "modules/anti-cheat/anti-cheat.js",
+  "modules/voice/voice.js",
   "js/app.js",
 ];
 
@@ -230,6 +231,11 @@ assert("AC: flags same-answer bias",    AC.session.flags.some(function (f) { ret
 AC.reset();
 assert("AC: reset clears flags",        AC.score() === 0);
 assert("AC: reset clears honeypot",     AC.session.honeypotFired === false);
+
+// Voice module
+assert("O.voice loaded",               typeof O.voice === "object");
+assert("voice: say is function",        typeof O.voice.say === "function");
+assert("voice: isMuted returns bool",   typeof O.voice.isMuted() === "boolean");
 
 // Auth: sign up a test user
 var signedUp = false, signupErr = null;

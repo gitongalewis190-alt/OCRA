@@ -334,7 +334,10 @@
     if (!email || !pass) { if (msg) msg.textContent = "Enter email and password."; return; }
     if (O.auth) {
       O.auth.logIn(email, pass,
-        function (user) { O.go({ phase: "dash", dash: user.role === "developer" ? "developer" : user.accountType }); },
+        function (user) {
+          try { if (O.voice) O.voice.say("Welcome back.", "adam"); } catch (e) {}
+          O.go({ phase: "dash", dash: user.role === "developer" ? "developer" : user.accountType });
+        },
         function (e)    { if (msg) msg.textContent = e; }
       );
     }
