@@ -596,6 +596,11 @@
         2.05
       );
 
+      // Synced voice: speak "O. C. R. A." the exact moment letters stamp in
+      tl.call(function () {
+        try { if (O.voice && !O.voice.isMuted()) O.voice.say("O. C. R. A.", "adam", { rate: 0.72, pitch: 0.82 }); } catch (e) {}
+      }, null, 2.05);
+
       var bProxy = { v: 0 };
       tl.to(bProxy, {
         v: BRIEF.length, duration: 1.5, ease: "none",

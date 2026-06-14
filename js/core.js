@@ -104,6 +104,7 @@ window.OCRA = window.OCRA || {};
   // ---- last-resort error surface: a visible banner beats a white screen ----
   O.fail = function (err) {
     try { if (window.console && console.error) console.error("[OCRA]", err); } catch (e) {}
+    try { if (O.voice) O.voice.say("OCRA encountered an issue.", "adam", { volume: 0.65 }); } catch (e) {}
     var app = document.getElementById("app");
     if (!app) return;
     var detail = O.esc(err && err.message ? err.message : String(err || "Unknown error"));
@@ -305,6 +306,7 @@ window.OCRA = window.OCRA || {};
             O.auth.signUp(acct, f,
               function (user) {
                 O._creating = false;
+                try { if (O.voice) O.voice.say("Welcome to OCRA, " + (user.firstName || "there") + ".", "aria"); } catch (e) {}
                 O.go({ phase: "dash", dash: user.role === "developer" ? "developer" : user.accountType, form: {}, signupStage: 1 });
               },
               function (err) {
@@ -387,6 +389,7 @@ window.OCRA = window.OCRA || {};
         if (O.antiCheat) O.antiCheat.startBrainTestTracking();
         O.brainTest.init({ sessionId: "sess_" + Date.now(), accountType: O.state.account, userId: O.state.user ? O.state.user.email : "guest" });
         O.brainTest.startQuestionTimer();
+        try { if (O.voice) O.voice.say("Brain test starting. Sixty questions. Stay focused.", "ryan"); } catch (e) {}
         return O.go({ phase: "brainTest", brainTestPhase: "test" });
 
       case "brainTestAnswer":
@@ -403,6 +406,7 @@ window.OCRA = window.OCRA || {};
               O.brainTest.state.answers || []
             );
           }
+          try { if (O.voice) O.voice.say("Test complete. Calculating your results.", "ryan"); } catch (e) {}
           return O.go({ phase: "brainTest", brainTestPhase: "results" });
         }
         O.brainTest.startQuestionTimer();
@@ -446,6 +450,7 @@ window.OCRA = window.OCRA || {};
         O.reportEngine.state.userProfile = O.state.user || {};
         O.reportEngine.state.academicRecords = O.state.academicRecords || {};
         O.reportEngine.generateAllReports(payload, O.state.academicRecords || {}, O.state.user || {});
+        try { if (O.voice) O.voice.say("Your reports are ready.", "adam"); } catch (e) {}
         return O.go({ phase: "reportView", reportPhase: "summary" });
 
       case "viewReportDoc":
@@ -477,6 +482,16 @@ window.OCRA = window.OCRA || {};
         return O.go({ phase: "reportView", reportPhase: "summary" });
       case "paymentSuccess":
         if (O.payment) { O.payment.unlock(); }
+        try { if (O.voice) O.voice.say("Payment confirmed. Your document is now unlocked.", "aria"); } catch (e) {}
+        return;
+
+      // ---- voice ----
+      case "voiceMute":
+        if (O.voice) {
+          var _wasMuted = O.voice.toggle();
+          if (!_wasMuted) O.voice.say("Voice on.", "adam");
+          O.render();
+        }
         return;
 
       // ---- anti-cheat ----
@@ -813,6 +828,7 @@ window.OCRA = window.OCRA || {};
       '<div class="brand">' + O.logo(40, dark) + '<b>OCRA</b></div>' +
       '<div class="' + (dark ? "dglass" : "pill") + '" style="padding:8px 16px;display:flex;gap:8px;align-items:center">' +
         '<span style="font-size:16px">&#9881;</span><b style="font-weight:700">Settings</b>' +
+        '&nbsp;<button class="btn" data-action="voiceMute" title="Toggle voice" style="font-size:14px;padding:5px 8px">' + (O.voice && O.voice.isMuted() ? "&#128263;" : "&#128264;") + '</button>' +
         '&nbsp;<button class="btn' + (dark ? " dark" : "") + '" data-action="logout" style="font-size:11px;padding:5px 10px">Sign out</button>' +
       '</div>' +
       '<div class="switcher">' + sw + '</div>' +

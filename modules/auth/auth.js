@@ -425,6 +425,7 @@ window.OCRA = window.OCRA || {};
       AUTH.logIn(email, pass,
         function (user) {
           // success
+          try { if (O.voice) O.voice.say("Welcome back.", "adam"); } catch (e) {}
           var dash = user.role === AUTH.ROLES.DEVELOPER ? "developer" : user.accountType;
           O.go({ phase: "dash", dash: dash });
         },
