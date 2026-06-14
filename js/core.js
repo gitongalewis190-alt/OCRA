@@ -43,6 +43,8 @@ window.OCRA = window.OCRA || {};
   O.go = function (patch) {
     Object.assign(O.state, patch || {});
     O.render();
+    // Notify Arten of phase change so sphere emotion updates
+    try { if (O.arten && O.arten.onPhase && patch && patch.phase) O.arten.onPhase(patch.phase); } catch (e) {}
   };
 
   O.render = function () {

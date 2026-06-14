@@ -83,4 +83,29 @@
     try { return localStorage.getItem(MUTE_KEY) === "1"; } catch (e) { return false; }
   };
 
+  // Pre-warm: load voices and unlock audio context as soon as the page opens
+  // so the very first spoken word has zero latency.
+  V.preWarm = function () {
+    if (!_synth) return;
+    try {
+      _loadVoices();
+      // Browsers require a user-gesture OR a prior utterance to unlock audio.
+      // Speaking a zero-volume single-space tricks the engine into staying warm.
+      var u   = new SpeechSynthesisUtterance(" ");
+      u.volume = 0;
+      u.rate   = 10; // blaze past it
+      _synth.speak(u);
+      setTimeout(function () { try { _synth.cancel(); } catch (e) {} }, 80);
+    } catch (e) {}
+  };
+
+  // Fire immediately on page open (deferred scripts run post-parse)
+  if (typeof document !== "undefined") {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", V.preWarm);
+    } else {
+      V.preWarm();
+    }
+  }
+
 })(window.OCRA);

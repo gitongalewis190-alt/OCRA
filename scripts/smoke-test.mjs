@@ -52,6 +52,7 @@ const coreModules = [
   "modules/auth/auth.js",
   "modules/anti-cheat/anti-cheat.js",
   "modules/voice/voice.js",
+  "modules/arten/arten.js",
   "js/app.js",
 ];
 
@@ -231,6 +232,9 @@ assert("AC: flags same-answer bias",    AC.session.flags.some(function (f) { ret
 AC.reset();
 assert("AC: reset clears flags",        AC.score() === 0);
 assert("AC: reset clears honeypot",     AC.session.honeypotFired === false);
+
+// Arten module (3D companion — stubs gracefully when WebGL/rAF absent)
+assert("O.arten loaded",               typeof O.arten === "object");
 
 // Voice module
 assert("O.voice loaded",               typeof O.voice === "object");
