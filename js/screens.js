@@ -40,6 +40,22 @@
     '</ul>';
   }
 
+  // ── compact account-type banner (embedded in auth card) ────────
+  function _acctBanner() {
+    var s = O.state;
+    var items = [
+      { k: "personal",     label: "Personal" },
+      { k: "family",       label: "Family" },
+      { k: "organization", label: "Organization" },
+    ];
+    return '<div class="auth-acct-banner">' +
+      items.map(function (item) {
+        return '<button class="auth-acct-btn' + (s.account === item.k ? " active" : "") + '" ' +
+          'data-action="pickAccount" data-value="' + item.k + '">' + item.label + '</button>';
+      }).join("") +
+    '</div>';
+  }
+
   // ── 5-section progress banner ──────────────────────────────────
   function progressBanner(stages, idx) {
     var labels = I.SECTION_LABELS;
@@ -270,6 +286,7 @@
       '<div class="auth-card wide" data-auth>' +
         '<div class="auth-logorow">' + O.logo(44, true) + '</div>' +
         '<div class="auth-title" style="text-transform:capitalize">' + O.esc(s.account) + ' &mdash; Sign up</div>' +
+        (isFirst ? _acctBanner() : "") +
         progressBanner(stages, idx) +
         '<div style="font-size:15px;font-weight:800;color:#dce8f2;margin-bottom:18px">' + O.esc(stage.title) + '</div>' +
         body +
@@ -319,6 +336,7 @@
       '<div class="auth-card" data-auth>' +
         '<div class="auth-logorow">' + O.logo(56, true) + '</div>' +
         '<div class="auth-title" style="text-transform:capitalize">' + O.esc(s.account) + ' &middot; Sign in</div>' +
+        (step === "email" ? _acctBanner() : "") +
 
         (step === "email" ?
           // ── Step 1: email + social
@@ -362,6 +380,7 @@
       '<div class="auth-card" data-auth>' +
         '<div class="auth-logorow">' + O.logo(44, true) + '</div>' +
         '<div class="auth-title">Account recovery</div>' +
+        (samePw ? "" : _acctBanner()) +
 
         (samePw ?
           '<div style="background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px">' +

@@ -137,7 +137,7 @@ window.OCRA = window.OCRA || {};
         if (O._held) { O._held = false; return; }
         return O.go({ phase: "choose" });
 
-      case "academics":   return O.go({ phase: "account" });
+      case "academics":   return O.go({ phase: "auth", authMode: "login", authStep: "email", account: "personal" });
       case "backToChoose": return O.go({ phase: "choose" });
 
       case "finances": {
@@ -150,7 +150,11 @@ window.OCRA = window.OCRA || {};
         return;
       }
 
-      case "pickAccount": return O.go({ account: v });
+      case "pickAccount": {
+        var _patch = { account: v };
+        if (O.state.phase === "auth") { _patch.signupStage = 1; _patch.form = {}; _patch.authStep = "email"; }
+        return O.go(_patch);
+      }
       case "accountNext": return O.go({ phase: "auth", authMode: "login" });
       case "setAuthMode": {
         if (v === "signup" && O.antiCheat) O.antiCheat.startSignup();

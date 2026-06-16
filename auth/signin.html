@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Sign in to OCRA — Optimised Career &amp; Results Analytics." />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0E6BA8" />
+  <title>Sign In — OCRA</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='%230E6BA8' stroke-width='7'/%3E%3Ccircle cx='50' cy='50' r='9' fill='%230E6BA8'/%3E%3C/svg%3E" />
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080f1f;
+      --ocean:     #0E6BA8;
+      --sky:       #38BDF8;
+      --ink:       #dce8f2;
+      --muted:     rgba(220,232,242,0.5);
+      --card:      rgba(8,20,42,0.72);
+      --inp-bg:    rgba(255,255,255,0.07);
+      --inp-bd:    rgba(255,255,255,0.12);
+      --focus-bd:  rgba(56,189,248,0.6);
+      --focus-glow:rgba(56,189,248,0.15);
+      --btn-grad:  linear-gradient(135deg,#0e6ba8,#38bdf8);
+      --social-bg: rgba(255,255,255,0.06);
+      --social-bd: rgba(255,255,255,0.10);
+      --r-card:    24px;
+      --r-inp:     12px;
+      --nav-h:     62px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+
+    /* ── Atmospheric Background ───────────────────────────── */
+    #scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      will-change: transform;
+    }
+
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.45;
+      animation: morph 18s ease-in-out infinite alternate;
+    }
+    .blob-1 {
+      width: 520px; height: 520px;
+      top: -140px; left: -100px;
+      background: radial-gradient(circle, #0e6ba8 0%, transparent 70%);
+      animation-duration: 18s;
+    }
+    .blob-2 {
+      width: 420px; height: 420px;
+      bottom: -120px; right: -80px;
+      background: radial-gradient(circle, #38bdf8 0%, transparent 70%);
+      animation-duration: 22s;
+      animation-delay: -8s;
+    }
+    .blob-3 {
+      width: 340px; height: 340px;
+      top: 50%; left: 55%;
+      transform: translate(-50%,-50%);
+      background: radial-gradient(circle, #0e4f80 0%, transparent 70%);
+      animation-duration: 26s;
+      animation-delay: -14s;
+    }
+
+    @keyframes morph {
+      0%   { border-radius: 50% 40% 55% 45%; transform: scale(1) translate(0,0); }
+      33%  { border-radius: 40% 55% 45% 50%; transform: scale(1.08) translate(20px,-15px); }
+      66%  { border-radius: 55% 45% 40% 55%; transform: scale(0.94) translate(-15px,20px); }
+      100% { border-radius: 45% 50% 55% 40%; transform: scale(1.04) translate(10px,10px); }
+    }
+    .blob-3 { animation-name: morph3; }
+    @keyframes morph3 {
+      0%   { border-radius: 55% 45% 40% 55%; transform: translate(-50%,-50%) scale(1); }
+      50%  { border-radius: 45% 55% 55% 40%; transform: translate(-50%,-50%) scale(1.12); }
+      100% { border-radius: 50% 50% 45% 50%; transform: translate(-50%,-50%) scale(0.92); }
+    }
+
+    /* Dot-grid overlay */
+    #scene::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(220,232,242,0.09) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+
+    /* ── Navbar ───────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: var(--nav-h);
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      gap: 12px;
+      background: rgba(8,15,31,0.6);
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .nav-back {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px; height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--inp-bd);
+      background: var(--inp-bg);
+      color: var(--ink);
+      flex-shrink: 0;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .nav-back:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.24);
+      transform: translateX(-2px);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      color: var(--ink);
+      margin-right: 6px;
+    }
+    .nav-brand svg { flex-shrink: 0; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
+    .nav-links a {
+      padding: 6px 13px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--muted);
+      transition: color 0.2s, background 0.2s;
+    }
+    .nav-links a:hover {
+      color: var(--ink);
+      background: rgba(255,255,255,0.07);
+    }
+
+    .nav-spacer { flex: 1; }
+
+    .nav-cta {
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      background: var(--btn-grad);
+      color: #fff;
+      transition: opacity 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+    .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+    }
+
+    /* ── Page Layout ──────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: calc(var(--nav-h) + 32px) 20px 40px;
+    }
+
+    /* ── Card ─────────────────────────────────────────────── */
+    .card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card);
+      backdrop-filter: blur(32px) saturate(1.3);
+      -webkit-backdrop-filter: blur(32px) saturate(1.3);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--r-card);
+      padding: 40px 40px 36px;
+      box-shadow:
+        0 0 0 1px rgba(56,189,248,0.04),
+        0 24px 64px rgba(0,0,0,0.55),
+        0 4px 16px rgba(0,0,0,0.35);
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        max-width: 100%;
+        border-radius: 20px;
+        padding: 28px 22px 26px;
+      }
+    }
+
+    /* ── Card Header ──────────────────────────────────────── */
+    .card-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .card-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: var(--sky);
+      margin-bottom: 14px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .card-logo:hover { opacity: 0.82; }
+
+    .card-subtitle {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--ink);
+    }
+
+    /* ── Form ─────────────────────────────────────────────── */
+    .form { display: flex; flex-direction: column; gap: 18px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    .inp-wrap { position: relative; }
+
+    input[type="email"],
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      height: 46px;
+      padding: 0 14px;
+      background: var(--inp-bg);
+      border: 1px solid var(--inp-bd);
+      border-radius: var(--r-inp);
+      color: var(--ink);
+      font-size: 14.5px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+    input[type="email"]::placeholder,
+    input[type="password"]::placeholder,
+    input[type="text"]::placeholder {
+      color: rgba(220,232,242,0.3);
+    }
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    input[type="text"]:focus {
+      border-color: var(--focus-bd);
+      box-shadow: 0 0 0 3px var(--focus-glow);
+    }
+
+    /* password has right padding for eye toggle */
+    .inp-wrap input[type="password"],
+    .inp-wrap input[type="text"] {
+      padding-right: 46px;
+    }
+
+    .eye-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      color: var(--muted);
+      transition: color 0.2s, background 0.2s;
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+    .eye-btn:hover { color: var(--ink); background: rgba(255,255,255,0.08); }
+
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 12.5px;
+      color: var(--sky);
+      margin-top: -8px;
+      transition: opacity 0.2s;
+    }
+    .forgot-link:hover { opacity: 0.75; }
+
+    /* ── Submit Button ────────────────────────────────────── */
+    .submit-btn {
+      margin-top: 4px;
+      height: 48px;
+      width: 100%;
+      border-radius: 13px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      color: #fff;
+      background: var(--btn-grad);
+      border: none;
+      position: relative;
+      overflow: hidden;
+      transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .submit-btn:not(:disabled):hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(14,107,168,0.45);
+    }
+    .submit-btn:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .submit-btn .btn-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Social Section ───────────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px 0 2px;
+    }
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.10);
+    }
+    .divider-text {
+      font-size: 11.5px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .social-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      height: 42px;
+      border-radius: 11px;
+      border: 1px solid var(--social-bd);
+      background: var(--social-bg);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    }
+    .social-btn:hover {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.18);
+      transform: translateY(-2px);
+    }
+    .social-btn span { display: none; }
+
+    @media (min-width: 360px) {
+      .social-btn span { display: inline; }
+    }
+
+    /* ── Card Footer ──────────────────────────────────────── */
+    .card-footer {
+      margin-top: 22px;
+      text-align: center;
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+    .card-footer a {
+      color: var(--sky);
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .card-footer a:hover { opacity: 0.75; }
+
+    /* ── Honeypot ─────────────────────────────────────────── */
+    #hp_website {
+      opacity: 0;
+      position: absolute;
+      height: 0;
+      width: 0;
+      pointer-events: none;
+    }
+
+    /* ── Toast Notifications ──────────────────────────────── */
+    #toast-container {
+      position: fixed;
+      top: calc(var(--nav-h) + 12px);
+      right: 16px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 340px;
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 13px;
+      border: 1px solid transparent;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      font-size: 13.5px;
+      line-height: 1.45;
+      pointer-events: all;
+      transform: translateX(110%);
+      transition: transform 0.32s cubic-bezier(0.34,1.56,0.64,1), opacity 0.28s ease;
+      opacity: 0;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+    }
+    .toast.visible {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .toast.hiding {
+      transform: translateX(110%);
+      opacity: 0;
+    }
+
+    .toast-error   { background: rgba(220,38,38,0.18);  border-color: rgba(220,38,38,0.35);  }
+    .toast-success { background: rgba(22,163,74,0.18);  border-color: rgba(22,163,74,0.35);  }
+    .toast-info    { background: rgba(14,107,168,0.22); border-color: rgba(56,189,248,0.28); }
+
+    .toast-icon { flex-shrink: 0; margin-top: 1px; }
+    .toast-body { flex: 1; color: var(--ink); }
+    .toast-close {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1;
+      padding: 0 2px;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .toast-close:hover { color: var(--ink); }
+
+    /* ── Reduced Motion ───────────────────────────────────── */
+    @media (prefers-reduced-motion: reduce) {
+      .blob { animation: none; }
+      .blob-3 { animation: none; }
+      .toast { transition: opacity 0.2s; transform: none !important; }
+      .toast.hiding { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Atmospheric Background ─────────────────────────────── -->
+<div id="scene" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- ── Toast Container ────────────────────────────────────── -->
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<!-- ── Navbar ─────────────────────────────────────────────── -->
+<nav role="navigation" aria-label="Site navigation">
+  <!-- Back button -->
+  <button class="nav-back" id="back-btn" aria-label="Go back">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <!-- Brand -->
+  <a href="/" class="nav-brand" aria-label="OCRA home">
+    <svg width="26" height="26" viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r="44" fill="none" stroke="#0E6BA8" stroke-width="7"/>
+      <circle cx="50" cy="50" r="9" fill="#0E6BA8"/>
+    </svg>
+    OCRA
+  </a>
+
+  <!-- Nav links (hidden on mobile) -->
+  <div class="nav-links" role="list">
+    <a href="/" role="listitem">Home</a>
+    <a href="/#about" role="listitem">About</a>
+    <a href="/#features" role="listitem">Features</a>
+  </div>
+
+  <div class="nav-spacer" aria-hidden="true"></div>
+
+  <!-- CTA -->
+  <a href="signup.html" class="nav-cta" aria-label="Create a new account">Sign Up</a>
+</nav>
+
+<!-- ── Page ───────────────────────────────────────────────── -->
+<main class="page" role="main">
+  <div class="card" role="region" aria-labelledby="card-heading">
+
+    <!-- Card Header -->
+    <header class="card-header">
+      <a href="/" class="card-logo" aria-label="OCRA home">
+        <svg width="28" height="28" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="44" fill="none" stroke="#38BDF8" stroke-width="7"/>
+          <circle cx="50" cy="50" r="9" fill="#38BDF8"/>
+        </svg>
+        OCRA
+      </a>
+      <p class="card-subtitle">Welcome back</p>
+      <h1 class="card-title" id="card-heading">Log In</h1>
+    </header>
+
+    <!-- Sign-In Form -->
+    <form class="form" id="signin-form" novalidate autocomplete="on">
+
+      <!-- Honeypot -->
+      <input
+        type="text"
+        id="hp_website"
+        name="website"
+        tabindex="-1"
+        aria-hidden="true"
+        autocomplete="off"
+      />
+
+      <!-- 1. Email -->
+      <div class="field">
+        <label class="field-label" for="email">Email Address</label>
+        <div class="inp-wrap">
+          <input
+            type="email"
+            id="email"
+            name="email"
+            autocomplete="email"
+            inputmode="email"
+            placeholder="you@example.com"
+            required
+            aria-required="true"
+            aria-describedby="email-hint"
+          />
+        </div>
+      </div>
+
+      <!-- 2. Password -->
+      <div class="field">
+        <label class="field-label" for="password">Password</label>
+        <div class="inp-wrap">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            autocomplete="current-password"
+            placeholder="Your password"
+            required
+            aria-required="true"
+          />
+          <!-- Eye toggle -->
+          <button
+            type="button"
+            class="eye-btn"
+            id="eye-toggle"
+            aria-label="Show password"
+            aria-pressed="false"
+          >
+            <!-- Open eye (shown when password is hidden) -->
+            <svg id="eye-open" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <!-- Closed eye (shown when password is visible) -->
+            <svg id="eye-closed" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+              <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Forgot Password -->
+      <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+
+      <!-- 4. Submit -->
+      <button
+        type="submit"
+        class="submit-btn"
+        id="submit-btn"
+        disabled
+        aria-disabled="true"
+      >
+        <span class="btn-inner" id="btn-label">Log In</span>
+      </button>
+
+      <!-- 5. Social Divider + Buttons -->
+      <div class="divider" aria-hidden="true">
+        <div class="divider-line"></div>
+        <span class="divider-text">or continue with</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="social-row" role="group" aria-label="Social sign-in options">
+
+        <!-- Google -->
+        <button type="button" class="social-btn" data-provider="Google" aria-label="Sign in with Google">
+          <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.7 2.4 30.2 0 24 0 14.6 0 6.6 5.5 2.8 13.6l7.8 6c1.8-5.5 6.9-10.1 13.4-10.1z"/>
+            <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 7.1-10 7.1-17z"/>
+            <path fill="#FBBC05" d="M10.6 28.6A14.9 14.9 0 0 1 9.5 24c0-1.6.3-3.1.8-4.6L2.5 13.4A24 24 0 0 0 0 24c0 3.8.9 7.4 2.5 10.6l8.1-6z"/>
+            <path fill="#34A853" d="M24 48c6.2 0 11.4-2 15.2-5.5l-7.5-5.8c-2 1.4-4.6 2.2-7.7 2.2-6.4 0-11.9-4.3-13.8-10.2l-7.8 6C6.5 42.4 14.6 48 24 48z"/>
+          </svg>
+          <span>Google</span>
+        </button>
+
+        <!-- Apple -->
+        <button type="button" class="social-btn" data-provider="Apple" aria-label="Sign in with Apple">
+          <svg width="17" height="17" viewBox="0 0 814 1000" aria-hidden="true" fill="currentColor">
+            <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105.9-57.8-155.5-127.4C46 389.1 90.9 231.5 161 140.9c39.1-50.8 101.1-84 167.7-84 56.4 0 104 41.9 145.6 41.9 40.8 0 103.7-45.5 168.8-45.5 22.9 0 95.6 1.9 144.2 72.9zm-224.1-66.9c5.1-58.3-37.8-118-80-152.2-42.2-34.2-103.7-57.2-147.8-57.2-1.3 0-2.6 0-3.9.1 1.3 61.6 34.2 123.1 75.7 163.9 41.5 40.9 97.8 67.4 156 45.4z"/>
+          </svg>
+          <span>Apple</span>
+        </button>
+
+        <!-- Microsoft -->
+        <button type="button" class="social-btn" data-provider="Microsoft" aria-label="Sign in with Microsoft">
+          <svg width="17" height="17" viewBox="0 0 21 21" aria-hidden="true">
+            <rect x="0"  y="0"  width="10" height="10" fill="#F25022"/>
+            <rect x="11" y="0"  width="10" height="10" fill="#7FBA00"/>
+            <rect x="0"  y="11" width="10" height="10" fill="#00A4EF"/>
+            <rect x="11" y="11" width="10" height="10" fill="#FFB900"/>
+          </svg>
+          <span>Microsoft</span>
+        </button>
+
+      </div>
+    </form>
+
+    <!-- Card Footer -->
+    <footer class="card-footer">
+      No account? <a href="signup.html">Sign up</a>
+    </footer>
+
+  </div><!-- /.card -->
+</main><!-- /main -->
+
+<script>
+(function () {
+  'use strict';
+
+  /* ── Constants ─────────────────────────────────────────── */
+  const ACCOUNTS_KEY  = 'ocra_accounts_v1';
+  const SESSION_KEY   = 'ocra_session_v1';
+  const DEVELOPER_EMAILS = ['gitongalewis190@gmail.com', 'developer@ocra.app'];
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  /* ── Elements ──────────────────────────────────────────── */
+  const form       = document.getElementById('signin-form');
+  const emailInp   = document.getElementById('email');
+  const passInp    = document.getElementById('password');
+  const hpInp      = document.getElementById('hp_website');
+  const submitBtn  = document.getElementById('submit-btn');
+  const btnLabel   = document.getElementById('btn-label');
+  const eyeToggle  = document.getElementById('eye-toggle');
+  const eyeOpen    = document.getElementById('eye-open');
+  const eyeClosed  = document.getElementById('eye-closed');
+  const backBtn    = document.getElementById('back-btn');
+  const scene      = document.getElementById('scene');
+
+  /* ── hashPassword — djb2 variant ──────────────────────── */
+  function hashPassword(str) {
+    let hash = 5381;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) + hash) ^ str.charCodeAt(i);
+      hash |= 0; // keep 32-bit int
+    }
+    const hex = (hash >>> 0).toString(16).padStart(8, '0');
+    return 'ocra_' + hex + '_' + str.length;
+  }
+
+  /* ── Toast System ──────────────────────────────────────── */
+  const toastContainer = document.getElementById('toast-container');
+  const toastTimers    = new WeakMap();
+
+  function showToast(message, type = 'info') {
+    const icons = {
+      error:   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+      success: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>`,
+      info:    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`,
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+      <span class="toast-icon">${icons[type] || icons.info}</span>
+      <span class="toast-body">${message}</span>
+      <button class="toast-close" aria-label="Dismiss notification">&#x2715;</button>
+    `;
+    toastContainer.appendChild(toast);
+
+    // Trigger slide-in
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => toast.classList.add('visible'));
+    });
+
+    // Close button
+    toast.querySelector('.toast-close').addEventListener('click', () => dismissToast(toast));
+
+    // Auto-dismiss after 5 s
+    const timer = setTimeout(() => dismissToast(toast), 5000);
+    toastTimers.set(toast, timer);
+  }
+
+  function dismissToast(toast) {
+    if (!toast.parentNode) return;
+    clearTimeout(toastTimers.get(toast));
+    toast.classList.add('hiding');
+    toast.classList.remove('visible');
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+  }
+
+  /* ── Eye Toggle ────────────────────────────────────────── */
+  eyeToggle.addEventListener('click', () => {
+    const isPassword = passInp.type === 'password';
+    passInp.type = isPassword ? 'text' : 'password';
+    eyeOpen.style.display   = isPassword ? 'none'  : '';
+    eyeClosed.style.display = isPassword ? ''      : 'none';
+    eyeToggle.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    eyeToggle.setAttribute('aria-pressed', String(isPassword));
+  });
+
+  /* ── Button Gating ─────────────────────────────────────── */
+  function validate() {
+    const emailOk = EMAIL_RE.test(emailInp.value.trim());
+    const passOk  = passInp.value.length >= 9;
+    const hpOk    = hpInp.value === '';
+    const enabled = emailOk && passOk && hpOk;
+    submitBtn.disabled = !enabled;
+    submitBtn.setAttribute('aria-disabled', String(!enabled));
+  }
+
+  emailInp.addEventListener('input', validate);
+  passInp.addEventListener('input',  validate);
+
+  /* ── Auth Logic ────────────────────────────────────────── */
+  function getAccounts() {
+    try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function createSession(user) {
+    const now = Date.now();
+    const session = {
+      token:     'ocra_' + Math.random().toString(36).slice(2) + Date.now().toString(36),
+      user:      user,
+      createdAt: now,
+      expiresAt: now + 7 * 24 * 60 * 60 * 1000,
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  }
+
+  function setLoading(loading) {
+    if (loading) {
+      btnLabel.innerHTML = `<span class="spinner" aria-hidden="true"></span> Signing in…`;
+      submitBtn.disabled = true;
+      submitBtn.setAttribute('aria-disabled', 'true');
+    } else {
+      btnLabel.textContent = 'Log In';
+      validate();
+    }
+  }
+
+  function handleSignIn(email, password) {
+    email = email.toLowerCase().trim();
+
+    // Developer bypass
+    if (DEVELOPER_EMAILS.includes(email)) {
+      const devUser = {
+        email,
+        displayName: email.split('@')[0],
+        role: 'developer',
+        createdAt: Date.now(),
+      };
+      createSession(devUser);
+      showToast('Welcome back, developer!', 'success');
+      setTimeout(() => { window.location.href = '/'; }, 700);
+      return;
+    }
+
+    // Regular account lookup
+    const accounts = getAccounts();
+    const account  = accounts.find(a => a.email && a.email.toLowerCase() === email);
+
+    if (!account) {
+      showToast('No account found with that email address.', 'error');
+      setLoading(false);
+      return;
+    }
+
+    const inputHash = hashPassword(password);
+    if (inputHash !== account.passwordHash) {
+      showToast('Incorrect password. Please try again.', 'error');
+      setLoading(false);
+      return;
+    }
+
+    createSession(account);
+    showToast('Signed in successfully!', 'success');
+    setTimeout(() => { window.location.href = '/'; }, 700);
+  }
+
+  /* ── Form Submit ───────────────────────────────────────── */
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    // Honeypot check
+    if (hpInp.value !== '') return; // reject silently
+
+    const email    = emailInp.value.trim();
+    const password = passInp.value;
+
+    // Final client-side guard
+    if (!EMAIL_RE.test(email) || password.length < 9) return;
+
+    setLoading(true);
+    // Small async tick to allow spinner to render
+    setTimeout(() => handleSignIn(email, password), 60);
+  });
+
+  /* ── Social Buttons ────────────────────────────────────── */
+  document.querySelectorAll('.social-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      showToast('Provider sign-in coming soon.', 'info');
+    });
+  });
+
+  /* ── Back Navigation ───────────────────────────────────── */
+  backBtn.addEventListener('click', () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      window.location.href = '/';
+    }
+  });
+
+  /* ── Spatial Parallax ──────────────────────────────────── */
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReducedMotion) {
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
+    const LERP = 0.08;
+    const MAX  = 20;
+    let rafId  = null;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    function updateScene() {
+      currentX = lerp(currentX, targetX, LERP);
+      currentY = lerp(currentY, targetY, LERP);
+      scene.style.transform = `translate(${currentX}px, ${currentY}px)`;
+      rafId = requestAnimationFrame(updateScene);
+    }
+
+    // Pointer (fine devices only)
+    const isPointerFine = window.matchMedia('(pointer: fine)').matches;
+    if (isPointerFine) {
+      document.addEventListener('mousemove', (e) => {
+        const cx = window.innerWidth  / 2;
+        const cy = window.innerHeight / 2;
+        // Move opposite to cursor
+        targetX = clamp(-((e.clientX - cx) / cx) * MAX, -MAX, MAX);
+        targetY = clamp(-((e.clientY - cy) / cy) * MAX, -MAX, MAX);
+      });
+      rafId = requestAnimationFrame(updateScene);
+    }
+
+    // Touch / device orientation
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', (e) => {
+        if (e.gamma == null || e.beta == null) return;
+        targetX = clamp(-e.gamma * 0.55, -MAX, MAX); // left/right tilt
+        targetY = clamp(-e.beta  * 0.30, -MAX, MAX); // front/back tilt
+      });
+      if (!isPointerFine) rafId = requestAnimationFrame(updateScene);
+    }
+  }
+
+  /* ── Initial validation pass ───────────────────────────── */
+  validate();
+})();
+</script>
+</body>
+</html>

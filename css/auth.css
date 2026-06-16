@@ -169,6 +169,31 @@
   background: rgba(255,255,255,.09);
 }
 
+/* ── Account-type banner (embedded, replaces full-page chooser) ── */
+.auth-acct-banner {
+  display: flex; gap: 6px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; padding: 5px;
+  margin-bottom: 20px;
+}
+.auth-acct-btn {
+  flex: 1; padding: 9px 6px;
+  background: none; border: none;
+  border-radius: 10px;
+  font-size: 12px; font-weight: 700;
+  color: rgba(220,232,242,.45);
+  cursor: pointer; font-family: inherit;
+  transition: background .15s, color .15s;
+  letter-spacing: .03em;
+}
+.auth-acct-btn:hover { background: rgba(255,255,255,.07); color: rgba(220,232,242,.7); }
+.auth-acct-btn.active {
+  background: linear-gradient(135deg, #0e6ba8, #2da8e0);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(14,107,168,.35);
+}
+
 /* ── 5-section progress banner ────────────────────────────────── */
 .auth-banner { margin-bottom: 22px; }
 .auth-segs   { display: flex; gap: 4px; margin-bottom: 7px; }

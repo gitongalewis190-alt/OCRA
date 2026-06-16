@@ -97,6 +97,9 @@ O.go({ phase: "auth", authMode: "login", authStep: "email" });
 assert("login screen",                  app().includes("data-auth"));
 assert("login: email-first step",       app().includes("emailNext"));
 assert("login: social sign-in seams",   app().includes("socialAuth"));
+assert("login: embedded account banner", app().includes("auth-acct-banner"));
+assert("login: account banner has personal/family/organization",
+  app().includes('data-value="personal"') && app().includes('data-value="family"') && app().includes('data-value="organization"'));
 
 O.go({ phase: "auth", authMode: "recover" });
 assert("recovery screen",               app().includes("recoverSubmit"));
