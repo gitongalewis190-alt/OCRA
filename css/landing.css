@@ -1,0 +1,262 @@
+/* ============================================================
+   LANDING — animated hero, stratum slides, 3D account branches
+   Light scene to match the hero art. Everything moves slowly.
+   ============================================================ */
+
+/* ── Landing stage ──────────────────────────────────────────── */
+.land {
+  position: fixed; inset: 0; z-index: 100;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 38%, #eef1f4 0%, #dfe3e8 55%, #d2d7dd 100%);
+}
+
+/* hero art — never cropped, fits both phone & desktop */
+.land-hero {
+  position: absolute; inset: 0;
+  background-image: url("../assets/hero.png");
+  background-repeat: no-repeat;
+  background-position: center 42%;
+  background-size: contain;
+  opacity: 0;
+  transition: opacity 1.1s ease;
+  will-change: transform;
+  animation: heroBreathe 22s ease-in-out infinite;
+}
+.land-hero.in { opacity: 1; }
+@keyframes heroBreathe {
+  0%,100% { transform: scale(1.00) translateY(0); }
+  50%     { transform: scale(1.025) translateY(-6px); }
+}
+
+/* slow orbital ring layered over the globe */
+.land-orbit {
+  position: absolute; left: 50%; top: 42%;
+  width: min(58vmin, 460px); height: min(58vmin, 460px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px dashed rgba(56,189,248,.28);
+  opacity: 0; pointer-events: none;
+  animation: orbitSpin 60s linear infinite;
+  transition: opacity 1.4s ease;
+}
+.land-orbit.two {
+  width: min(40vmin, 320px); height: min(40vmin, 320px);
+  border-color: rgba(16,58,85,.16);
+  animation-duration: 90s; animation-direction: reverse;
+}
+.land-orbit.in { opacity: 1; }
+@keyframes orbitSpin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+/* drifting-dots + floating-math canvas overlay */
+.land-fx { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 1.6s ease; }
+.land-fx.in { opacity: 1; }
+
+/* ghosted, intentionally-doubled OCRA watermark */
+.land-mark {
+  position: absolute; top: clamp(10px, 5vh, 54px); left: clamp(12px, 4vw, 48px);
+  font-weight: 900; letter-spacing: .14em; line-height: .82;
+  color: rgba(16,58,85,.10);
+  font-size: clamp(54px, 13vw, 150px);
+  user-select: none;            /* zero hint — but must stay interactive */
+  pointer-events: auto;         /* 5s press-and-hold = developer access */
+  opacity: 0; transition: opacity 1.3s ease .2s;
+}
+.land-mark.in { opacity: 1; }
+.land-mark span { display: block; }
+.land-mark span:nth-child(2) {
+  margin-left: .14em; margin-top: -.16em;
+  color: rgba(16,58,85,.055);
+}
+
+/* ── White brief banner (pure white, overlaps ~3/4 of art) ──── */
+.land-banner {
+  position: absolute;
+  right: 0; bottom: clamp(18px, 7vh, 70px);
+  width: min(78%, 560px);
+  background: #ffffff;
+  border-radius: 20px 0 0 20px;
+  box-shadow: 0 18px 60px rgba(16,58,85,.22), 0 2px 0 rgba(255,255,255,.9) inset;
+  padding: clamp(20px, 3.4vw, 34px) clamp(20px, 3.6vw, 40px);
+  padding-right: clamp(58px, 8vw, 96px);
+  color: #103A55;
+  opacity: 0; transform: translateX(40px);
+  transition: opacity .7s ease, transform .7s cubic-bezier(.22,1,.36,1);
+}
+.land-banner.in { opacity: 1; transform: translateX(0); }
+
+.land-brief {
+  font-size: clamp(13px, 1.55vw, 16px);
+  line-height: 1.7; font-weight: 500;
+  min-height: 5.5em;
+  color: #1f3d52;
+}
+.land-brief b { color: #0E6BA8; font-weight: 800; }
+.land-cursor {
+  display: inline-block; width: 2px; height: 1.05em;
+  background: #0E6BA8; margin-left: 1px;
+  vertical-align: -2px; animation: caret .85s step-end infinite;
+}
+@keyframes caret { 50% { opacity: 0; } }
+
+.land-sub {
+  margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid rgba(16,58,85,.1);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic; font-size: clamp(13px, 1.7vw, 17px);
+  letter-spacing: .02em; color: #5B7689;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+}
+
+.land-dive {
+  flex-shrink: 0;
+  padding: 13px 26px;
+  border: none; border-radius: 999px;
+  background: #16222e; color: #fff;
+  font-size: 13px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 8px 22px rgba(22,34,46,.35);
+  opacity: 0; transform: scale(.9);
+  transition: opacity .5s ease, transform .5s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+}
+.land-dive.in { opacity: 1; transform: scale(1); }
+.land-dive:hover { box-shadow: 0 10px 30px rgba(56,189,248,.4); background: #0E6BA8; }
+
+@media (max-width: 640px) {
+  .land-hero { background-position: center 36%; background-size: contain; }
+  .land-banner { width: 100%; border-radius: 20px 20px 0 0; bottom: 0; padding-right: clamp(20px,5vw,28px); }
+  .land-sub { flex-direction: column; align-items: flex-start; }
+  .land-dive { align-self: stretch; text-align: center; }
+}
+
+/* ============================================================
+   STRATUM SLIDES — stacked, draggable, 3D (iPhone-wheel feel)
+   ============================================================ */
+.strata-wrap { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 8px; }
+.strata-guide {
+  text-align: center; max-width: 420px;
+}
+.strata-guide h2 { font-size: 22px; font-weight: 800; color: var(--ink, #103A55); margin: 0 0 6px; }
+.strata-guide p  { font-size: 12.5px; color: var(--muted, #5B7689); line-height: 1.6; margin: 0; opacity: .85; }
+
+.strata-stack {
+  position: relative;
+  width: min(86vw, 360px); height: 320px;
+  perspective: 1100px;
+  user-select: none; touch-action: pan-y;
+}
+.strata-pill {
+  position: absolute; left: 50%; top: 50%;
+  width: 300px; max-width: 80vw; height: 70px;
+  margin-left: -150px; margin-top: -35px;
+  border-radius: 22px;
+  display: flex; align-items: center; padding: 0 26px;
+  font-size: 19px; font-weight: 800; letter-spacing: .04em;
+  color: #2a3a47;
+  background: linear-gradient(160deg, #ffffff, #eef1f4);
+  box-shadow: 0 18px 40px rgba(16,58,85,.18), inset 0 1px 0 rgba(255,255,255,.9);
+  transition: transform .55s cubic-bezier(.22,1,.36,1), opacity .5s, box-shadow .4s, filter .4s;
+  cursor: grab; will-change: transform;
+}
+.strata-pill.dragging { cursor: grabbing; transition: none; }
+.strata-pill .strata-tag {
+  margin-left: auto; font-size: 10px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 999px;
+}
+.strata-pill.active   { color: #0E6BA8; }
+.strata-pill.active   .strata-tag { background: rgba(14,107,168,.12); color: #0E6BA8; }
+.strata-pill.locked   { color: #9aa6b0; background: linear-gradient(160deg, #dfe3e8, #cfd5db); cursor: default; pointer-events: none; opacity: .82; }
+.strata-pill.locked   .strata-tag { background: rgba(16,58,85,.08); color: #8190a0; }
+.strata-shake { animation: authShake .35s ease both; }
+
+/* ============================================================
+   ACCOUNT BRANCHES — rotating clockwise, upright labels, 3D
+   ============================================================ */
+.acct-scene {
+  display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 6px;
+}
+.acct-guide { text-align: center; max-width: 380px; }
+.acct-guide h2 { font-size: 21px; font-weight: 800; color: var(--ink,#103A55); margin: 0 0 5px; }
+.acct-guide p  { font-size: 12px; color: var(--muted,#5B7689); line-height: 1.55; margin: 0; opacity: .85; }
+
+.acct-orbit {
+  position: relative;
+  width: min(78vw, 340px); height: min(78vw, 340px);
+  transform-style: preserve-3d;
+}
+/* slow clockwise dashed ring + nodes */
+.acct-ring {
+  position: absolute; inset: 14%;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(14,107,168,.35);
+  animation: acctSpin 48s linear infinite;
+}
+.acct-node {
+  position: absolute; width: 10px; height: 10px; border-radius: 50%;
+  background: #fff; border: 2px solid #38BDF8;
+  box-shadow: 0 0 8px rgba(56,189,248,.55);
+}
+.acct-node.n { top: -6px;  left: 50%; margin-left: -5px; }
+.acct-node.s { bottom: -6px; left: 50%; margin-left: -5px; }
+.acct-node.e { right: -6px; top: 50%; margin-top: -5px; }
+.acct-node.w { left: -6px;  top: 50%; margin-top: -5px; }
+@keyframes acctSpin { to { transform: rotate(360deg); } }
+
+/* center OCRA hub */
+.acct-hub {
+  position: absolute; left: 50%; top: 50%;
+  width: 38%; height: 38%; transform: translate(-50%,-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #ffffff, #eaf0f5 70%);
+  border: 2px solid rgba(14,107,168,.18);
+  box-shadow: 0 10px 30px rgba(16,58,85,.16), inset 0 2px 6px rgba(255,255,255,.9);
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(20px, 6vw, 30px); font-weight: 900; letter-spacing: .08em;
+  color: #0E6BA8; z-index: 3;
+}
+
+/* the three branch bubbles revolve as a group; labels counter-rotate */
+.acct-branches {
+  position: absolute; inset: 0;
+  animation: acctSpin 48s linear infinite;
+}
+.acct-branch {
+  position: absolute; width: 34%; height: 34%;
+  left: 50%; top: 50%;
+  margin-left: -17%; margin-top: -17%;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  cursor: pointer; z-index: 4;
+  transition: transform .25s ease, box-shadow .3s;
+}
+.acct-branch .acct-bub {
+  width: 100%; height: 100%; border-radius: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; text-align: center;
+  color: #fff; font-weight: 800; letter-spacing: .05em;
+  font-size: clamp(10px, 2.7vw, 13px);
+  box-shadow: 0 12px 28px rgba(16,58,85,.28), inset 0 2px 8px rgba(255,255,255,.25);
+  /* labels stay upright: counter-rotate the group's rotation */
+  animation: acctSpinRev 48s linear infinite;
+}
+.acct-branch .acct-ic { font-size: clamp(15px, 4.4vw, 22px); line-height: 1; }
+@keyframes acctSpinRev { to { transform: rotate(-360deg); } }
+
+.acct-branch[data-value="family"]       { transform: translateY(-118%); }
+.acct-branch[data-value="personal"]     { transform: translate(-92%, 78%); }
+.acct-branch[data-value="organization"] { transform: translate(92%, 78%); }
+
+.acct-branch[data-value="family"]       .acct-bub { background: linear-gradient(155deg, #1c3a52, #2a4a63); }
+.acct-branch[data-value="personal"]     .acct-bub { background: linear-gradient(155deg, #16222e, #243744); }
+.acct-branch[data-value="organization"] .acct-bub { background: linear-gradient(155deg, #0E6BA8, #38BDF8); }
+
+.acct-branch:hover { transform-origin: center; filter: brightness(1.08); }
+.acct-branch:hover .acct-bub { box-shadow: 0 16px 40px rgba(56,189,248,.45); }
+.acct-branch.sel   .acct-bub { outline: 3px solid rgba(56,189,248,.55); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .land-hero, .land-orbit, .acct-ring, .acct-branches, .acct-branch .acct-bub { animation: none !important; }
+}

@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Create your OCRA account — Optimised Career & Results Analytics." />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0E6BA8" />
+  <title>Sign Up — OCRA</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='%230E6BA8' stroke-width='7'/%3E%3Ccircle cx='50' cy='50' r='9' fill='%230E6BA8'/%3E%3C/svg%3E" />
+  <style>
+    /* ─── RESET & BASE ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+    body {
+      min-height: 100dvh;
+      background: #080f1f;
+      color: #dce8f2;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+    a { color: #38BDF8; text-decoration: none; transition: opacity .18s; }
+    a:hover { opacity: .8; }
+    button { cursor: pointer; font-family: inherit; font-size: inherit; border: none; outline: none; }
+
+    /* ─── ATMOSPHERIC BACKGROUND ─── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.28;
+      animation: blobDrift 18s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+    .blob-1 {
+      width: 520px; height: 520px;
+      background: radial-gradient(circle, #0E6BA8 0%, transparent 70%);
+      top: -10%; left: -8%;
+      animation-duration: 22s;
+    }
+    .blob-2 {
+      width: 440px; height: 440px;
+      background: radial-gradient(circle, #38BDF8 0%, transparent 70%);
+      top: 30%; right: -12%;
+      animation-duration: 17s;
+      animation-delay: -7s;
+    }
+    .blob-3 {
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, #0E6BA8 0%, transparent 70%);
+      bottom: -10%; left: 30%;
+      animation-duration: 26s;
+      animation-delay: -13s;
+    }
+    @keyframes blobDrift {
+      0%   { transform: translate(0,0) scale(1); }
+      33%  { transform: translate(30px,-40px) scale(1.06); }
+      66%  { transform: translate(-20px,30px) scale(0.94); }
+      100% { transform: translate(15px,-15px) scale(1.02); }
+    }
+    .dot-grid {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(220,232,242,0.09) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    /* ─── NAVBAR ─── */
+    #navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 28px;
+      height: 62px;
+      background: rgba(8,15,31,0.72);
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    #nav-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      color: rgba(220,232,242,0.65);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: background .18s, color .18s;
+      flex-shrink: 0;
+    }
+    #nav-back:hover { background: rgba(255,255,255,0.07); color: #dce8f2; }
+    #nav-back svg { width: 16px; height: 16px; }
+    #nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    #nav-brand svg { width: 28px; height: 28px; }
+    #nav-brand-text {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: #dce8f2;
+    }
+    #nav-links {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 28px;
+    }
+    .nav-link {
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: rgba(220,232,242,0.6);
+      transition: background .18s, color .18s;
+      white-space: nowrap;
+    }
+    .nav-link:hover { background: rgba(255,255,255,0.07); color: #dce8f2; }
+    #nav-spacer { flex: 1; }
+    #nav-cta {
+      background: linear-gradient(135deg, #0e6ba8, #38bdf8);
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 8px 22px;
+      border-radius: 10px;
+      letter-spacing: .01em;
+      transition: opacity .18s, transform .18s;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    #nav-cta:hover { opacity: .88; transform: translateY(-1px); }
+
+    @media (max-width: 680px) {
+      #nav-links { display: none; }
+      #navbar { padding: 0 16px; }
+    }
+
+    /* ─── MAIN LAYOUT ─── */
+    #page {
+      position: relative;
+      z-index: 1;
+      min-height: 100dvh;
+      padding: 94px 20px 48px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ─── CARD ─── */
+    #card {
+      width: 100%;
+      max-width: 520px;
+      background: rgba(8,20,42,0.72);
+      backdrop-filter: blur(32px) saturate(1.3);
+      -webkit-backdrop-filter: blur(32px) saturate(1.3);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 24px;
+      padding: 40px 40px 36px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(56,189,248,0.06);
+    }
+    @media (max-width: 580px) {
+      #card { padding: 28px 20px 24px; border-radius: 20px; }
+    }
+
+    /* ─── CARD HEADER ─── */
+    .card-header { text-align: center; margin-bottom: 30px; }
+    .card-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #dce8f2;
+      letter-spacing: -.01em;
+    }
+    .card-sub {
+      margin-top: 6px;
+      font-size: 13.5px;
+      color: rgba(220,232,242,0.5);
+    }
+
+    /* ─── FORM FIELDS ─── */
+    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .field:last-of-type { margin-bottom: 0; }
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(220,232,242,0.55);
+    }
+    .input-wrap { position: relative; }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      color: #dce8f2;
+      font-family: inherit;
+      font-size: 14.5px;
+      padding: 11px 14px;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color .18s, box-shadow .18s, background .18s;
+    }
+    input[type="text"]::placeholder,
+    input[type="email"]::placeholder,
+    input[type="password"]::placeholder {
+      color: rgba(220,232,242,0.28);
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      border-color: rgba(56,189,248,0.6);
+      box-shadow: 0 0 0 3px rgba(56,189,248,0.15);
+      background: rgba(255,255,255,0.09);
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='M5 7.5l5 5 5-5' stroke='rgba(220,232,242,0.45)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 18px;
+      padding-right: 38px;
+      cursor: pointer;
+    }
+    select option {
+      background: #0e1929;
+      color: #dce8f2;
+    }
+
+    /* ─── EYE TOGGLE ─── */
+    .eye-btn {
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      color: rgba(220,232,242,0.42);
+      border-radius: 0 12px 12px 0;
+      transition: color .18s;
+    }
+    .eye-btn:hover { color: rgba(220,232,242,0.75); }
+    .eye-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+    input[type="password"].has-eye,
+    input[type="text"].has-eye {
+      padding-right: 44px;
+    }
+
+    /* ─── PASSWORD COUNTER ─── */
+    .pw-counter {
+      font-size: 12px;
+      margin-top: 5px;
+      font-weight: 500;
+      transition: color .25s;
+      min-height: 18px;
+    }
+    .pw-counter.state-below   { color: rgba(220,232,242,0.38); }
+    .pw-counter.state-near    { color: #f97316; }
+    .pw-counter.state-met     { color: #22c55e; }
+
+    /* ─── SECTION BREAK ─── */
+    .section-break {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 26px 0 22px;
+    }
+    .section-break-line {
+      flex: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.10);
+    }
+    .section-break-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: rgba(220,232,242,0.4);
+      white-space: nowrap;
+    }
+
+    /* ─── SECURITY QUESTION PAIRS ─── */
+    .sq-pair {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+    }
+    .sq-pair-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: rgba(56,189,248,0.65);
+      margin-bottom: 2px;
+    }
+    .sq-pair .field { margin-bottom: 0; }
+
+    /* ─── SUBMIT BUTTON ─── */
+    #submit-btn {
+      width: 100%;
+      margin-top: 24px;
+      padding: 14px;
+      background: linear-gradient(135deg, #0e6ba8, #38bdf8);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 14px;
+      letter-spacing: .02em;
+      transition: opacity .2s, transform .2s, box-shadow .2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 18px rgba(14,107,168,0.35);
+      position: relative;
+    }
+    #submit-btn:not(:disabled):hover {
+      opacity: .92;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 28px rgba(14,107,168,0.45);
+    }
+    #submit-btn:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── SOCIAL DIVIDER ─── */
+    .social-divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 26px 0 18px;
+    }
+    .social-divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.10); }
+    .social-divider-text {
+      font-size: 12px;
+      color: rgba(220,232,242,0.38);
+      white-space: nowrap;
+      letter-spacing: .03em;
+    }
+
+    /* ─── SOCIAL BUTTONS ─── */
+    .social-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .social-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 8px;
+      background: rgba(255,255,255,0.06);
+      border: 1.5px solid rgba(255,255,255,0.11);
+      border-radius: 12px;
+      color: rgba(220,232,242,0.7);
+      font-size: 13px;
+      font-weight: 600;
+      transition: background .18s, border-color .18s, transform .18s, box-shadow .18s;
+      white-space: nowrap;
+    }
+    .social-btn:hover {
+      background: rgba(255,255,255,0.10);
+      border-color: rgba(255,255,255,0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+    }
+    .social-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* ─── CARD FOOTER ─── */
+    .card-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 13.5px;
+      color: rgba(220,232,242,0.46);
+    }
+    .card-footer a { color: #38BDF8; font-weight: 600; }
+
+    /* ─── TOAST SYSTEM ─── */
+    #toast-region {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      max-width: 340px;
+      width: calc(100vw - 40px);
+    }
+    .toast {
+      pointer-events: all;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 13px 16px;
+      background: rgba(8,20,42,0.92);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 14px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      font-size: 13.5px;
+      color: #dce8f2;
+      transform: translateX(110%);
+      opacity: 0;
+      transition: transform .35s cubic-bezier(.22,1,.36,1), opacity .3s;
+    }
+    .toast.toast-in { transform: translateX(0); opacity: 1; }
+    .toast.toast-out { transform: translateX(110%); opacity: 0; }
+    .toast-icon { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+    .toast-body { flex: 1; line-height: 1.45; }
+    .toast-close {
+      background: none;
+      border: none;
+      color: rgba(220,232,242,0.4);
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      transition: color .15s;
+    }
+    .toast-close:hover { color: rgba(220,232,242,0.8); }
+    .toast-close svg { width: 14px; height: 14px; }
+    .toast[data-type="error"]   { border-color: rgba(239,68,68,0.3); }
+    .toast[data-type="success"] { border-color: rgba(34,197,94,0.3); }
+    .toast[data-type="info"]    { border-color: rgba(56,189,248,0.3); }
+    .toast-icon-error   { color: #ef4444; }
+    .toast-icon-success { color: #22c55e; }
+    .toast-icon-info    { color: #38bdf8; }
+
+    /* ─── HONEYPOT ─── */
+    #hp_website {
+      opacity: 0;
+      position: absolute;
+      height: 0;
+      width: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    /* ─── PARALLAX WRAP ─── */
+    #parallax-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      will-change: transform;
+      pointer-events: none;
+    }
+
+    /* ─── REDUCED MOTION ─── */
+    @media (prefers-reduced-motion: reduce) {
+      .blob { animation: none !important; }
+      .toast { transition: none; }
+      #submit-btn, .social-btn, #nav-cta { transition: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ATMOSPHERIC BACKGROUND -->
+<div id="parallax-bg" aria-hidden="true">
+  <div id="bg-canvas">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="dot-grid"></div>
+  </div>
+</div>
+
+<!-- TOAST REGION -->
+<div id="toast-region" role="status" aria-live="polite" aria-atomic="false"></div>
+
+<!-- NAVBAR -->
+<nav id="navbar" role="navigation" aria-label="Main navigation">
+  <button id="nav-back" type="button" onclick="history.length > 1 ? history.back() : (location.href='/')" aria-label="Go back">
+    <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+      <path d="M13 4l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Back
+  </button>
+
+  <a id="nav-brand" href="/" aria-label="OCRA home">
+    <svg viewBox="0 0 100 100" fill="none" aria-hidden="true">
+      <circle cx="50" cy="50" r="44" stroke="#0E6BA8" stroke-width="7"/>
+      <circle cx="50" cy="50" r="9" fill="#0E6BA8"/>
+    </svg>
+    <span id="nav-brand-text">OCRA</span>
+  </a>
+
+  <div id="nav-links" aria-label="Site links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/#features" class="nav-link">Features</a>
+    <a href="/#about" class="nav-link">About</a>
+    <a href="/#pricing" class="nav-link">Pricing</a>
+  </div>
+
+  <div id="nav-spacer"></div>
+
+  <a id="nav-cta" href="signin.html">Log In</a>
+</nav>
+
+<!-- PAGE -->
+<main id="page">
+  <div id="card" role="main">
+    <div class="card-header">
+      <h1 class="card-title">Create your account</h1>
+      <p class="card-sub">Join OCRA to decode your learner potential.</p>
+    </div>
+
+    <form id="signup-form" novalidate autocomplete="on">
+
+      <!-- HONEYPOT -->
+      <input
+        type="text"
+        id="hp_website"
+        name="website"
+        tabindex="-1"
+        aria-hidden="true"
+        autocomplete="off"
+      />
+
+      <!-- 1. Full Name -->
+      <div class="field">
+        <label class="field-label" for="fullName">Full Name</label>
+        <div class="input-wrap">
+          <input
+            type="text"
+            id="fullName"
+            name="fullName"
+            placeholder="Your full name"
+            autocomplete="name"
+            required
+            aria-required="true"
+          />
+        </div>
+      </div>
+
+      <!-- 2. Country -->
+      <div class="field">
+        <label class="field-label" for="country">Country</label>
+        <div class="input-wrap">
+          <select id="country" name="country" required aria-required="true">
+            <option value="">Select your country…</option>
+            <!-- Africa first -->
+            <optgroup label="Africa">
+              <option value="DZ">Algeria</option>
+              <option value="AO">Angola</option>
+              <option value="BJ">Benin</option>
+              <option value="BW">Botswana</option>
+              <option value="BF">Burkina Faso</option>
+              <option value="BI">Burundi</option>
+              <option value="CV">Cabo Verde</option>
+              <option value="CM">Cameroon</option>
+              <option value="CF">Central African Republic</option>
+              <option value="TD">Chad</option>
+              <option value="KM">Comoros</option>
+              <option value="CG">Congo (Brazzaville)</option>
+              <option value="CD">Congo (Kinshasa)</option>
+              <option value="CI">Côte d'Ivoire</option>
+              <option value="DJ">Djibouti</option>
+              <option value="EG">Egypt</option>
+              <option value="GQ">Equatorial Guinea</option>
+              <option value="ER">Eritrea</option>
+              <option value="SZ">Eswatini</option>
+              <option value="ET">Ethiopia</option>
+              <option value="GA">Gabon</option>
+              <option value="GM">Gambia</option>
+              <option value="GH">Ghana</option>
+              <option value="GN">Guinea</option>
+              <option value="GW">Guinea-Bissau</option>
+              <option value="KE">Kenya</option>
+              <option value="LS">Lesotho</option>
+              <option value="LR">Liberia</option>
+              <option value="LY">Libya</option>
+              <option value="MG">Madagascar</option>
+              <option value="MW">Malawi</option>
+              <option value="ML">Mali</option>
+              <option value="MR">Mauritania</option>
+              <option value="MU">Mauritius</option>
+              <option value="MA">Morocco</option>
+              <option value="MZ">Mozambique</option>
+              <option value="NA">Namibia</option>
+              <option value="NE">Niger</option>
+              <option value="NG">Nigeria</option>
+              <option value="RW">Rwanda</option>
+              <option value="ST">São Tomé and Príncipe</option>
+              <option value="SN">Senegal</option>
+              <option value="SC">Seychelles</option>
+              <option value="SL">Sierra Leone</option>
+              <option value="SO">Somalia</option>
+              <option value="ZA">South Africa</option>
+              <option value="SS">South Sudan</option>
+              <option value="SD">Sudan</option>
+              <option value="TZ">Tanzania</option>
+              <option value="TG">Togo</option>
+              <option value="TN">Tunisia</option>
+              <option value="UG">Uganda</option>
+              <option value="ZM">Zambia</option>
+              <option value="ZW">Zimbabwe</option>
+            </optgroup>
+            <!-- Global -->
+            <optgroup label="Americas">
+              <option value="AG">Antigua and Barbuda</option>
+              <option value="AR">Argentina</option>
+              <option value="BS">Bahamas</option>
+              <option value="BB">Barbados</option>
+              <option value="BZ">Belize</option>
+              <option value="BO">Bolivia</option>
+              <option value="BR">Brazil</option>
+              <option value="CA">Canada</option>
+              <option value="CL">Chile</option>
+              <option value="CO">Colombia</option>
+              <option value="CR">Costa Rica</option>
+              <option value="CU">Cuba</option>
+              <option value="DM">Dominica</option>
+              <option value="DO">Dominican Republic</option>
+              <option value="EC">Ecuador</option>
+              <option value="SV">El Salvador</option>
+              <option value="GD">Grenada</option>
+              <option value="GT">Guatemala</option>
+              <option value="GY">Guyana</option>
+              <option value="HT">Haiti</option>
+              <option value="HN">Honduras</option>
+              <option value="JM">Jamaica</option>
+              <option value="MX">Mexico</option>
+              <option value="NI">Nicaragua</option>
+              <option value="PA">Panama</option>
+              <option value="PY">Paraguay</option>
+              <option value="PE">Peru</option>
+              <option value="KN">Saint Kitts and Nevis</option>
+              <option value="LC">Saint Lucia</option>
+              <option value="VC">Saint Vincent and the Grenadines</option>
+              <option value="SR">Suriname</option>
+              <option value="TT">Trinidad and Tobago</option>
+              <option value="US">United States</option>
+              <option value="UY">Uruguay</option>
+              <option value="VE">Venezuela</option>
+            </optgroup>
+            <optgroup label="Asia">
+              <option value="AF">Afghanistan</option>
+              <option value="AM">Armenia</option>
+              <option value="AZ">Azerbaijan</option>
+              <option value="BH">Bahrain</option>
+              <option value="BD">Bangladesh</option>
+              <option value="BT">Bhutan</option>
+              <option value="BN">Brunei</option>
+              <option value="KH">Cambodia</option>
+              <option value="CN">China</option>
+              <option value="CY">Cyprus</option>
+              <option value="GE">Georgia</option>
+              <option value="IN">India</option>
+              <option value="ID">Indonesia</option>
+              <option value="IR">Iran</option>
+              <option value="IQ">Iraq</option>
+              <option value="IL">Israel</option>
+              <option value="JP">Japan</option>
+              <option value="JO">Jordan</option>
+              <option value="KZ">Kazakhstan</option>
+              <option value="KW">Kuwait</option>
+              <option value="KG">Kyrgyzstan</option>
+              <option value="LA">Laos</option>
+              <option value="LB">Lebanon</option>
+              <option value="MY">Malaysia</option>
+              <option value="MV">Maldives</option>
+              <option value="MN">Mongolia</option>
+              <option value="MM">Myanmar</option>
+              <option value="NP">Nepal</option>
+              <option value="KP">North Korea</option>
+              <option value="OM">Oman</option>
+              <option value="PK">Pakistan</option>
+              <option value="PS">Palestine</option>
+              <option value="PH">Philippines</option>
+              <option value="QA">Qatar</option>
+              <option value="SA">Saudi Arabia</option>
+              <option value="SG">Singapore</option>
+              <option value="KR">South Korea</option>
+              <option value="LK">Sri Lanka</option>
+              <option value="SY">Syria</option>
+              <option value="TW">Taiwan</option>
+              <option value="TJ">Tajikistan</option>
+              <option value="TH">Thailand</option>
+              <option value="TL">Timor-Leste</option>
+              <option value="TR">Turkey</option>
+              <option value="TM">Turkmenistan</option>
+              <option value="AE">United Arab Emirates</option>
+              <option value="UZ">Uzbekistan</option>
+              <option value="VN">Vietnam</option>
+              <option value="YE">Yemen</option>
+            </optgroup>
+            <optgroup label="Europe">
+              <option value="AL">Albania</option>
+              <option value="AD">Andorra</option>
+              <option value="AT">Austria</option>
+              <option value="BY">Belarus</option>
+              <option value="BE">Belgium</option>
+              <option value="BA">Bosnia and Herzegovina</option>
+              <option value="BG">Bulgaria</option>
+              <option value="HR">Croatia</option>
+              <option value="CZ">Czech Republic</option>
+              <option value="DK">Denmark</option>
+              <option value="EE">Estonia</option>
+              <option value="FI">Finland</option>
+              <option value="FR">France</option>
+              <option value="DE">Germany</option>
+              <option value="GR">Greece</option>
+              <option value="HU">Hungary</option>
+              <option value="IS">Iceland</option>
+              <option value="IE">Ireland</option>
+              <option value="IT">Italy</option>
+              <option value="XK">Kosovo</option>
+              <option value="LV">Latvia</option>
+              <option value="LI">Liechtenstein</option>
+              <option value="LT">Lithuania</option>
+              <option value="LU">Luxembourg</option>
+              <option value="MT">Malta</option>
+              <option value="MD">Moldova</option>
+              <option value="MC">Monaco</option>
+              <option value="ME">Montenegro</option>
+              <option value="NL">Netherlands</option>
+              <option value="MK">North Macedonia</option>
+              <option value="NO">Norway</option>
+              <option value="PL">Poland</option>
+              <option value="PT">Portugal</option>
+              <option value="RO">Romania</option>
+              <option value="RU">Russia</option>
+              <option value="SM">San Marino</option>
+              <option value="RS">Serbia</option>
+              <option value="SK">Slovakia</option>
+              <option value="SI">Slovenia</option>
+              <option value="ES">Spain</option>
+              <option value="SE">Sweden</option>
+              <option value="CH">Switzerland</option>
+              <option value="UA">Ukraine</option>
+              <option value="GB">United Kingdom</option>
+              <option value="VA">Vatican City</option>
+            </optgroup>
+            <optgroup label="Oceania">
+              <option value="AU">Australia</option>
+              <option value="FJ">Fiji</option>
+              <option value="KI">Kiribati</option>
+              <option value="MH">Marshall Islands</option>
+              <option value="FM">Micronesia</option>
+              <option value="NR">Nauru</option>
+              <option value="NZ">New Zealand</option>
+              <option value="PW">Palau</option>
+              <option value="PG">Papua New Guinea</option>
+              <option value="WS">Samoa</option>
+              <option value="SB">Solomon Islands</option>
+              <option value="TO">Tonga</option>
+              <option value="TV">Tuvalu</option>
+              <option value="VU">Vanuatu</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <!-- 3. Email -->
+      <div class="field">
+        <label class="field-label" for="email">Email Address</label>
+        <div class="input-wrap">
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            inputmode="email"
+            required
+            aria-required="true"
+          />
+        </div>
+      </div>
+
+      <!-- 4. Password -->
+      <div class="field">
+        <label class="field-label" for="password">Password</label>
+        <div class="input-wrap">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Min. 9 characters"
+            autocomplete="new-password"
+            required
+            aria-required="true"
+            class="has-eye"
+          />
+          <button type="button" class="eye-btn" id="pw-eye" aria-label="Toggle password visibility">
+            <svg id="pw-eye-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M1 12C1 12 5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+          </button>
+        </div>
+        <div id="pw-counter" class="pw-counter state-below" role="status" aria-live="polite">0 / 9 characters</div>
+      </div>
+
+      <!-- 5. Confirm Password -->
+      <div class="field">
+        <label class="field-label" for="confirmPassword">Confirm Password</label>
+        <div class="input-wrap">
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            placeholder="Repeat your password"
+            autocomplete="new-password"
+            required
+            aria-required="true"
+            class="has-eye"
+          />
+          <button type="button" class="eye-btn" id="cpw-eye" aria-label="Toggle confirm password visibility">
+            <svg id="cpw-eye-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M1 12C1 12 5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 6. Section Break -->
+      <div class="section-break" role="separator" aria-label="Account Recovery section">
+        <div class="section-break-line"></div>
+        <span class="section-break-label">Account Recovery</span>
+        <div class="section-break-line"></div>
+      </div>
+
+      <!-- 7. Security Questions -->
+      <!-- Pair 1 -->
+      <div class="sq-pair" aria-labelledby="sq-pair-1-num">
+        <div class="sq-pair-num" id="sq-pair-1-num">1.</div>
+        <div class="field">
+          <label class="field-label" for="q1">Security Question</label>
+          <div class="input-wrap">
+            <select id="q1" name="q1" required aria-required="true">
+              <option value="">Select a question…</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="a1">Your Answer</label>
+          <div class="input-wrap">
+            <input
+              type="text"
+              id="a1"
+              name="a1"
+              placeholder="Enter your answer"
+              autocomplete="off"
+              required
+              aria-required="true"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Pair 2 -->
+      <div class="sq-pair" aria-labelledby="sq-pair-2-num">
+        <div class="sq-pair-num" id="sq-pair-2-num">2.</div>
+        <div class="field">
+          <label class="field-label" for="q2">Security Question</label>
+          <div class="input-wrap">
+            <select id="q2" name="q2" required aria-required="true">
+              <option value="">Select a question…</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="a2">Your Answer</label>
+          <div class="input-wrap">
+            <input
+              type="text"
+              id="a2"
+              name="a2"
+              placeholder="Enter your answer"
+              autocomplete="off"
+              required
+              aria-required="true"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Pair 3 -->
+      <div class="sq-pair" aria-labelledby="sq-pair-3-num">
+        <div class="sq-pair-num" id="sq-pair-3-num">3.</div>
+        <div class="field">
+          <label class="field-label" for="q3">Security Question</label>
+          <div class="input-wrap">
+            <select id="q3" name="q3" required aria-required="true">
+              <option value="">Select a question…</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="a3">Your Answer</label>
+          <div class="input-wrap">
+            <input
+              type="text"
+              id="a3"
+              name="a3"
+              placeholder="Enter your answer"
+              autocomplete="off"
+              required
+              aria-required="true"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. Submit -->
+      <button type="submit" id="submit-btn" disabled aria-disabled="true">
+        <span id="submit-label">Create Account</span>
+      </button>
+
+      <!-- 9. Social -->
+      <div class="social-divider" aria-hidden="true">
+        <div class="social-divider-line"></div>
+        <span class="social-divider-text">or continue with</span>
+        <div class="social-divider-line"></div>
+      </div>
+
+      <div class="social-row" role="group" aria-label="Social sign-in options">
+        <!-- Google -->
+        <button type="button" class="social-btn" id="btn-google" aria-label="Sign in with Google">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Google
+        </button>
+
+        <!-- Apple -->
+        <button type="button" class="social-btn" id="btn-apple" aria-label="Sign in with Apple">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.15-2.19 1.28-2.17 3.82.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.36 2.76zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+          </svg>
+          Apple
+        </button>
+
+        <!-- Microsoft -->
+        <button type="button" class="social-btn" id="btn-microsoft" aria-label="Sign in with Microsoft">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="1" y="1" width="10" height="10" fill="#F25022"/>
+            <rect x="13" y="1" width="10" height="10" fill="#7FBA00"/>
+            <rect x="1" y="13" width="10" height="10" fill="#00A4EF"/>
+            <rect x="13" y="13" width="10" height="10" fill="#FFB900"/>
+          </svg>
+          Microsoft
+        </button>
+      </div>
+
+    </form><!-- end form -->
+
+    <div class="card-footer">
+      Already have an account? <a href="signin.html">Log in</a>
+    </div>
+  </div><!-- end card -->
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ─── SECURITY QUESTIONS POOL ─── */
+  const SQ_POOL = [
+    'What was the name of your first pet?',
+    'What city were you born in?',
+    "What is your mother's maiden name?",
+    'What was the name of your first primary school?',
+    'What was your childhood nickname?',
+    "What is your oldest sibling's middle name?",
+    'What street did you grow up on?',
+    'What was the make of your first car?',
+    "What is your paternal grandmother's maiden name?",
+    'What was the name of your first employer?',
+    'In what city did your parents meet?',
+    "What was your childhood best friend's name?",
+    'What was the name of your high school?',
+    'What is the first name of your nearest sibling?',
+    'What was the name of the hospital where you were born?'
+  ];
+
+  /* ─── DOM REFS ─── */
+  const form         = document.getElementById('signup-form');
+  const fFullName    = document.getElementById('fullName');
+  const fCountry     = document.getElementById('country');
+  const fEmail       = document.getElementById('email');
+  const fPassword    = document.getElementById('password');
+  const fConfirm     = document.getElementById('confirmPassword');
+  const fQ1          = document.getElementById('q1');
+  const fQ2          = document.getElementById('q2');
+  const fQ3          = document.getElementById('q3');
+  const fA1          = document.getElementById('a1');
+  const fA2          = document.getElementById('a2');
+  const fA3          = document.getElementById('a3');
+  const fHoneypot    = document.getElementById('hp_website');
+  const pwCounter    = document.getElementById('pw-counter');
+  const submitBtn    = document.getElementById('submit-btn');
+  const submitLabel  = document.getElementById('submit-label');
+  const pwEyeBtn     = document.getElementById('pw-eye');
+  const pwEyeIcon    = document.getElementById('pw-eye-icon');
+  const cpwEyeBtn    = document.getElementById('cpw-eye');
+  const cpwEyeIcon   = document.getElementById('cpw-eye-icon');
+  const toastRegion  = document.getElementById('toast-region');
+  const parallaxBg   = document.getElementById('parallax-bg');
+
+  /* ─── POPULATE SECURITY QUESTION DROPDOWNS ─── */
+  const selects = [fQ1, fQ2, fQ3];
+  selects.forEach(sel => {
+    SQ_POOL.forEach((q, i) => {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = q;
+      sel.appendChild(opt);
+    });
+  });
+
+  /* ─── DUPLICATE PREVENTION FOR SECURITY QUESTIONS ─── */
+  function syncSecurityQuestionDropdowns() {
+    const vals = [fQ1.value, fQ2.value, fQ3.value];
+    selects.forEach((sel, si) => {
+      const others = vals.filter((_, oi) => oi !== si);
+      Array.from(sel.options).forEach(opt => {
+        if (opt.value === '') return;
+        opt.disabled = others.includes(opt.value);
+      });
+    });
+  }
+
+  selects.forEach(sel => sel.addEventListener('change', syncSecurityQuestionDropdowns));
+
+  /* ─── EYE TOGGLE HELPER ─── */
+  const EYE_OPEN = `
+    <path d="M1 12C1 12 5 5 12 5s11 7 11 7-4 7-11 7S1 12 1 12z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>`;
+  const EYE_CLOSED = `
+    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>`;
+
+  function makeEyeToggle(btn, icon, inputEl) {
+    let visible = false;
+    btn.addEventListener('click', () => {
+      visible = !visible;
+      inputEl.type = visible ? 'text' : 'password';
+      icon.innerHTML = visible ? EYE_CLOSED : EYE_OPEN;
+      btn.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+    });
+  }
+
+  makeEyeToggle(pwEyeBtn, pwEyeIcon, fPassword);
+  makeEyeToggle(cpwEyeBtn, cpwEyeIcon, fConfirm);
+
+  /* ─── PASSWORD COUNTER ─── */
+  fPassword.addEventListener('input', updatePwCounter);
+
+  function updatePwCounter() {
+    const len = fPassword.value.length;
+    if (len >= 9) {
+      pwCounter.textContent = '✓ Minimum length met';
+      pwCounter.className = 'pw-counter state-met';
+    } else if (len >= 7) {
+      pwCounter.textContent = `${len} / 9 characters`;
+      pwCounter.className = 'pw-counter state-near';
+    } else {
+      pwCounter.textContent = `${len} / 9 characters`;
+      pwCounter.className = 'pw-counter state-below';
+    }
+    gateSubmit();
+  }
+
+  /* ─── EMAIL REGEX ─── */
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  /* ─── GATE SUBMIT ─── */
+  function gateSubmit() {
+    const ok = (
+      fFullName.value.trim().length > 0 &&
+      fCountry.value !== '' &&
+      EMAIL_RE.test(fEmail.value.trim()) &&
+      fPassword.value.length >= 9 &&
+      fConfirm.value.length > 0 && fConfirm.value === fPassword.value &&
+      fQ1.value !== '' && fQ2.value !== '' && fQ3.value !== '' &&
+      fQ1.value !== fQ2.value && fQ1.value !== fQ3.value && fQ2.value !== fQ3.value &&
+      fA1.value.trim().length > 0 &&
+      fA2.value.trim().length > 0 &&
+      fA3.value.trim().length > 0 &&
+      fHoneypot.value === ''
+    );
+    submitBtn.disabled = !ok;
+    submitBtn.setAttribute('aria-disabled', String(!ok));
+  }
+
+  /* Listen on every relevant field */
+  [fFullName, fCountry, fEmail, fPassword, fConfirm, fQ1, fQ2, fQ3, fA1, fA2, fA3].forEach(el => {
+    el.addEventListener('input', gateSubmit);
+    el.addEventListener('change', gateSubmit);
+  });
+
+  /* ─── PASSWORD HASH (djb2) ─── */
+  function hashPassword(pw) {
+    let h = 5381;
+    for (let i = 0; i < pw.length; i++) {
+      h = (((h << 5) + h) + pw.charCodeAt(i)) | 0;
+    }
+    return 'ocra_' + Math.abs(h).toString(36) + '_' + pw.length;
+  }
+
+  /* ─── GENERATE ID ─── */
+  function genId() {
+    return 'u_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  }
+
+  /* ─── FORM SUBMIT ─── */
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    /* Honeypot check */
+    if (fHoneypot.value !== '') return;
+
+    /* Gate re-check */
+    if (submitBtn.disabled) return;
+
+    /* Show spinner */
+    submitBtn.disabled = true;
+    submitBtn.setAttribute('aria-disabled', 'true');
+    const spinner = document.createElement('span');
+    spinner.className = 'spinner';
+    spinner.setAttribute('aria-hidden', 'true');
+    submitLabel.textContent = 'Creating account…';
+    submitBtn.insertBefore(spinner, submitLabel);
+
+    /* Simulate async work, then store */
+    setTimeout(() => {
+      const email = fEmail.value.trim().toLowerCase();
+      const fullName = fFullName.value.trim();
+      const nameParts = fullName.split(/\s+/);
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      /* Load accounts */
+      let accounts = {};
+      try { accounts = JSON.parse(localStorage.getItem('ocra_accounts_v1') || '{}'); } catch {}
+
+      /* Duplicate email check */
+      const existing = Object.values(accounts).find(a => a.user && a.user.email === email);
+      if (existing) {
+        spinner.remove();
+        submitLabel.textContent = 'Create Account';
+        submitBtn.disabled = false;
+        submitBtn.setAttribute('aria-disabled', 'false');
+        showToast('An account with this email already exists. Try logging in.', 'error');
+        return;
+      }
+
+      /* Build record */
+      const id = genId();
+      const now = new Date().toISOString();
+      const record = {
+        user: {
+          id,
+          email,
+          firstName,
+          lastName,
+          fullName,
+          country: fCountry.value,
+          accountType: 'personal',
+          role: 'personal',
+          createdAt: now
+        },
+        passwordHash: hashPassword(fPassword.value),
+        securityQuestions: [
+          { q: SQ_POOL[parseInt(fQ1.value, 10)], a: fA1.value.trim().toLowerCase() },
+          { q: SQ_POOL[parseInt(fQ2.value, 10)], a: fA2.value.trim().toLowerCase() },
+          { q: SQ_POOL[parseInt(fQ3.value, 10)], a: fA3.value.trim().toLowerCase() }
+        ],
+        recoveryAnswers: {}
+      };
+
+      accounts[id] = record;
+      localStorage.setItem('ocra_accounts_v1', JSON.stringify(accounts));
+
+      /* Create session */
+      const session = {
+        userId: id,
+        email,
+        fullName,
+        firstName,
+        lastName,
+        country: fCountry.value,
+        accountType: 'personal',
+        role: 'personal',
+        createdAt: now,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+      };
+      localStorage.setItem('ocra_session_v1', JSON.stringify(session));
+
+      showToast('Account created! Welcome to OCRA.', 'success');
+
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 800);
+
+    }, 900);
+  });
+
+  /* ─── SOCIAL BUTTONS ─── */
+  ['btn-google', 'btn-apple', 'btn-microsoft'].forEach(id => {
+    document.getElementById(id).addEventListener('click', () => {
+      showToast('Provider sign-in coming soon.', 'info');
+    });
+  });
+
+  /* ─── TOAST SYSTEM ─── */
+  const TOAST_ICONS = {
+    error: `<svg class="toast-icon toast-icon-error" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M12 7v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16.5" r="1" fill="currentColor"/></svg>`,
+    success: `<svg class="toast-icon toast-icon-success" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M8 12l3 3 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    info: `<svg class="toast-icon toast-icon-info" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8"/><path d="M12 11v5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="8" r="1" fill="currentColor"/></svg>`
+  };
+  const CLOSE_ICON = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
+
+  function showToast(message, type = 'info') {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.setAttribute('data-type', type);
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+      ${TOAST_ICONS[type] || TOAST_ICONS.info}
+      <div class="toast-body">${message}</div>
+      <button class="toast-close" type="button" aria-label="Dismiss notification">${CLOSE_ICON}</button>
+    `;
+    toastRegion.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => toast.classList.add('toast-in'));
+    });
+
+    const dismiss = () => {
+      toast.classList.remove('toast-in');
+      toast.classList.add('toast-out');
+      setTimeout(() => toast.remove(), 400);
+    };
+
+    toast.querySelector('.toast-close').addEventListener('click', dismiss);
+    setTimeout(dismiss, 5000);
+  }
+
+  /* ─── SPATIAL PARALLAX ─── */
+  (function initParallax() {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (mq.matches) return;
+
+    const MAX = 20;
+    let targetX = 0, targetY = 0;
+    let currentX = 0, currentY = 0;
+    let rafId = null;
+
+    function lerp(a, b, t) { return a + (b - a) * t; }
+
+    function applyTransform() {
+      currentX = lerp(currentX, targetX, 0.08);
+      currentY = lerp(currentY, targetY, 0.08);
+      parallaxBg.style.transform = `translate(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px)`;
+      rafId = requestAnimationFrame(applyTransform);
+    }
+
+    function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+    /* pointer:fine → mousemove */
+    const fineMedia = window.matchMedia('(pointer: fine)');
+    if (fineMedia.matches) {
+      window.addEventListener('mousemove', e => {
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        targetX = clamp(-((e.clientX - cx) / cx) * MAX, -MAX, MAX);
+        targetY = clamp(-((e.clientY - cy) / cy) * MAX, -MAX, MAX);
+      }, { passive: true });
+    } else {
+      /* touch → deviceorientation */
+      window.addEventListener('deviceorientation', e => {
+        if (e.gamma === null) return;
+        targetX = clamp(-(e.gamma / 45) * MAX, -MAX, MAX);
+        targetY = clamp(-(e.beta  / 90) * MAX, -MAX, MAX);
+      }, { passive: true });
+    }
+
+    applyTransform();
+
+    /* Respect reduced-motion toggle */
+    mq.addEventListener('change', evt => {
+      if (evt.matches && rafId) {
+        cancelAnimationFrame(rafId);
+        parallaxBg.style.transform = '';
+      } else if (!evt.matches) {
+        applyTransform();
+      }
+    });
+  })();
+
+})();
+</script>
+</body>
+</html>

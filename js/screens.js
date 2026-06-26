@@ -40,6 +40,22 @@
     '</ul>';
   }
 
+  // ── compact account-type banner (embedded in auth card) ────────
+  function _acctBanner() {
+    var s = O.state;
+    var items = [
+      { k: "personal",     label: "Personal" },
+      { k: "family",       label: "Family" },
+      { k: "organization", label: "Organization" },
+    ];
+    return '<div class="auth-acct-banner">' +
+      items.map(function (item) {
+        return '<button class="auth-acct-btn' + (s.account === item.k ? " active" : "") + '" ' +
+          'data-action="pickAccount" data-value="' + item.k + '">' + item.label + '</button>';
+      }).join("") +
+    '</div>';
+  }
+
   // ── 5-section progress banner ──────────────────────────────────
   function progressBanner(stages, idx) {
     var labels = I.SECTION_LABELS;
@@ -270,6 +286,7 @@
       '<div class="auth-card wide" data-auth>' +
         '<div class="auth-logorow">' + O.logo(44, true) + '</div>' +
         '<div class="auth-title" style="text-transform:capitalize">' + O.esc(s.account) + ' &mdash; Sign up</div>' +
+        (isFirst ? _acctBanner() : "") +
         progressBanner(stages, idx) +
         '<div style="font-size:15px;font-weight:800;color:#dce8f2;margin-bottom:18px">' + O.esc(stage.title) + '</div>' +
         body +
@@ -319,6 +336,7 @@
       '<div class="auth-card" data-auth>' +
         '<div class="auth-logorow">' + O.logo(56, true) + '</div>' +
         '<div class="auth-title" style="text-transform:capitalize">' + O.esc(s.account) + ' &middot; Sign in</div>' +
+        (step === "email" ? _acctBanner() : "") +
 
         (step === "email" ?
           // ── Step 1: email + social
@@ -362,6 +380,7 @@
       '<div class="auth-card" data-auth>' +
         '<div class="auth-logorow">' + O.logo(44, true) + '</div>' +
         '<div class="auth-title">Account recovery</div>' +
+        (samePw ? "" : _acctBanner()) +
 
         (samePw ?
           '<div style="background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px">' +
@@ -439,234 +458,259 @@
     '</div>';
   }
 
+  // ── LANDING — animated hero, white brief banner, fast typewriter ──
+  var BRIEF_BOLD = "Beyond academics and finances, OCRA decodes your hidden architecture.";
+  var BRIEF_REST = " By auditing performance, cognition, and personality, it isolates your critical bugs, prescribes precise execution remedies, and maps your truest potential. It’s a personalized, predictive counselor engineered to replace uncertainty with absolute clarity.";
+
   O.screens.intro = function () {
-    var DC  = O.developerConsole;
-    var key = DC && DC.flags && DC.flags.introPreset || "stellar";
-    var p   = O._introPresets && O._introPresets[key] || { bg:"#080c14", accent:"#38BDF8", nc:"#38BDF8", glowC:"rgba(56,189,248,.22)" };
-
-    var iLetters = "INTRODUCING".split("").map(function (c) {
-      return '<span class="iletter" style="display:inline-block;opacity:0">' + c + '</span>';
-    }).join("");
-    var nLetters = "OCRA".split("").map(function (c) {
-      return '<span class="nletter" style="display:inline-block;opacity:0;color:' + p.nc + '">' + c + '</span>';
-    }).join("");
-
     return '' +
-    '<div id="ocra-intro-stage" style="position:fixed;inset:0;background:' + p.bg + ';overflow:hidden;z-index:100">' +
-      '<div id="intro-glow" style="position:absolute;inset:0;pointer-events:none;opacity:0;' +
-           'background:radial-gradient(ellipse 60% 60% at 50% 50%,' + p.glowC + ' 0%,transparent 70%)"></div>' +
-      '<div class="intro-left" style="position:absolute;top:50%;left:0;width:22%;display:none;opacity:0;padding:0 28px;pointer-events:none">' +
-        '<div style="display:flex;flex-direction:column;gap:24px">' +
-          ifeat(p.accent, "Academic Records",  "Grades \xb7 subjects \xb7 trajectories") +
-          ifeat(p.accent, "Brain Test",        "60-question cognitive deep-dive") +
-          ifeat(p.accent, "Career Analysis",   "Mapped to 400+ real career paths") +
-        '</div>' +
-      '</div>' +
-      '<div class="intro-right" style="position:absolute;top:50%;right:0;width:22%;display:none;opacity:0;padding:0 28px;pointer-events:none">' +
-        '<div style="display:flex;flex-direction:column;gap:24px">' +
-          ifeat(p.accent, "AI-Powered Insights", "Claude Sonnet analysis engine") +
-          ifeat(p.accent, "4-Document Reports",  "Full diagnostic \xb7 career \xb7 study \xb7 wellness") +
-          ifeat(p.accent, "KES 40 / Download",   "30-day access per document") +
-        '</div>' +
-      '</div>' +
-      '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">' +
-        '<div id="ocra-logo-wrap" style="position:relative;margin-bottom:32px;perspective:1200px">' +
-          '<div id="devHold" style="position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center">' +
-            '<div id="logo-halo" style="position:absolute;inset:-40px;border-radius:50%;opacity:0;pointer-events:none;' +
-                 'background:radial-gradient(circle,' + p.glowC + ' 0%,transparent 70%)"></div>' +
-            '<img id="ocra-logo-img" src="./assets/ocra-logo.png" width="176" height="176" alt="OCRA" ' +
-                 'style="border-radius:50%;position:relative;z-index:1;opacity:0;display:block"/>' +
-            '<svg width="196" height="196" viewBox="0 0 100 100" ' +
-                 'style="position:absolute;width:196px;height:196px;top:50%;left:50%;' +
-                 'transform:translate(-50%,-50%) rotate(-90deg);z-index:2;pointer-events:none">' +
-              '<circle id="devRing" cx="50" cy="50" r="46" fill="none" stroke="' + p.accent + '" ' +
-                      'stroke-width="2" stroke-dasharray="289" stroke-dashoffset="289" opacity=".8"/>' +
-            '</svg>' +
-          '</div>' +
-        '</div>' +
-        '<div id="ocra-label" style="font-size:11px;font-weight:400;letter-spacing:.32em;text-transform:uppercase;' +
-             'color:rgba(220,232,242,.5);margin-bottom:10px;min-height:16px">' + iLetters + '</div>' +
-        '<div id="ocra-name" style="font-size:72px;font-weight:900;letter-spacing:.18em;line-height:1;' +
-             'margin-bottom:18px;min-height:80px">' + nLetters + '</div>' +
-        '<p id="ocra-brief" style="max-width:460px;text-align:center;font-size:13px;line-height:1.85;' +
-           'color:rgba(220,232,242,.55);margin:0 24px 8px;opacity:0"></p>' +
-        '<div id="ocra-sub" style="font-size:10px;letter-spacing:.18em;text-transform:uppercase;' +
-             'color:rgba(220,232,242,.25);margin-bottom:40px;opacity:0"></div>' +
-        '<div id="ocra-btn-wrap" style="opacity:0">' +
-          '<button class="ocra-dive" data-action="diveIn">Dive In</button>' +
+    '<div class="land" id="land">' +
+      '<div class="land-hero" id="landHero"></div>' +
+      '<div class="land-orbit" id="landOrbit1"></div>' +
+      '<div class="land-orbit two" id="landOrbit2"></div>' +
+      '<canvas class="land-fx" id="landFx"></canvas>' +
+      /* ghosted, intentionally-doubled OCRA — also the 5s dev-access hold target */
+      '<div class="land-mark" id="devHold"><span>OCRA</span><span>OCRA</span></div>' +
+      '<div class="land-banner" id="landBanner">' +
+        '<div class="land-brief" id="landBrief"></div>' +
+        '<div class="land-sub">' +
+          '<span>A subsidiary of art is life</span>' +
+          '<button class="land-dive" id="landDive" data-action="diveIn">Dive In</button>' +
         '</div>' +
       '</div>' +
     '</div>';
   };
 
-  // GSAP cinematic animation — runs after intro screen renders
-  O.introAnimate = (function () {
-    var _spinTween = null;
-    var _paraFn    = null;
+  // fast "light-speed" typewriter — bold first sentence, then the rest
+  function _typeBrief(el) {
+    if (!el) return;
+    var full = BRIEF_BOLD + BRIEF_REST, boldLen = BRIEF_BOLD.length;
+    if (O._briefT) { clearTimeout(O._briefT); O._briefT = null; }
+    el.innerHTML = "";
+    var b    = document.createElement("b");    el.appendChild(b);
+    var span = document.createElement("span"); el.appendChild(span);
+    var cur  = document.createElement("span"); cur.className = "land-cursor"; el.appendChild(cur);
+    // no rAF (smoke/jsdom) — render instantly, drop cursor
+    if (typeof requestAnimationFrame === "undefined") {
+      b.textContent = BRIEF_BOLD; span.textContent = BRIEF_REST;
+      if (cur.parentNode) cur.parentNode.removeChild(cur);
+      return;
+    }
+    var i = 0;
+    (function step() {
+      if (!el.isConnected) { O._briefT = null; return; }
+      i = Math.min(full.length, i + 6);
+      if (i <= boldLen) { b.textContent = full.slice(0, i); }
+      else { b.textContent = BRIEF_BOLD; span.textContent = full.slice(boldLen, i); }
+      if (i < full.length) { O._briefT = setTimeout(step, 14); }
+      else if (cur.parentNode) { cur.parentNode.removeChild(cur); }
+    })();
+  }
 
-    O._introPresets = {
-      stellar: { bg:"#080c14", accent:"#38BDF8", nc:"#38BDF8", glowC:"rgba(56,189,248,.22)", spinDur:22, ease:"power3.out",         letterEase:"back.out(2)"        },
-      surge:   { bg:"#0c0500", accent:"#FF6B35", nc:"#FF6B35", glowC:"rgba(255,107,53,.22)",  spinDur:8,  ease:"power4.out",         letterEase:"back.out(1.5)"      },
-      drift:   { bg:"#080e1c", accent:"#7E7BD8", nc:"#7E7BD8", glowC:"rgba(126,123,216,.18)", spinDur:35, ease:"power2.out",         letterEase:"power3.out"         },
-      neon:    { bg:"#000000", accent:"#00ff88", nc:"#00ff88", glowC:"rgba(0,255,136,.18)",   spinDur:14, ease:"elastic.out(1,0.3)", letterEase:"elastic.out(1,0.4)" },
-      minimal: { bg:"#090d14", accent:"#e8eaf0", nc:"#e8eaf0", glowC:"rgba(255,255,255,.07)", spinDur:30, ease:"power3.out",         letterEase:"power3.out"         }
-    };
+  // drifting network dots + slowly-toggling math glyphs (calm, continuous)
+  function _startFx(cv) {
+    if (O._landFx) { try { cancelAnimationFrame(O._landFx); } catch (e) {} O._landFx = null; }
+    if (O._landResize) { window.removeEventListener("resize", O._landResize); O._landResize = null; }
+    if (!cv || !cv.getContext) return;
+    var ctx; try { ctx = cv.getContext("2d"); } catch (e) { return; }
+    if (!ctx) return;
 
-    return function () {
-      if (_spinTween) { _spinTween.kill(); _spinTween = null; }
-      if (_paraFn)    { document.removeEventListener("mousemove", _paraFn); _paraFn = null; }
+    function size() { cv.width = cv.offsetWidth || window.innerWidth; cv.height = cv.offsetHeight || window.innerHeight; }
+    size();
+    O._landResize = size; window.addEventListener("resize", size);
 
-      var stage    = document.getElementById("ocra-intro-stage");
-      var glow     = document.getElementById("intro-glow");
-      var logoWrap = document.getElementById("ocra-logo-wrap");
-      var halo     = document.getElementById("logo-halo");
-      var logoImg  = document.getElementById("ocra-logo-img");
-      var brief    = document.getElementById("ocra-brief");
-      var sub      = document.getElementById("ocra-sub");
-      var btnW     = document.getElementById("ocra-btn-wrap");
-      var leftEl   = document.querySelector(".intro-left");
-      var rightEl  = document.querySelector(".intro-right");
+    var N = 46, dots = [];
+    for (var i = 0; i < N; i++) {
+      dots.push({ x: Math.random() * cv.width, y: Math.random() * cv.height,
+                  vx: (Math.random() - .5) * .12, vy: (Math.random() - .5) * .12,
+                  r: Math.random() * 1.6 + .6 });
+    }
+    var GL = ["∑","π","√","∫","Δ","x²","θ","a·b","3·4","∞","λ","=","+","÷"];
+    var maths = [];
+    for (var m = 0; m < 11; m++) {
+      maths.push({ x: Math.random() * cv.width, y: Math.random() * cv.height,
+                   t: Math.random() * 6.28, sp: Math.random() * .004 + .002,
+                   g: GL[m % GL.length], s: Math.random() * 9 + 12 });
+    }
 
-      if (!stage || !logoImg) return;
-
-      var DC      = O.developerConsole;
-      var key     = DC && DC.flags && DC.flags.introPreset || "stellar";
-      var p       = O._introPresets[key] || O._introPresets.stellar;
-      var BRIEF   = "OCRA performs deep analysis across different stratums — academics, finances, and more coming soon. It delivers insights, remedies, and reveals your true potential.";
-      var SUB     = "a subsidiary of Artist Life Foundation";
-      var desktop = window.innerWidth > 820;
-      var hw      = window.innerWidth  / 2;
-      var vh      = window.innerHeight / 2;
-
-      // No GSAP (smoke test / offline) — instant reveal
-      if (!window.gsap) {
-        [logoImg, brief, sub, btnW].forEach(function (el) { if (el) el.style.opacity = "1"; });
-        if (brief) brief.textContent = BRIEF;
-        if (sub)   sub.textContent   = SUB;
-        [].forEach.call(document.querySelectorAll(".iletter,.nletter"), function (s) { s.style.opacity = "1"; });
-        if (desktop && leftEl && rightEl) {
-          leftEl.style.display  = "block"; leftEl.style.opacity  = "1";
-          rightEl.style.display = "block"; rightEl.style.opacity = "1";
-          [].forEach.call(document.querySelectorAll(".ifeat"), function (f) { f.style.opacity = "1"; });
-        }
+    function frame() {
+      // landing left the DOM — stop the loop, release listeners & closures
+      if (!cv.isConnected) {
+        O._landFx = null;
+        if (O._landResize) { window.removeEventListener("resize", O._landResize); O._landResize = null; }
         return;
       }
-
-      var gsap = window.gsap;
-
-      if (desktop && leftEl && rightEl) {
-        gsap.set(leftEl,  { display: "block", yPercent: -50, x: -(hw * 0.85), opacity: 0 });
-        gsap.set(rightEl, { display: "block", yPercent: -50, x:  (hw * 0.85), opacity: 0 });
-      }
-
-      var tl = gsap.timeline();
-
-      // Logo rises from deep z-space with clockwise spiral
-      tl.fromTo(logoImg,
-        { opacity: 0, z: -2200, rotation: -360, scale: 0.5 },
-        { opacity: 1, z: 0,     rotation: 0,    scale: 1,   duration: 1.1, ease: p.ease },
-        0
-      );
-
-      // Continuous clockwise spin starts the moment entrance ends
-      tl.call(function () {
-        _spinTween = gsap.to(logoImg, { rotation: "+=360", duration: p.spinDur, ease: "none", repeat: -1 });
-      }, null, 1.1);
-
-      tl.to([glow, halo], { opacity: 1, duration: 1.2, ease: "power2.out" }, 0.4);
-
-      if (desktop && leftEl && rightEl) {
-        tl.to(leftEl,  { x: 0, opacity: 1, duration: 0.9, ease: "power3.out" }, 0.65);
-        tl.to(rightEl, { x: 0, opacity: 1, duration: 0.9, ease: "power3.out" }, 0.65);
-        tl.to(".intro-left .ifeat, .intro-right .ifeat",
-          { opacity: 1, stagger: { each: 0.1, from: "start" }, duration: 0.35, ease: "power2.out" },
-          1.25
-        );
-      }
-
-      tl.fromTo(".iletter",
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0,  stagger: 0.04, duration: 0.28, ease: p.letterEase },
-        1.3
-      );
-
-      tl.fromTo(".nletter",
-        { opacity: 0, y: 28, scale: 1.35 },
-        { opacity: 1, y: 0,  scale: 1, stagger: 0.12, duration: 0.52, ease: p.letterEase },
-        2.05
-      );
-
-      // Synced voice: speak "O. C. R. A." the exact moment letters stamp in
-      tl.call(function () {
-        try { if (O.voice && !O.voice.isMuted()) O.voice.say("O. C. R. A.", "adam", { rate: 0.72, pitch: 0.82 }); } catch (e) {}
-      }, null, 2.05);
-
-      var bProxy = { v: 0 };
-      tl.to(bProxy, {
-        v: BRIEF.length, duration: 1.5, ease: "none",
-        onStart:  function () { gsap.set(brief, { opacity: 1 }); brief.textContent = ""; },
-        onUpdate: function () { brief.textContent = BRIEF.slice(0, Math.round(bProxy.v)); }
-      }, 2.9);
-
-      var sProxy = { v: 0 };
-      tl.to(sProxy, {
-        v: SUB.length, duration: 0.8, ease: "none",
-        onStart:  function () { gsap.set(sub, { opacity: 1 }); sub.textContent = ""; },
-        onUpdate: function () { sub.textContent = SUB.slice(0, Math.round(sProxy.v)); }
-      }, 4.55);
-
-      tl.fromTo(btnW,
-        { opacity: 0, scale: 0.82, y: 18 },
-        { opacity: 1, scale: 1,    y: 0,  duration: 0.65, ease: "back.out(1.7)" },
-        5.5
-      );
-
-      // Mouse parallax (activates after panels land)
-      tl.call(function () {
-        _paraFn = function (e) {
-          if (!document.getElementById("ocra-intro-stage")) {
-            document.removeEventListener("mousemove", _paraFn); _paraFn = null; return;
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      var i, j;
+      for (i = 0; i < N; i++) {
+        var a = dots[i];
+        a.x += a.vx; a.y += a.vy;
+        if (a.x < 0 || a.x > cv.width) a.vx *= -1;
+        if (a.y < 0 || a.y > cv.height) a.vy *= -1;
+        for (j = i + 1; j < N; j++) {
+          var b2 = dots[j], dx = a.x - b2.x, dy = a.y - b2.y, d = dx * dx + dy * dy;
+          if (d < 9000) {
+            ctx.globalAlpha = (1 - d / 9000) * .18;
+            ctx.strokeStyle = "#0E6BA8"; ctx.lineWidth = .6;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b2.x, b2.y); ctx.stroke();
           }
-          var dx = (e.clientX - hw) / hw;
-          var dy = (e.clientY - vh) / vh;
-          gsap.to(logoWrap, { rotateY: dx * 16, rotateX: -dy * 11, duration: 0.5, ease: "power2.out", overwrite: "auto" });
-          if (desktop && leftEl && rightEl) {
-            gsap.to(leftEl,  { x: dx * -18, duration: 0.9, ease: "power2.out", overwrite: "auto" });
-            gsap.to(rightEl, { x: dx *  18, duration: 0.9, ease: "power2.out", overwrite: "auto" });
-          }
-        };
-        document.addEventListener("mousemove", _paraFn);
-      }, null, 1.65);
-    };
-  })();
+        }
+      }
+      ctx.globalAlpha = .5; ctx.fillStyle = "#16222e";
+      for (i = 0; i < N; i++) { var p = dots[i]; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill(); }
+      for (i = 0; i < maths.length; i++) {
+        var g = maths[i]; g.t += g.sp;
+        ctx.globalAlpha = (Math.sin(g.t) + 1) / 2 * .38 + .06;
+        ctx.fillStyle = "#0E6BA8"; ctx.font = "600 " + g.s + "px Georgia, serif";
+        ctx.fillText(g.g, g.x, g.y);
+      }
+      ctx.globalAlpha = 1;
+      O._landFx = requestAnimationFrame(frame);
+    }
+    frame();
+  }
 
-  // ── CHOOSE ────────────────────────────────────────────────────
+  // LANDING animation — round 1 completes the reveal fast, then idle loops continue
+  O.introAnimate = function () {
+    var hero   = document.getElementById("landHero");
+    var o1     = document.getElementById("landOrbit1");
+    var o2     = document.getElementById("landOrbit2");
+    var fx     = document.getElementById("landFx");
+    var mark   = document.getElementById("devHold");
+    var banner = document.getElementById("landBanner");
+    var brief  = document.getElementById("landBrief");
+    var dive   = document.getElementById("landDive");
+    if (!hero) return;
+
+    function reveal(el) { if (el) el.classList.add("in"); }
+
+    reveal(hero);
+    setTimeout(function () { reveal(mark); },   180);
+    setTimeout(function () { reveal(banner); }, 280);
+    setTimeout(function () { reveal(dive); },   420); // Dive In appears early
+    setTimeout(function () { reveal(o1); reveal(o2); reveal(fx); }, 600);
+
+    _typeBrief(brief);
+    _startFx(fx);
+
+    try { if (O.voice && !O.voice.isMuted()) O.voice.say("Welcome to OCRA.", "adam", { rate: 0.82 }); } catch (e) {}
+  };
+
+  // ── flow animations for choose (stratum slides) + account (branches) ──
+  O.flowAnimate = function () {
+    var s = O.state;
+    if (s.phase === "choose")  _initStrata();
+    else if (s.phase === "account") _initAccount();
+  };
+
+  function _initStrata() {
+    var stack = document.getElementById("strataStack");
+    if (!stack) return;
+    var pills = [].slice.call(stack.querySelectorAll(".strata-pill"));
+    if (!pills.length) return;
+    var order = pills.map(function (_, i) { return i; }); // front -> back
+
+    function layout() {
+      order.forEach(function (pi, depth) {
+        var p = pills[pi];
+        p.style.transform = "translateY(" + (depth * 26) + "px) translateZ(" + (-depth * 40) + "px) scale(" + (1 - depth * 0.06) + ")";
+        p.style.zIndex = String(pills.length - depth);
+        p.style.opacity = depth > 3 ? "0" : "1";
+        p.style.filter = depth === 0 ? "none" : "saturate(.9)";
+      });
+    }
+    layout();
+
+    pills.forEach(function (p, idx) {
+      p.addEventListener("click", function () {
+        var pos = order.indexOf(idx);
+        if (pos > 0) { order.splice(pos, 1); order.unshift(idx); layout(); }
+      });
+    });
+
+    // vertical drag to cycle the stack (iPhone-wheel feel)
+    var sy = 0, fEl = null, move = null, up = null;
+    stack.addEventListener("pointerdown", function (e) {
+      fEl = e.target.closest(".strata-pill"); if (!fEl) return;
+      sy = e.clientY; fEl.classList.add("dragging");
+      move = function (ev) { if (!fEl) return; fEl.style.transform = "translateY(" + (ev.clientY - sy) + "px) scale(1.02)"; };
+      up = function (ev) {
+        if (!fEl) return;
+        var dy = ev.clientY - sy, pi = pills.indexOf(fEl), pos = order.indexOf(pi);
+        fEl.classList.remove("dragging");
+        if (dy < -40 && pos < order.length - 1) { order.splice(pos, 1); order.push(pi); }
+        else if (dy > 40 && pos > 0) { order.splice(pos, 1); order.unshift(pi); }
+        layout(); fEl = null;
+        document.removeEventListener("pointermove", move);
+        document.removeEventListener("pointerup", up);
+      };
+      document.addEventListener("pointermove", move);
+      document.addEventListener("pointerup", up);
+    });
+  }
+
+  function _initAccount() {
+    // ring + branches revolve via CSS; labels counter-rotate to stay upright.
+    var branches = document.querySelectorAll(".acct-branch");
+    [].forEach.call(branches, function (br) {
+      br.addEventListener("click", function () {
+        [].forEach.call(branches, function (b) { b.classList.remove("sel"); });
+        br.classList.add("sel");
+      });
+    });
+  }
+
+  // ── CHOOSE — stratum slides (stacked, draggable, 3D) ──────────
   O.screens.choose = function () {
-    return '<div class="center"><div class="choose-grid">' +
-      '<button class="glass choose-tile" data-action="academics">' +
-        '<div class="label" style="font-size:20px;color:var(--ink)">Academics</div>' +
-        '<div class="muted" style="font-size:13px;margin-top:8px">Records &middot; analysis &middot; careers</div>' +
-      '</button>' +
-      '<button class="glass choose-tile soon" data-action="finances">' +
-        '<div class="label" style="font-size:20px;color:var(--ink)">Finances</div>' +
-        '<div class="muted" style="font-size:13px;margin-top:8px">Under development</div>' +
-      '</button>' +
+    // front -> back: Academics (live), Finances (next), then Upcoming for the rest
+    var strata = [
+      { k: "academics", label: "ACADEMICS", tag: "Active", locked: false },
+      { k: "finances",  label: "FINANCES",  tag: "Soon",   locked: true },
+      { k: "upcoming",  label: "UPCOMING",  tag: "Soon",   locked: true },
+    ];
+    var pills = strata.map(function (st, i) {
+      // coming-soon strata are fully inert for now — no action, no attention
+      return '<div class="strata-pill ' + (st.locked ? "locked" : "active") + '" ' +
+        (st.locked ? 'aria-disabled="true"' : 'data-action="academics"') + ' ' +
+        'data-value="' + st.k + '" data-strata="' + i + '">' +
+        O.esc(st.label) +
+        '<span class="strata-tag">' + O.esc(st.tag) + '</span>' +
+      '</div>';
+    }).join("");
+    return '<div class="strata-wrap">' +
+      '<div class="strata-guide">' +
+        '<h2>What are you working on?</h2>' +
+        '<p>Pick a stratum for OCRA to analyse. Drag the stack to explore &mdash; academics is live now.</p>' +
+      '</div>' +
+      '<div class="strata-stack" id="strataStack">' + pills + '</div>' +
     '</div>';
   };
 
-  // ── ACCOUNT ───────────────────────────────────────────────────
+  // ── ACCOUNT — rotating 3-branch selector (clockwise, upright labels) ──
   O.screens.account = function () {
-    var s = O.state;
-    function opt(a) {
-      return '<button class="btn full" data-action="pickAccount" data-value="' + a + '" ' +
-        'style="padding:14px;text-transform:capitalize;' + (s.account === a ? "background:var(--ocean);color:#fff" : "") + '">' +
-        a + ' Account</button>';
+    function branch(k, label, ic) {
+      return '<div class="acct-branch" data-action="acctEnter" data-value="' + k + '">' +
+        '<div class="acct-bub"><div class="acct-ic">' + ic + '</div><div>' + label + '</div></div>' +
+      '</div>';
     }
-    return '<div class="center"><div class="glass card-pad" style="max-width:460px;width:100%;text-align:center">' +
-      '<div class="label" style="font-size:13px;color:var(--ink);margin-bottom:18px">Choose your account</div>' +
-      '<div style="display:flex;flex-direction:column;gap:10px">' + opt("personal") + opt("family") + opt("organization") + '</div>' +
-      '<button class="btn deep full" data-action="accountNext" style="margin-top:18px;padding:14px;font-weight:700">Dive In</button>' +
-    '</div></div>';
+    return '<div class="acct-scene">' +
+      '<div class="acct-guide">' +
+        '<h2>Choose your account</h2>' +
+        '<p>This shapes your dashboard and how OCRA reports back to you.</p>' +
+      '</div>' +
+      '<div class="acct-orbit">' +
+        '<div class="acct-ring">' +
+          '<span class="acct-node n"></span><span class="acct-node e"></span>' +
+          '<span class="acct-node s"></span><span class="acct-node w"></span>' +
+        '</div>' +
+        '<div class="acct-hub">OCRA</div>' +
+        '<div class="acct-branches">' +
+          branch("family", "FAMILY", "&#127968;") +
+          branch("personal", "PERSONAL", "&#128100;") +
+          branch("organization", "ORGANIZATION", "&#127970;") +
+        '</div>' +
+      '</div>' +
+    '</div>';
   };
 
   // ── BRAIN TEST START ──────────────────────────────────────────

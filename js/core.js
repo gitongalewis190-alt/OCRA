@@ -43,8 +43,6 @@ window.OCRA = window.OCRA || {};
   O.go = function (patch) {
     Object.assign(O.state, patch || {});
     O.render();
-    // Notify Arten of phase change so sphere emotion updates
-    try { if (O.arten && O.arten.onPhase && patch && patch.phase) O.arten.onPhase(patch.phase); } catch (e) {}
   };
 
   O.render = function () {
@@ -142,17 +140,18 @@ window.OCRA = window.OCRA || {};
       case "academics":   return O.go({ phase: "account" });
       case "backToChoose": return O.go({ phase: "choose" });
 
-      case "finances": {
-        if (window.gsap) {
-          window.gsap.fromTo(t, { x: 0 }, { x: 7, duration: 0.05, repeat: 9, yoyo: true, ease: "none", clearProps: "x" });
-        } else {
-          t.classList.add("auth-shake");
-          t.addEventListener("animationend", function () { t.classList.remove("auth-shake"); }, { once: true });
-        }
-        return;
-      }
+      // account branch chosen → straight into the login page (no Next)
+      case "acctEnter":
+        return O.go({ account: v, phase: "auth", authMode: "login", authStep: "email", signupStage: 1, form: {} });
 
-      case "pickAccount": return O.go({ account: v });
+      // NOTE: coming-soon strata (Finances, Upcoming) are inert for now —
+      // their pills carry no data-action, so there is no attention path to handle.
+
+      case "pickAccount": {
+        var _patch = { account: v };
+        if (O.state.phase === "auth") { _patch.signupStage = 1; _patch.form = {}; _patch.authStep = "email"; }
+        return O.go(_patch);
+      }
       case "accountNext": return O.go({ phase: "auth", authMode: "login" });
       case "setAuthMode": {
         if (v === "signup" && O.antiCheat) O.antiCheat.startSignup();

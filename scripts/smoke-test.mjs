@@ -31,6 +31,10 @@ const _ls = {
 globalThis.localStorage = _ls;
 Object.defineProperty(window, "localStorage", { value: _ls, writable: true });
 
+// Stub requestAnimationFrame so arten's animation loop doesn't spin forever in jsdom
+window.requestAnimationFrame = function () { return 0; };
+globalThis.requestAnimationFrame = window.requestAnimationFrame;
+
 const coreModules = [
   "js/core.js",
   "js/identity.js",
@@ -52,7 +56,6 @@ const coreModules = [
   "modules/auth/auth.js",
   "modules/anti-cheat/anti-cheat.js",
   "modules/voice/voice.js",
-  "modules/arten/arten.js",
   "js/app.js",
 ];
 
@@ -86,13 +89,18 @@ assert("choose screen",                 app().includes("academics"));
 assert("choose: finances button",       app().includes("finances"));
 
 O.go({ phase: "account" });
-assert("account screen",                app().includes("pickAccount"));
-assert("account: Get Started",          app().includes("accountNext"));
+assert("account screen (3D branches)",  app().includes("acct-orbit"));
+assert("account: branch enters login",  app().includes("acctEnter"));
+assert("account: three account types",
+  app().includes('data-value="personal"') && app().includes('data-value="family"') && app().includes('data-value="organization"'));
 
 O.go({ phase: "auth", authMode: "login", authStep: "email" });
 assert("login screen",                  app().includes("data-auth"));
 assert("login: email-first step",       app().includes("emailNext"));
 assert("login: social sign-in seams",   app().includes("socialAuth"));
+assert("login: embedded account banner", app().includes("auth-acct-banner"));
+assert("login: account banner has personal/family/organization",
+  app().includes('data-value="personal"') && app().includes('data-value="family"') && app().includes('data-value="organization"'));
 
 O.go({ phase: "auth", authMode: "recover" });
 assert("recovery screen",               app().includes("recoverSubmit"));
@@ -233,13 +241,15 @@ AC.reset();
 assert("AC: reset clears flags",        AC.score() === 0);
 assert("AC: reset clears honeypot",     AC.session.honeypotFired === false);
 
-// Arten module (3D companion — stubs gracefully when WebGL/rAF absent)
-assert("O.arten loaded",               typeof O.arten === "object");
-
 // Voice module
 assert("O.voice loaded",               typeof O.voice === "object");
 assert("voice: say is function",        typeof O.voice.say === "function");
 assert("voice: isMuted returns bool",   typeof O.voice.isMuted() === "boolean");
+assert("voice: toggle is function",     typeof O.voice.toggle === "function");
+
+// Arten (AI assistant) is intentionally removed from the public build for now,
+// so it must NOT be loaded or globally present.
+assert("arten: absent from public build", typeof O.arten === "undefined");
 
 // Auth: sign up a test user
 var signedUp = false, signupErr = null;
