@@ -168,7 +168,7 @@
 }
 .strata-pill.active   { color: #0E6BA8; }
 .strata-pill.active   .strata-tag { background: rgba(14,107,168,.12); color: #0E6BA8; }
-.strata-pill.locked   { color: #9aa6b0; background: linear-gradient(160deg, #dfe3e8, #cfd5db); cursor: not-allowed; }
+.strata-pill.locked   { color: #9aa6b0; background: linear-gradient(160deg, #dfe3e8, #cfd5db); cursor: default; pointer-events: none; opacity: .82; }
 .strata-pill.locked   .strata-tag { background: rgba(16,58,85,.08); color: #8190a0; }
 .strata-shake { animation: authShake .35s ease both; }
 

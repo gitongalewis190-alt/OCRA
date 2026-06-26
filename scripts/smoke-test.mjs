@@ -56,7 +56,6 @@ const coreModules = [
   "modules/auth/auth.js",
   "modules/anti-cheat/anti-cheat.js",
   "modules/voice/voice.js",
-  "modules/arten/arten.js",
   "js/app.js",
 ];
 
@@ -248,14 +247,9 @@ assert("voice: say is function",        typeof O.voice.say === "function");
 assert("voice: isMuted returns bool",   typeof O.voice.isMuted() === "boolean");
 assert("voice: toggle is function",     typeof O.voice.toggle === "function");
 
-// Arten module (3D companion — stubs gracefully when WebGL/rAF absent)
-assert("O.arten loaded",               typeof O.arten === "object");
-assert("arten: onPhase is function",    typeof O.arten.onPhase === "function");
-assert("arten: setEmotion is function", typeof O.arten.setEmotion === "function");
-O.arten.onPhase("intro");  // no-op — must not mount on intro screen
-assert("arten: not mounted on intro",   O.arten._mounted === false);
-O.arten.onPhase("choose"); // first non-intro phase — should trigger mount
-assert("arten: mounts after Dive In",   O.arten._mounted === true);
+// Arten (AI assistant) is intentionally removed from the public build for now,
+// so it must NOT be loaded or globally present.
+assert("arten: absent from public build", typeof O.arten === "undefined");
 
 // Auth: sign up a test user
 var signedUp = false, signupErr = null;

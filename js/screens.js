@@ -669,8 +669,9 @@
       { k: "upcoming",  label: "UPCOMING",  tag: "Soon",   locked: true },
     ];
     var pills = strata.map(function (st, i) {
+      // coming-soon strata are fully inert for now — no action, no attention
       return '<div class="strata-pill ' + (st.locked ? "locked" : "active") + '" ' +
-        'data-action="' + (st.locked ? "stratumLocked" : "academics") + '" ' +
+        (st.locked ? 'aria-disabled="true"' : 'data-action="academics"') + ' ' +
         'data-value="' + st.k + '" data-strata="' + i + '">' +
         O.esc(st.label) +
         '<span class="strata-tag">' + O.esc(st.tag) + '</span>' +
