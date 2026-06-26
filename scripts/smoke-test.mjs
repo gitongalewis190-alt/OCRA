@@ -90,8 +90,10 @@ assert("choose screen",                 app().includes("academics"));
 assert("choose: finances button",       app().includes("finances"));
 
 O.go({ phase: "account" });
-assert("account screen",                app().includes("pickAccount"));
-assert("account: Get Started",          app().includes("accountNext"));
+assert("account screen (3D branches)",  app().includes("acct-orbit"));
+assert("account: branch enters login",  app().includes("acctEnter"));
+assert("account: three account types",
+  app().includes('data-value="personal"') && app().includes('data-value="family"') && app().includes('data-value="organization"'));
 
 O.go({ phase: "auth", authMode: "login", authStep: "email" });
 assert("login screen",                  app().includes("data-auth"));

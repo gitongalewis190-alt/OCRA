@@ -137,8 +137,23 @@ window.OCRA = window.OCRA || {};
         if (O._held) { O._held = false; return; }
         return O.go({ phase: "choose" });
 
-      case "academics":   return O.go({ phase: "auth", authMode: "login", authStep: "email", account: "personal" });
+      case "academics":   return O.go({ phase: "account" });
       case "backToChoose": return O.go({ phase: "choose" });
+
+      // stratum slide that isn't live yet — gentle shake, no navigation
+      case "stratumLocked": {
+        if (window.gsap) {
+          window.gsap.fromTo(t, { x: 0 }, { x: 6, duration: 0.05, repeat: 7, yoyo: true, ease: "none", clearProps: "x" });
+        } else {
+          t.classList.add("strata-shake");
+          t.addEventListener("animationend", function () { t.classList.remove("strata-shake"); }, { once: true });
+        }
+        return;
+      }
+
+      // account branch chosen → straight into the login page (no Next)
+      case "acctEnter":
+        return O.go({ account: v, phase: "auth", authMode: "login", authStep: "email", signupStage: 1, form: {} });
 
       case "finances": {
         if (window.gsap) {
