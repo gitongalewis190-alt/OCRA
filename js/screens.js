@@ -473,11 +473,10 @@
       '<div class="land-mark" id="devHold"><span>OCRA</span><span>OCRA</span></div>' +
       '<div class="land-banner" id="landBanner">' +
         '<div class="land-brief" id="landBrief"></div>' +
-        '<div class="land-sub">' +
-          '<span>A subsidiary of art is life</span>' +
-          '<button class="land-dive" id="landDive" data-action="diveIn">Dive In</button>' +
-        '</div>' +
+        '<div class="land-sub"><span>A subsidiary of art is life</span></div>' +
       '</div>' +
+      /* Dive In — separate neumorphic pill, not part of the explanation box */
+      '<button class="land-dive" id="landDive" data-action="diveIn">Dive In</button>' +
     '</div>';
   };
 
@@ -604,22 +603,30 @@
   };
 
   function _initStrata() {
-    var stack = document.getElementById("strataStack");
-    if (!stack) return;
-    var pills = [].slice.call(stack.querySelectorAll(".strata-pill"));
+    var deck = document.getElementById("strataStack");
+    if (!deck) return;
+    var pills = [].slice.call(deck.querySelectorAll(".strata-pill"));
     if (!pills.length) return;
     var order = pills.map(function (_, i) { return i; }); // front -> back
 
     function layout() {
       order.forEach(function (pi, depth) {
         var p = pills[pi];
-        p.style.transform = "translateY(" + (depth * 26) + "px) translateZ(" + (-depth * 40) + "px) scale(" + (1 - depth * 0.06) + ")";
+        // front card sits low & full; deeper cards rise up and recede behind
+        p.style.transform = "translate(-50%," + (-depth * 30) + "px) scale(" + Math.max(0.74, 1 - depth * 0.05) + ")";
         p.style.zIndex = String(pills.length - depth);
-        p.style.opacity = depth > 3 ? "0" : "1";
-        p.style.filter = depth === 0 ? "none" : "saturate(.9)";
+        p.style.opacity = depth > 6 ? "0" : "1";
+        p.classList.toggle("front", depth === 0);
+        // greyscale by depth: bright white at front, greyer behind (prototype look)
+        var g = Math.max(150, 255 - depth * 18);
+        p.style.background = "linear-gradient(160deg, rgb(" + g + "," + g + "," + (g + 4) +
+          "), rgb(" + (g - 14) + "," + (g - 14) + "," + (g - 9) + "))";
       });
     }
     layout();
+
+    function toBack() { order.push(order.shift()); layout(); }   // reveal next behind
+    function toFront() { order.unshift(order.pop()); layout(); }  // bring last forward
 
     pills.forEach(function (p, idx) {
       p.addEventListener("click", function () {
@@ -628,19 +635,26 @@
       });
     });
 
-    // vertical drag to cycle the stack (iPhone-wheel feel)
-    var sy = 0, fEl = null, move = null, up = null;
-    stack.addEventListener("pointerdown", function (e) {
-      fEl = e.target.closest(".strata-pill"); if (!fEl) return;
-      sy = e.clientY; fEl.classList.add("dragging");
-      move = function (ev) { if (!fEl) return; fEl.style.transform = "translateY(" + (ev.clientY - sy) + "px) scale(1.02)"; };
-      up = function (ev) {
-        if (!fEl) return;
-        var dy = ev.clientY - sy, pi = pills.indexOf(fEl), pos = order.indexOf(pi);
-        fEl.classList.remove("dragging");
-        if (dy < -40 && pos < order.length - 1) { order.splice(pos, 1); order.push(pi); }
-        else if (dy > 40 && pos > 0) { order.splice(pos, 1); order.unshift(pi); }
-        layout(); fEl = null;
+    // wheel / touch scroll cycles the deck
+    var lock = false;
+    deck.addEventListener("wheel", function (e) {
+      e.preventDefault();
+      if (lock) return; lock = true;
+      if (e.deltaY > 0) toBack(); else toFront();
+      setTimeout(function () { lock = false; }, 240);
+    }, { passive: false });
+
+    // vertical drag to cycle (iPhone-wheel feel)
+    var sy = 0, dragging = false, move = null, up = null;
+    deck.addEventListener("pointerdown", function (e) {
+      dragging = true; sy = e.clientY;
+      move = function (ev) {
+        if (!dragging) return;
+        var dy = ev.clientY - sy;
+        if (Math.abs(dy) > 46) { dy < 0 ? toBack() : toFront(); sy = ev.clientY; }
+      };
+      up = function () {
+        dragging = false;
         document.removeEventListener("pointermove", move);
         document.removeEventListener("pointerup", up);
       };
@@ -650,65 +664,60 @@
   }
 
   function _initAccount() {
-    // ring + branches revolve via CSS; labels counter-rotate to stay upright.
-    var branches = document.querySelectorAll(".acct-branch");
-    [].forEach.call(branches, function (br) {
-      br.addEventListener("click", function () {
-        [].forEach.call(branches, function (b) { b.classList.remove("sel"); });
-        br.classList.add("sel");
-      });
-    });
+    // Image is the exact prototype; the dashed ring overlay rotates via CSS.
+    // Hotspots (data-action="acctEnter") are handled by the core click bus.
   }
 
-  // ── CHOOSE — stratum slides (stacked, draggable, 3D) ──────────
+  // ── CHOOSE — stratum deck (scrollable, centered; matches the prototype) ──
   O.screens.choose = function () {
-    // front -> back: Academics (live), Finances (next), then Upcoming for the rest
+    // front -> back: Academics (live), Finances (next), then Upcoming behind. 8 cards.
     var strata = [
-      { k: "academics", label: "ACADEMICS", tag: "Active", locked: false },
-      { k: "finances",  label: "FINANCES",  tag: "Soon",   locked: true },
-      { k: "upcoming",  label: "UPCOMING",  tag: "Soon",   locked: true },
+      { k: "academics", label: "ACADEMICS", locked: false },
+      { k: "finances",  label: "FINANCES",  locked: true },
+      { k: "upcoming",  label: "UPCOMING",  locked: true },
+      { k: "upcoming",  label: "UPCOMING",  locked: true },
+      { k: "upcoming",  label: "UPCOMING",  locked: true },
+      { k: "upcoming",  label: "UPCOMING",  locked: true },
+      { k: "upcoming",  label: "UPCOMING",  locked: true },
+      { k: "upcoming",  label: "UPCOMING",  locked: true },
     ];
     var pills = strata.map(function (st, i) {
       // coming-soon strata are fully inert for now — no action, no attention
       return '<div class="strata-pill ' + (st.locked ? "locked" : "active") + '" ' +
         (st.locked ? 'aria-disabled="true"' : 'data-action="academics"') + ' ' +
         'data-value="' + st.k + '" data-strata="' + i + '">' +
-        O.esc(st.label) +
-        '<span class="strata-tag">' + O.esc(st.tag) + '</span>' +
+        '<span class="strata-lbl">' + O.esc(st.label) + '</span>' +
       '</div>';
     }).join("");
     return '<div class="strata-wrap">' +
       '<div class="strata-guide">' +
         '<h2>What are you working on?</h2>' +
-        '<p>Pick a stratum for OCRA to analyse. Drag the stack to explore &mdash; academics is live now.</p>' +
+        '<p>Scroll the deck to explore &mdash; Academics is live now.</p>' +
       '</div>' +
-      '<div class="strata-stack" id="strataStack">' + pills + '</div>' +
+      '<div class="strata-deck" id="strataStack">' +
+        '<div class="strata-stack">' + pills + '</div>' +
+      '</div>' +
     '</div>';
   };
 
-  // ── ACCOUNT — rotating 3-branch selector (clockwise, upright labels) ──
+  // ── ACCOUNT — exact prototype image with clickable hotspots + rotating ring ──
   O.screens.account = function () {
-    function branch(k, label, ic) {
-      return '<div class="acct-branch" data-action="acctEnter" data-value="' + k + '">' +
-        '<div class="acct-bub"><div class="acct-ic">' + ic + '</div><div>' + label + '</div></div>' +
-      '</div>';
+    // hotspots positioned over the image branches (% of the 848x1264 art)
+    function hot(k, label, x, y) {
+      return '<button class="acct-hot" data-action="acctEnter" data-value="' + k + '" ' +
+        'aria-label="' + label + ' account" style="left:' + x + '%;top:' + y + '%"></button>';
     }
     return '<div class="acct-scene">' +
       '<div class="acct-guide">' +
         '<h2>Choose your account</h2>' +
-        '<p>This shapes your dashboard and how OCRA reports back to you.</p>' +
+        '<p>Tap Family, Personal or Organization to continue.</p>' +
       '</div>' +
       '<div class="acct-orbit">' +
-        '<div class="acct-ring">' +
-          '<span class="acct-node n"></span><span class="acct-node e"></span>' +
-          '<span class="acct-node s"></span><span class="acct-node w"></span>' +
-        '</div>' +
-        '<div class="acct-hub">OCRA</div>' +
-        '<div class="acct-branches">' +
-          branch("family", "FAMILY", "&#127968;") +
-          branch("personal", "PERSONAL", "&#128100;") +
-          branch("organization", "ORGANIZATION", "&#127970;") +
-        '</div>' +
+        '<img class="acct-img" src="./assets/account-branches.png" alt="Choose your OCRA account" draggable="false"/>' +
+        '<div class="acct-spin"></div>' +
+        hot("family", "Family", 50, 24.5) +
+        hot("personal", "Personal", 28, 72) +
+        hot("organization", "Organization", 71.5, 72) +
       '</div>' +
     '</div>';
   };

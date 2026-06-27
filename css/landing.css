@@ -69,10 +69,10 @@
   color: rgba(16,58,85,.055);
 }
 
-/* ── White brief banner (pure white, overlaps ~3/4 of art) ──── */
+/* ── White brief banner (pure white, overlaps ~3/4 of art) — sits low ── */
 .land-banner {
   position: absolute;
-  right: 0; bottom: clamp(18px, 7vh, 70px);
+  right: 0; bottom: clamp(86px, 13vh, 132px);
   width: min(78%, 560px);
   background: #ffffff;
   border-radius: 20px 0 0 20px;
@@ -105,78 +105,85 @@
   font-family: Georgia, "Times New Roman", serif;
   font-style: italic; font-size: clamp(13px, 1.7vw, 17px);
   letter-spacing: .02em; color: #5B7689;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px;
 }
 
+/* Dive In — separate neumorphic pill (per prototype), bottom-right, on its own */
 .land-dive {
-  flex-shrink: 0;
-  padding: 13px 26px;
+  position: absolute;
+  right: clamp(20px, 5vw, 52px);
+  bottom: clamp(22px, 5vh, 44px);
+  padding: 16px 34px;
   border: none; border-radius: 999px;
-  background: #16222e; color: #fff;
-  font-size: 13px; font-weight: 700; letter-spacing: .12em;
+  background: #eef1f6; color: #16222e;
+  font-size: 14px; font-weight: 800; letter-spacing: .16em;
   text-transform: uppercase; cursor: pointer;
   font-family: inherit;
-  box-shadow: 0 8px 22px rgba(22,34,46,.35);
+  box-shadow: 7px 7px 16px rgba(163,177,198,.6), -7px -7px 16px rgba(255,255,255,.95);
   opacity: 0; transform: scale(.9);
-  transition: opacity .5s ease, transform .5s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+  transition: opacity .5s ease, transform .5s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
+  z-index: 6;
 }
 .land-dive.in { opacity: 1; transform: scale(1); }
-.land-dive:hover { box-shadow: 0 10px 30px rgba(56,189,248,.4); background: #0E6BA8; }
+.land-dive:hover { box-shadow: 9px 9px 20px rgba(163,177,198,.7), -9px -9px 20px rgba(255,255,255,1); color: #0E6BA8; }
+.land-dive:active { box-shadow: inset 5px 5px 12px rgba(163,177,198,.7), inset -5px -5px 12px rgba(255,255,255,.95); }
 
 @media (max-width: 640px) {
-  .land-hero { background-position: center 36%; background-size: contain; }
-  .land-banner { width: 100%; border-radius: 20px 20px 0 0; bottom: 0; padding-right: clamp(20px,5vw,28px); }
-  .land-sub { flex-direction: column; align-items: flex-start; }
-  .land-dive { align-self: stretch; text-align: center; }
+  .land-hero { background-position: center 34%; background-size: contain; }
+  .land-banner { width: 100%; border-radius: 20px 20px 0 0; bottom: 92px; padding-right: clamp(20px,5vw,28px); }
+  .land-dive { right: 50%; transform: translateX(50%) scale(.9); bottom: 24px; }
+  .land-dive.in { transform: translateX(50%) scale(1); }
 }
 
 /* ============================================================
-   STRATUM SLIDES — stacked, draggable, 3D (iPhone-wheel feel)
+   STRATUM DECK — scrollable, centered, greyscale (matches prototype)
    ============================================================ */
-.strata-wrap { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 8px; }
-.strata-guide {
-  text-align: center; max-width: 420px;
+.strata-wrap {
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 30px; padding: 24px 8px;
+  background: radial-gradient(ellipse 80% 70% at 50% 42%, #f4f6f8 0%, #e4e8ec 60%, #d6dadf 100%);
 }
+.strata-guide { text-align: center; max-width: 420px; }
 .strata-guide h2 { font-size: 22px; font-weight: 800; color: var(--ink, #103A55); margin: 0 0 6px; }
 .strata-guide p  { font-size: 12.5px; color: var(--muted, #5B7689); line-height: 1.6; margin: 0; opacity: .85; }
 
-.strata-stack {
+/* scrollable deck container (wheel / drag cycles the cards) */
+.strata-deck {
   position: relative;
-  width: min(86vw, 360px); height: 320px;
-  perspective: 1100px;
-  user-select: none; touch-action: pan-y;
+  width: min(86vw, 380px); height: 420px;
+  perspective: 1300px;
+  margin: 0 auto;
+  overflow: hidden;
+  user-select: none; touch-action: none;
+  cursor: ns-resize;
 }
+.strata-stack { position: absolute; inset: 0; transform-style: preserve-3d; }
 .strata-pill {
-  position: absolute; left: 50%; top: 50%;
-  width: 300px; max-width: 80vw; height: 70px;
-  margin-left: -150px; margin-top: -35px;
-  border-radius: 22px;
-  display: flex; align-items: center; padding: 0 26px;
-  font-size: 19px; font-weight: 800; letter-spacing: .04em;
-  color: #2a3a47;
+  position: absolute; left: 50%; bottom: 22px;
+  width: 300px; max-width: 78vw; height: 96px;
+  border-radius: 999px;            /* stadium pill, like the prototype */
+  display: flex; align-items: center; justify-content: center;
   background: linear-gradient(160deg, #ffffff, #eef1f4);
-  box-shadow: 0 18px 40px rgba(16,58,85,.18), inset 0 1px 0 rgba(255,255,255,.9);
-  transition: transform .55s cubic-bezier(.22,1,.36,1), opacity .5s, box-shadow .4s, filter .4s;
-  cursor: grab; will-change: transform;
+  box-shadow: 0 22px 44px rgba(120,132,148,.34), inset 0 2px 0 rgba(255,255,255,.92);
+  transition: transform .5s cubic-bezier(.22,1,.36,1), opacity .4s, box-shadow .4s;
+  will-change: transform;
 }
-.strata-pill.dragging { cursor: grabbing; transition: none; }
-.strata-pill .strata-tag {
-  margin-left: auto; font-size: 10px; font-weight: 700;
-  letter-spacing: .1em; text-transform: uppercase;
-  padding: 4px 10px; border-radius: 999px;
+.strata-lbl {
+  font-size: clamp(20px, 5.4vw, 30px); font-weight: 800;
+  letter-spacing: .05em; color: #3a4650;
 }
-.strata-pill.active   { color: #0E6BA8; }
-.strata-pill.active   .strata-tag { background: rgba(14,107,168,.12); color: #0E6BA8; }
-.strata-pill.locked   { color: #9aa6b0; background: linear-gradient(160deg, #dfe3e8, #cfd5db); cursor: default; pointer-events: none; opacity: .82; }
-.strata-pill.locked   .strata-tag { background: rgba(16,58,85,.08); color: #8190a0; }
-.strata-shake { animation: authShake .35s ease both; }
+.strata-pill.front { box-shadow: 0 28px 60px rgba(120,132,148,.46), inset 0 2px 0 rgba(255,255,255,.95); }
+.strata-pill.active.front .strata-lbl { color: #16222e; }
+.strata-pill.locked { pointer-events: none; }
 
 /* ============================================================
-   ACCOUNT BRANCHES — rotating clockwise, upright labels, 3D
+   ACCOUNT — exact prototype image + clickable hotspots + rotating accent
    ============================================================ */
 .acct-scene {
-  display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 6px;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px; padding: 24px 6px;
+  background: radial-gradient(ellipse 80% 70% at 50% 40%, #fbfcfd 0%, #eef1f4 70%, #e3e7ec 100%);
 }
 .acct-guide { text-align: center; max-width: 380px; }
 .acct-guide h2 { font-size: 21px; font-weight: 800; color: var(--ink,#103A55); margin: 0 0 5px; }
@@ -184,79 +191,41 @@
 
 .acct-orbit {
   position: relative;
-  width: min(78vw, 340px); height: min(78vw, 340px);
-  transform-style: preserve-3d;
+  width: min(80vw, 340px);
+  line-height: 0;
 }
-/* slow clockwise dashed ring + nodes */
-.acct-ring {
-  position: absolute; inset: 14%;
-  border-radius: 50%;
-  border: 1.5px dashed rgba(14,107,168,.35);
-  animation: acctSpin 48s linear infinite;
-}
-.acct-node {
-  position: absolute; width: 10px; height: 10px; border-radius: 50%;
-  background: #fff; border: 2px solid #38BDF8;
-  box-shadow: 0 0 8px rgba(56,189,248,.55);
-}
-.acct-node.n { top: -6px;  left: 50%; margin-left: -5px; }
-.acct-node.s { bottom: -6px; left: 50%; margin-left: -5px; }
-.acct-node.e { right: -6px; top: 50%; margin-top: -5px; }
-.acct-node.w { left: -6px;  top: 50%; margin-top: -5px; }
-@keyframes acctSpin { to { transform: rotate(360deg); } }
-
-/* center OCRA hub */
-.acct-hub {
-  position: absolute; left: 50%; top: 50%;
-  width: 38%; height: 38%; transform: translate(-50%,-50%);
-  border-radius: 50%;
-  background: radial-gradient(circle at 38% 32%, #ffffff, #eaf0f5 70%);
-  border: 2px solid rgba(14,107,168,.18);
-  box-shadow: 0 10px 30px rgba(16,58,85,.16), inset 0 2px 6px rgba(255,255,255,.9);
-  display: flex; align-items: center; justify-content: center;
-  font-size: clamp(20px, 6vw, 30px); font-weight: 900; letter-spacing: .08em;
-  color: #0E6BA8; z-index: 3;
+.acct-img {
+  display: block; width: 100%; height: auto;
+  border-radius: 18px;
+  -webkit-user-drag: none; user-select: none;
 }
 
-/* the three branch bubbles revolve as a group; labels counter-rotate */
-.acct-branches {
-  position: absolute; inset: 0;
-  animation: acctSpin 48s linear infinite;
+/* invisible round click targets over Family / Personal / Organization */
+.acct-hot {
+  position: absolute; width: 25%; aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  border: none; background: transparent; border-radius: 50%;
+  padding: 0; cursor: pointer; z-index: 4;
+  transition: box-shadow .2s ease;
 }
-.acct-branch {
-  position: absolute; width: 34%; height: 34%;
-  left: 50%; top: 50%;
-  margin-left: -17%; margin-top: -17%;
-  border-radius: 50%;
-  display: grid; place-items: center;
-  cursor: pointer; z-index: 4;
-  transition: transform .25s ease, box-shadow .3s;
+.acct-hot:hover       { box-shadow: 0 0 0 4px rgba(56,189,248,.45); }
+.acct-hot:focus-visible { outline: 3px solid rgba(56,189,248,.7); outline-offset: 2px; }
+
+/* "the middle rotates" — a slow clockwise accent dot orbiting the OCRA hub */
+.acct-spin {
+  position: absolute; left: 50%; top: 48.5%;
+  width: 33%; aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none; z-index: 3;
+  animation: acctSpin 14s linear infinite;
 }
-.acct-branch .acct-bub {
-  width: 100%; height: 100%; border-radius: 50%;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; text-align: center;
-  color: #fff; font-weight: 800; letter-spacing: .05em;
-  font-size: clamp(10px, 2.7vw, 13px);
-  box-shadow: 0 12px 28px rgba(16,58,85,.28), inset 0 2px 8px rgba(255,255,255,.25);
-  /* labels stay upright: counter-rotate the group's rotation */
-  animation: acctSpinRev 48s linear infinite;
+.acct-spin::before {
+  content: ""; position: absolute; top: -5px; left: 50%; margin-left: -5px;
+  width: 10px; height: 10px; border-radius: 50%;
+  background: #38BDF8; box-shadow: 0 0 12px rgba(56,189,248,.85);
 }
-.acct-branch .acct-ic { font-size: clamp(15px, 4.4vw, 22px); line-height: 1; }
-@keyframes acctSpinRev { to { transform: rotate(-360deg); } }
-
-.acct-branch[data-value="family"]       { transform: translateY(-118%); }
-.acct-branch[data-value="personal"]     { transform: translate(-92%, 78%); }
-.acct-branch[data-value="organization"] { transform: translate(92%, 78%); }
-
-.acct-branch[data-value="family"]       .acct-bub { background: linear-gradient(155deg, #1c3a52, #2a4a63); }
-.acct-branch[data-value="personal"]     .acct-bub { background: linear-gradient(155deg, #16222e, #243744); }
-.acct-branch[data-value="organization"] .acct-bub { background: linear-gradient(155deg, #0E6BA8, #38BDF8); }
-
-.acct-branch:hover { transform-origin: center; filter: brightness(1.08); }
-.acct-branch:hover .acct-bub { box-shadow: 0 16px 40px rgba(56,189,248,.45); }
-.acct-branch.sel   .acct-bub { outline: 3px solid rgba(56,189,248,.55); outline-offset: 3px; }
+@keyframes acctSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .land-hero, .land-orbit, .acct-ring, .acct-branches, .acct-branch .acct-bub { animation: none !important; }
+  .land-hero, .land-orbit, .acct-spin { animation: none !important; }
 }
