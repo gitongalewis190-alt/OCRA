@@ -287,30 +287,63 @@
     return total === 0 ? 1 : done / total;
   };
 
-  // ---- signup navigation ----
+  // ---- one-field-at-a-time signup: micro-steps within a stage ----
+  // A stage expands into an ordered list of single steps: each field, then
+  // (for the Security stage) each recovery question — one per screen.
+  I.stageSteps = function (stage) {
+    if (!stage || stage.congrats) return [];
+    var steps = (stage.fields || []).map(function (fl) { return { kind: "field", fl: fl }; });
+    if (stage.recovery) {
+      I.recovery.forEach(function (r) { steps.push({ kind: "recovery", r: r }); });
+    }
+    return steps;
+  };
+
+  I.validateStep = function (step, f) {
+    if (!step) return "";
+    if (step.kind === "recovery") {
+      if (!f[step.r.k] || !String(f[step.r.k]).trim()) return step.r.q + " is required.";
+      return "";
+    }
+    // field
+    var err = I.validateField(step.fl, f);
+    if (err) return err;
+    if (step.fl[2] === "email" && !f.emailVerified) return "Please verify your email address first.";
+    if (step.fl[0] === "system" && f.system && f.country && !I.systemValidForCountry(f.system, f.country)) {
+      return f.system + " is not typically used in " + f.country + ". Please verify or change one.";
+    }
+    return "";
+  };
+
+  // ---- signup navigation (advances one field at a time) ----
   I.signupNext = function () {
     var stages = I.stages[O.state.account];
     var idx    = O.state.signupStage - 1;
     var stage  = stages[idx];
-    if (!stage || stage.congrats) return; // congrats: "Create account" btn handles creation
+    if (!stage || stage.congrats) return; // congrats: "Create account" button handles creation
 
-    var f   = O.state.form;
-    var err = I.validateStage(stage, f);
-    // cross-field: system ↔ country coherence
-    if (!err && f.system && f.country && !I.systemValidForCountry(f.system, f.country)) {
-      err = f.system + " is not typically used in " + f.country + ". Please verify or change one.";
-    }
-    var box = document.getElementById("stageErr");
+    var f     = O.state.form;
+    var steps = I.stageSteps(stage);
+    var si    = Math.min(O.state.signupField || 0, Math.max(0, steps.length - 1));
+    var err   = I.validateStep(steps[si], f);
+    var box   = document.getElementById("stageErr");
     if (err) { if (box) box.textContent = err; return; }
     if (box) box.textContent = "";
-    if (O.state.signupStage < stages.length) {
-      O.go({ signupStage: O.state.signupStage + 1 });
+
+    if (si + 1 < steps.length) {                       // next field in same stage
+      O.go({ signupField: si + 1, signupDir: "fwd" });
+    } else if (O.state.signupStage < stages.length) {  // first field of next stage
+      O.go({ signupStage: O.state.signupStage + 1, signupField: 0, signupDir: "fwd" });
     }
   };
 
   I.signupBack = function () {
+    var si = O.state.signupField || 0;
+    if (si > 0) { O.go({ signupField: si - 1, signupDir: "back" }); return; }
     if (O.state.signupStage > 1) {
-      O.go({ signupStage: O.state.signupStage - 1 });
+      var prev      = I.stages[O.state.account][O.state.signupStage - 2];
+      var prevSteps = I.stageSteps(prev);
+      O.go({ signupStage: O.state.signupStage - 1, signupField: Math.max(0, prevSteps.length - 1), signupDir: "back" });
     } else {
       O.go({ phase: "account" });
     }

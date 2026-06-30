@@ -261,34 +261,48 @@
   }
 
   // ── signup renderer ────────────────────────────────────────────
+  // single recovery-question step
+  function recoveryStep(r, f) {
+    return '<div class="auth-step-h">Account recovery</div>' +
+      '<div class="auth-step-sub">Two facts &amp; two favourites — so you never lose access.</div>' +
+      '<div class="auth-lbl">' + O.esc(r.q) + '</div>' +
+      '<div class="ah">' + ic.key +
+        '<input data-field="' + r.k + '" type="text" placeholder="Your answer" value="' + O.esc(f[r.k] || "") + '" autofocus/>' +
+      '</div>';
+  }
+
   function signup() {
     var s = O.state, f = s.form;
     var stages = I.stages[s.account];
     if (!stages) return '<div class="auth-bg"><div class="auth-card">Invalid account type.</div></div>';
     var idx   = s.signupStage - 1;
     var stage = stages[idx] || stages[0];
+    var isCongrats = !!stage.congrats;
+    var isFirst = idx === 0 && (s.signupField || 0) === 0;
 
-    var body = "";
-    if (stage.congrats) {
+    var body;
+    if (isCongrats) {
       body = congratsStage(s.account);
     } else {
-      body = '<div class="auth-group">' +
-        (stage.fields || []).map(function (fl) { return signupField(fl, f); }).join("") +
-      '</div>';
-      if (stage.recovery) body += recoveryGroup(f);
+      var steps = I.stageSteps(stage);
+      var si    = Math.min(s.signupField || 0, Math.max(0, steps.length - 1));
+      var step  = steps[si];
+      var inner = step && step.kind === "recovery" ? recoveryStep(step.r, f) : signupField(step.fl, f);
+      var dir   = s.signupDir === "back" ? " back" : "";
+      body =
+        '<div class="auth-step' + dir + '" data-stepkey="' + s.signupStage + '-' + si + '">' +
+          '<div class="auth-step-count">Step ' + (si + 1) + ' of ' + steps.length + ' &middot; ' + O.esc(stage.title) + '</div>' +
+          inner +
+        '</div>';
     }
-
-    var isFirst = idx === 0;
-    var isCongrats = !!stage.congrats;
 
     return '' +
     '<div class="auth-bg top">' +
       '<div class="auth-card wide" data-auth>' +
-        '<div class="auth-logorow">' + O.logo(44, true) + '</div>' +
+        '<div class="auth-logorow">' + O.logo(44) + '</div>' +
         '<div class="auth-title" style="text-transform:capitalize">' + O.esc(s.account) + ' &mdash; Sign up</div>' +
         (isFirst ? _acctBanner() : "") +
         progressBanner(stages, idx) +
-        '<div style="font-size:15px;font-weight:800;color:#dce8f2;margin-bottom:18px">' + O.esc(stage.title) + '</div>' +
         body +
         /* honeypot — off-screen, aria-hidden; bots fill these, humans never see them */
         '<div style="position:absolute;left:-99999px;opacity:0;height:0;overflow:hidden;pointer-events:none" aria-hidden="true">' +
@@ -334,7 +348,7 @@
     return '' +
     '<div class="auth-bg">' +
       '<div class="auth-card" data-auth>' +
-        '<div class="auth-logorow">' + O.logo(56, true) + '</div>' +
+        '<div class="auth-logorow">' + O.logo(56) + '</div>' +
         '<div class="auth-title" style="text-transform:capitalize">' + O.esc(s.account) + ' &middot; Sign in</div>' +
         (step === "email" ? _acctBanner() : "") +
 
@@ -349,7 +363,7 @@
           '<button class="auth-btn auth-btn-primary" data-action="emailNext">Continue &rarr;</button>'
         :
           // ── Step 2: password
-          '<div style="font-size:13px;color:rgba(220,232,242,.55);text-align:center;margin-bottom:14px">' +
+          '<div style="font-size:13px;color:#8b95a3;text-align:center;margin-bottom:14px">' +
             O.esc(capturedEmail) +
             ' &nbsp;<button class="auth-sw-btn sm" data-action="changeEmail">Change</button>' +
           '</div>' +
@@ -378,15 +392,15 @@
     return '' +
     '<div class="auth-bg">' +
       '<div class="auth-card" data-auth>' +
-        '<div class="auth-logorow">' + O.logo(44, true) + '</div>' +
+        '<div class="auth-logorow">' + O.logo(44) + '</div>' +
         '<div class="auth-title">Account recovery</div>' +
         (samePw ? "" : _acctBanner()) +
 
         (samePw ?
-          '<div style="background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px">' +
+          '<div style="background:var(--nm-bg);box-shadow:inset 4px 4px 9px var(--nm-d),inset -4px -4px 9px var(--nm-l);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px">' +
             '<div style="font-size:28px;margin-bottom:8px">&#128274;</div>' +
-            '<div style="font-size:14px;font-weight:700;color:#38BDF8;margin-bottom:6px">That&rsquo;s your current password</div>' +
-            '<div style="font-size:12px;color:rgba(220,232,242,.5);margin-bottom:18px">Keep using it, or choose a new one.</div>' +
+            '<div style="font-size:14px;font-weight:800;color:#0E6BA8;margin-bottom:6px">That&rsquo;s your current password</div>' +
+            '<div style="font-size:12px;color:#8b95a3;margin-bottom:18px">Keep using it, or choose a new one.</div>' +
             '<div style="display:flex;gap:10px">' +
               '<button class="auth-btn auth-btn-ghost" data-action="recoverKeepOld" style="flex:1">Keep this one</button>' +
               '<button class="auth-btn auth-btn-primary" data-action="recoverChangePw" style="flex:1">Choose new</button>' +
@@ -397,7 +411,7 @@
           '<div class="ah">' + ic.mail +
             '<input data-field="email" type="email" placeholder="you@example.com" value="' + O.esc(s.recoverEmail || f.email || "") + '"/>' +
           '</div>' +
-          '<div style="font-size:11.5px;color:rgba(220,232,242,.4);margin:-4px 0 14px">Answer all four recovery questions exactly.</div>' +
+          '<div style="font-size:11.5px;color:#8b95a3;margin:-4px 0 14px">Answer all four recovery questions exactly.</div>' +
           I.recovery.map(function (r) {
             return '<div class="auth-lbl">' + O.esc(r.q) + '</div>' +
               '<div class="ah">' + ic.key +
@@ -433,7 +447,7 @@
     return '' +
     '<div class="auth-bg">' +
       '<div class="auth-card" data-auth>' +
-        '<div class="auth-logorow">' + O.logo(48, true) + '</div>' +
+        '<div class="auth-logorow">' + O.logo(48) + '</div>' +
         '<div class="auth-title">Developer access</div>' +
         '<div class="ah">' + ic.mail +
           '<input id="devEmail" data-field="devEmail" type="email" placeholder="developer@ocra.app"/>' +

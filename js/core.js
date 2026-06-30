@@ -16,6 +16,8 @@ window.OCRA = window.OCRA || {};
     authEmail: "",           // email captured at step 1
     recoverSamePw: false,    // recovery: new password equals current one
     signupStage: 1,          // 1..N
+    signupField: 0,          // micro-step index within a stage (one field per screen)
+    signupDir: "fwd",        // "fwd" | "back" — drives the step transition direction
     dash: "personal",        // personal | family | organization | developer
     form: {},                // collected signup fields
     user: null,              // logged-in user
@@ -149,13 +151,13 @@ window.OCRA = window.OCRA || {};
 
       case "pickAccount": {
         var _patch = { account: v };
-        if (O.state.phase === "auth") { _patch.signupStage = 1; _patch.form = {}; _patch.authStep = "email"; }
+        if (O.state.phase === "auth") { _patch.signupStage = 1; _patch.signupField = 0; _patch.form = {}; _patch.authStep = "email"; }
         return O.go(_patch);
       }
       case "accountNext": return O.go({ phase: "auth", authMode: "login" });
       case "setAuthMode": {
         if (v === "signup" && O.antiCheat) O.antiCheat.startSignup();
-        return O.go({ authMode: v, signupStage: 1, form: {} });
+        return O.go({ authMode: v, signupStage: 1, signupField: 0, signupDir: "fwd", form: {} });
       }
       case "login": {
         var loginPwEl = document.getElementById("loginPw");
@@ -382,7 +384,7 @@ window.OCRA = window.OCRA || {};
           O.brainTest.state.isComplete = false;
           O.brainTest.state.isValid = true;
         }
-        return O.go({ phase: "intro", signupStage: 1, form: {}, authStep: "email", authEmail: "", recoverSamePw: false, brainTestPhase: "test", academicRecords: null, paymentStatus: null });
+        return O.go({ phase: "intro", signupStage: 1, signupField: 0, form: {}, authStep: "email", authEmail: "", recoverSamePw: false, brainTestPhase: "test", academicRecords: null, paymentStatus: null });
 
       // ---- brain test ----
       case "brainTestStart":
@@ -629,11 +631,9 @@ window.OCRA = window.OCRA || {};
       var stage   = stages && stages[s.signupStage - 1];
       var nextBtn = document.querySelector('[data-action="signupNext"]');
       if (nextBtn && stage && !stage.congrats) {
-        var sErr = O.identity.validateStage(stage, s.form);
-        if (!sErr && s.form.system && s.form.country &&
-            !O.identity.systemValidForCountry(s.form.system, s.form.country)) {
-          sErr = s.form.system + " is not typical for " + s.form.country;
-        }
+        var steps = O.identity.stageSteps(stage);
+        var si    = Math.min(s.signupField || 0, Math.max(0, steps.length - 1));
+        var sErr  = O.identity.validateStep(steps[si], s.form);
         nextBtn._gateMsg = sErr;
         gate(nextBtn, !sErr);
       }

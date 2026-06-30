@@ -108,13 +108,16 @@ assert("recovery screen",               app().includes("recoverSubmit"));
 O.go({ phase: "devLogin" });
 assert("developer login screen",        app().includes("devEnter"));
 
-O.go({ phase: "auth", authMode: "signup", signupStage: 1, account: "organization" });
+O.go({ phase: "auth", authMode: "signup", signupStage: 1, signupField: 0, account: "organization" });
 assert("signup screen",                 app().includes("signupNext"));
 assert("signup: 5-section banner",      app().includes("auth-seg"));
-assert("signup: searchable lists",      app().includes("datalist"));
+assert("signup: one field per step",    app().includes("auth-step-count") && app().includes("Step 1 of"));
 assert("signup: progress captions",     app().includes("Get started with account creation"));
+// the country field is its own step → carries the searchable datalist
+O.go({ phase: "auth", authMode: "signup", signupStage: 1, signupField: 2, account: "organization" });
+assert("signup: searchable lists",      app().includes("datalist"));
 // congratulations stage carries the create action
-O.go({ phase: "auth", authMode: "signup", signupStage: 5, account: "organization" });
+O.go({ phase: "auth", authMode: "signup", signupStage: 5, signupField: 0, account: "organization" });
 assert("signup: congratulations",       app().includes("signupCreate"));
 O.go({ account: "personal" });
 
