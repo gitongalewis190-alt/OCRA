@@ -77,6 +77,6 @@ window.OCRA = window.OCRA || {};
     PE.trigger("all");
   };
 
-  console.log("✅ PDF Export Module Loaded — backend seam + print fallback");
+  console.log("✅ PDF Export Module Loaded · backend seam + print fallback");
 
 })(window.OCRA);

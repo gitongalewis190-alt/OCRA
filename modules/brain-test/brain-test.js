@@ -1,5 +1,5 @@
 /* ============================================================
-   BRAIN TEST MODULE — Data Model & Scaffolding
+   BRAIN TEST MODULE · Data Model & Scaffolding
    60 questions, 6 dimensions, 10 per dimension.
    Dimensions: Spatial, Numerical, Linguistic, Abstract Logic, 
    Mechanical, Focus Endurability.
@@ -622,6 +622,6 @@ window.OCRA = window.OCRA || {};
     BT.state.responsePacingMs = [];
   };
 
-  console.log("✅ Brain Test Module Loaded — 60 questions, 6 dimensions, scaffolded");
+  console.log("✅ Brain Test Module Loaded · 60 questions, 6 dimensions, scaffolded");
 
 })(window.OCRA);

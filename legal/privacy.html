@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="OCRA Privacy Policy · how we handle your data under Kenya Data Protection Act 2019.">
+<title>Privacy Policy · OCRA</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../css/tokens.css">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;color:#103A55;background:#eef1f6;line-height:1.7}
+.wrap{max-width:800px;margin:0 auto;padding:32px 20px 60px}
+.card{background:#fff;border-radius:20px;box-shadow:0 8px 30px rgba(31,72,110,.12);padding:clamp(20px,4vw,40px)}
+h1{font-size:28px;margin:0 0 6px;color:#0E6BA8}
+.meta{font-size:13px;color:#5B7689;margin-bottom:24px}
+h2{font-size:17px;margin:28px 0 10px;color:#0A3D62;border-bottom:2px solid #e6e9ef;padding-bottom:6px}
+h3{font-size:14px;margin:18px 0 8px;color:#103A55}
+p,li{font-size:14px;color:#33404e}
+a{color:#0E6BA8;text-decoration:underline}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+th,td{border:1px solid #d9e1ea;padding:10px;text-align:left}
+th{background:#f0f4f8;font-weight:700}
+.badge{display:inline-block;background:#e6f4ff;color:#0E6BA8;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.06em}
+.nav{margin-bottom:18px}
+.nav a{font-size:13px;color:#5B7689;text-decoration:none;margin-right:14px}
+.nav a:hover{color:#0E6BA8;text-decoration:underline}
+.footer{margin-top:32px;padding-top:20px;border-top:1px solid #e6e9ef;font-size:12px;color:#5B7689}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav" aria-label="Legal navigation"><a href="../index.html">← Back to OCRA</a> <a href="terms.html">Terms</a> <a href="cookies.html">Cookies</a> <a href="refund.html">Refund</a></nav>
+<div class="card">
+<span class="badge">KENYA DATA PROTECTION ACT 2019 COMPLIANT</span>
+<h1>Privacy Policy</h1>
+<p class="meta"><strong>Data Controller:</strong> Artist Life Foundation (AIL), operating OCRA · <strong>Last updated:</strong> 20 October 2026 · <strong>ODPC Registration:</strong> In progress (tracked as open item per OCRA_STANDARDS.md)</p>
+
+<p>OCRA ("we", "us") is a career and results analytics platform operated as a subsidiary of Artist Life Foundation. This policy explains what personal data we collect, why we collect it, and your rights under the <strong>Kenya Data Protection Act 2019</strong> and ODPC guidance.</p>
+
+<h2>1. What we collect · data minimisation</h2>
+<p>We collect only what is necessary to provide OCRA's core service: analysing academic records and cognitive signals to suggest career paths. We do not collect data "just in case".</p>
+<table>
+<tr><th>Category</th><th>Examples</th><th>Purpose</th><th>Lawful basis (DPA s30)</th></tr>
+<tr><td>Account data</td><td>Name, email, phone, school, education system, level, country</td><td>Create and secure your account</td><td>Consent + Contract</td></tr>
+<tr><td>Guardian data (Family/Org)</td><td>Guardian name, family/organisation name, relationship</td><td>Verify authority over minor's data</td><td>Consent + Legal obligation</td></tr>
+<tr><td>Learning data <em>you provide</em></td><td>Subject scores, grades, brain-test answers, response times</td><td>Generate your 4 reports (transcript, results, guidance, timetable)</td><td>Consent + Contract</td></tr>
+<tr><td>Technical data</td><td>Login time, device type, browser, IP (hashed), audit log</td><td>Security, fraud prevention, support</td><td>Legitimate interest</td></tr>
+<tr><td>Payment data</td><td>M-Pesa transaction code, amount (KES 40), date, expiry</td><td>Unlock documents, receipts, refunds</td><td>Contract + Legal obligation</td></tr>
+</table>
+<p><strong>We do not collect:</strong> ID numbers, location tracking, biometric data, health records (unless you give explicit, separate consent for accommodations), or payment card numbers (handled by Safaricom/Stripe).</p>
+
+<h2>2. Children's data · strict protections</h2>
+<p>OCRA is used by learners aged 6 to adult. For any learner under 18:</p>
+<ul>
+<li>We require <strong>verified guardian or parent consent</strong> before processing. For Personal accounts declaring age under 13, creation is blocked and a Family account with guardian verification is required.</li>
+<li>Student records are <strong>never public, never indexed by search engines, never in URLs or logs, and never shared across tenants</strong> (schools/families).</li>
+<li>Accommodation information (e.g., learning support needs) is collected only with <strong>separate, explicit, clickable consent</strong>, never shown on the default dashboard, never used for scoring, and never shared across tenants.</li>
+<li>Cohort comparisons are <strong>opt-in, anonymised, and aggregated</strong> · no named classmates, ever.</li>
+<li>Guardian rights: access, correct, delete, or withdraw consent for a child's data at any time. See Section 7.</li>
+</ul>
+
+<h2>3. How we use AI (Claude)</h2>
+<p>We use Anthropic's Claude API to help draft insights and career suggestions. To protect you:</p>
+<ul>
+<li>We <strong>never send direct identifiers</strong> (names, phone, school, guardian contacts, photos) to Claude. Data is pseudonymised · only the minimum needed for the task.</li>
+<li>We <strong>never send accommodation data</strong> to Claude.</li>
+<li>Every AI-generated report includes a clear in-product disclosure: <em>"This is AI-assisted analysis to support your decisions. It is not a guarantee of career outcomes or professional advice. Review with a teacher or counsellor."</em> plus an explanation of why each career was suggested.</li>
+<li>The "career backdoor" (typing a career name) uses web-search grounding, validates output against a strict schema, stores results as <em>auto-generated, pending review</em> with a 60-day "New" label, and shows a Developer review queue before it affects scoring.</li>
+</ul>
+
+<h2>4. Where your data lives and who processes it</h2>
+<table>
+<tr><th>Processor</th><th>Role</th><th>Location</th><th>Data shared</th></tr>
+<tr><td>Supabase (PostgreSQL + Auth + Storage)</td><td>Database, authentication, file storage</td><td>EU / US (configured region) · documented as cross-border transfer under DPA s49</td><td>Account, learning data (encrypted at rest)</td></tr>
+<tr><td>Vercel / Railway</td><td>Hosting (Next.js + FastAPI)</td><td>US/EU edge</td><td>Technical logs only</td></tr>
+<tr><td>Anthropic (Claude)</td><td>AI insights</td><td>US</td><td>Pseudonymised academic/cognitive data only (see Section 3)</td></tr>
+<tr><td>Africa's Talking</td><td>SMS OTP, recovery codes</td><td>Kenya + AWS</td><td>Phone number, OTP</td></tr>
+<tr><td>Safaricom Daraja</td><td>M-Pesa payments</td><td>Kenya</td><td>Phone, amount, transaction code</td></tr>
+</table>
+<p>Cross-border transfers are documented in our transfer register and covered by processor contracts (DPA s49 safeguards). A copy is available from the Data Protection Officer on request.</p>
+
+<h2>5. How long we keep data</h2>
+<table>
+<tr><th>Data</th><th>Retention</th><th>Then</th></tr>
+<tr><td>Account + learning data</td><td>While your account is active</td><td>30-day soft-delete → permanent deletion on request or 30 days after account closure</td></tr>
+<tr><td>Payment audit trail</td><td>7 years</td><td>Kenya tax law (KRA) · anonymised after</td></tr>
+<tr><td>Audit log (who changed what, when)</td><td>2 years</td><td>Auto-purged; available for your export</td></tr>
+<tr><td>Soft-deleted items</td><td>30 days</td><td>Recoverable by you; auto-purged after 30 days</td></tr>
+<tr><td>Backups</td><td>30 days rolling</td><td>Encrypted, tested restores, not used for new processing</td></tr>
+</table>
+
+<h2>6. Security</h2>
+<p>We protect data with: argon2id/bcrypt password hashing, encrypted connections (HTTPS/TLS), Row Level Security on every database table with strict tenant isolation (your school or family never sees another's data), rate limiting on login and payments, CSRF/XSS protection, CSP/HSTS headers, and immutable audit logs. Student records are session-locked and never appear in URLs or application logs. See our security page for the current audit date.</p>
+<p>No system is perfectly secure. If we discover a breach that risks your rights, we will notify the ODPC within 72 hours and you without delay, as required by the DPA.</p>
+
+<h2>7. Your rights</h2>
+<p>Under the Kenya Data Protection Act you have the right to:</p>
+<ul>
+<li><strong>Access</strong> · get a copy of your data (Settings → Export My Data, or email us)</li>
+<li><strong>Correct</strong> · fix inaccurate data</li>
+<li><strong>Delete</strong> · request deletion (we honour this within 30 days, except where law requires us to keep payment records)</li>
+<li><strong>Object or restrict</strong> · object to certain processing</li>
+<li><strong>Portability</strong> · receive your data in a usable format</li>
+<li><strong>Withdraw consent</strong> · at any time (does not affect processing already done)</li>
+<li><strong>Complain</strong> · to us first, then to the <a href="https://www.odpc.go.ke">Office of the Data Protection Commissioner (ODPC)</a>, complaints@odpc.go.ke</li>
+</ul>
+<p><strong>How to act:</strong> Email <a href="mailto:privacy@ocra.app">privacy@ocra.app</a> or use in-app Settings. We respond within 30 days. For a child's data, the verified guardian makes the request.</p>
+
+<h2>8. Consent on every form</h2>
+<p>Every form that collects personal data shows a clear checkbox with a link to this policy and the Terms. You must tick it to proceed. For organisational sign-up, there is a per-section agreement so you know what each section will do with the data. Pre-ticked boxes are never used. You can withdraw consent at any time.</p>
+
+<h2>9. Contact us</h2>
+<p><strong>Data Controller:</strong> Artist Life Foundation, operating OCRA<br>
+<strong>Physical address:</strong> Nairobi, Kenya · P.O. Box 00100, GPO Nairobi (full street address published on contact page)<br>
+<strong>Email:</strong> <a href="mailto:privacy@ocra.app">privacy@ocra.app</a> (privacy), <a href="mailto:support@ocra.app">support@ocra.app</a> (general), <a href="mailto:dpo@ocra.app">dpo@ocra.app</a> (Data Protection Officer)<br>
+<strong>Phone:</strong> +254 700 000 000 (Mon to Fri, 8am to 5pm EAT)<br>
+<strong>ODPC:</strong> British American Insurance Centre, 5th Floor, Mara Road, Upper Hill, Nairobi · www.odpc.go.ke</p>
+
+<h2>10. Changes to this policy</h2>
+<p>We will notify you of material changes by in-app banner and email at least 30 days before they take effect. Minor clarifications take effect on publication. Prior versions are archived and available on request.</p>
+
+<p style="margin-top:28px;padding:14px;background:#f0f4f8;border-radius:12px;font-size:12px"><strong>Key summary:</strong> We collect only what we need, get guardian consent for minors, never send your name or school to AI, store data securely with tenant isolation, let you export or delete at any time, and tell you within 72 hours if something goes wrong.</p>
+
+</div>
+<div class="footer">
+<p><a href="terms.html">Terms and Conditions</a> · <a href="cookies.html">Cookies Policy</a> · <a href="refund.html">Refund Policy</a> · <a href="../index.html">Back to OCRA</a></p>
+<p>© 2026 Artist Life Foundation, operating OCRA. All rights reserved. Kenya DPA 2019 applies.</p>
+</div>
+</div>
+</body>
+</html>

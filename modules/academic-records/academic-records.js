@@ -151,7 +151,7 @@ window.OCRA = window.OCRA || {};
       return '' +
       '<div class="center"><div class="glass card-pad" style="max-width:560px;width:100%">' +
         '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
-          '<div style="font-size:28px">&#128217;</div>' +
+          '<div style="font-size:28px"><span aria-hidden="true" style="font-weight:700;color:var(--ocean)">Docs</span></div>' +
           '<div>' +
             '<div style="font-size:20px;font-weight:800;color:var(--ink)">Academic Records</div>' +
             '<div class="muted" style="font-size:12px">Enter your subject scores</div>' +
@@ -185,6 +185,6 @@ window.OCRA = window.OCRA || {};
     }
   });
 
-  console.log("✅ Academic Records Module Loaded — multi-system grading");
+  console.log("✅ Academic Records Module Loaded · multi-system grading");
 
 })(window.OCRA);

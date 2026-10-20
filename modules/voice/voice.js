@@ -1,5 +1,5 @@
 /* ============================================================
-   DOMAIN_27 — VOICE MODULE
+   DOMAIN_27 · VOICE MODULE
    6 personas (3 male: Adam, Adrian, Ryan; 3 female: Aria, Nova, Luna)
    Web Speech API. Speaks only at meaningful moments.
    ============================================================ */

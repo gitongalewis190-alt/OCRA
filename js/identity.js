@@ -1,5 +1,5 @@
 /* ============================================================
-   DOMAIN_02 — IDENTITY & SECURITY
+   DOMAIN_02 · IDENTITY & SECURITY
    Multi-stage signup, validation, country/phone/academic coherence.
    ============================================================ */
 (function (O) {
@@ -28,10 +28,10 @@
   // ---- 5-section banner labels ----
   I.SECTION_LABELS = [
     "Get started with account creation",
-    "Good job — tell us more",
-    "You nailed it — one more push",
+    "Good job · tell us more",
+    "You nailed it · one more push",
     "Now secure your account",
-    "Congratulations — it's all yours",
+    "Congratulations · it's all yours",
   ];
 
   // ---- reference data ----
@@ -176,7 +176,7 @@
         fields: [
           ["guardianType","Guardian(s)", "select", ["","Mother only","Father only","Both parents","Legal guardian"]],
           ["parent1Name", "Parent / Guardian name", "text", null, "Full name"],
-          ["parent2Name", "Second parent",          "text", null, "Full name — if Both parents"],
+          ["parent2Name", "Second parent",          "text", null, "Full name · if Both parents"],
         ],
       },
       {
@@ -289,7 +289,7 @@
 
   // ---- one-field-at-a-time signup: micro-steps within a stage ----
   // A stage expands into an ordered list of single steps: each field, then
-  // (for the Security stage) each recovery question — one per screen.
+  // (for the Security stage) each recovery question · one per screen.
   I.stageSteps = function (stage) {
     if (!stage || stage.congrats) return [];
     var steps = (stage.fields || []).map(function (fl) { return { kind: "field", fl: fl }; });

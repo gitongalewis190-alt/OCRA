@@ -34,7 +34,7 @@ window.OCRA = window.OCRA || {};
       { key: "careerGoal",        label: "What career or field are you considering?", type: "text" },
       { key: "studyConsistency",  label: "How consistent is your study routine?", type: "select", options: ["Very consistent", "Mostly consistent", "Inconsistent", "I struggle to maintain a routine"] },
       { key: "extracurricular",   label: "What extracurricular activities do you do?", type: "text" },
-      { key: "stressLevel",       label: "How would you rate your current academic stress level?", type: "select", options: ["Low — manageable", "Moderate — sometimes overwhelming", "High — frequently stressed", "Very high — need support"] },
+      { key: "stressLevel",       label: "How would you rate your current academic stress level?", type: "select", options: ["Low · manageable", "Moderate · sometimes overwhelming", "High · frequently stressed", "Very high · need support"] },
       { key: "motivation",        label: "What motivates you to study?", type: "text" },
     ],
     tier4: [ // 16-18: professional, strategic
@@ -110,7 +110,7 @@ window.OCRA = window.OCRA || {};
           return '<div class="field">' +
             '<label>' + O.esc(q.label) + '</label>' +
             '<select data-intake-field="' + q.key + '">' +
-              '<option value="">— select —</option>' + opts +
+              '<option value="">· select ·</option>' + opts +
             '</select>' +
           '</div>';
         }
@@ -123,7 +123,7 @@ window.OCRA = window.OCRA || {};
       return '' +
       '<div class="center"><div class="glass card-pad" style="max-width:600px;width:100%">' +
         '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
-          '<div style="font-size:28px">&#128196;</div>' +
+          '<div style="font-size:28px"><span aria-hidden="true" style="font-weight:700">Doc</span></div>' +
           '<div>' +
             '<div style="font-size:20px;font-weight:800;color:var(--ink)">Intake Form</div>' +
             '<div class="muted" style="font-size:12px">Hi ' + O.esc(firstName) + ' &middot; ' + O.esc(tierName) + ' profile</div>' +
@@ -132,7 +132,7 @@ window.OCRA = window.OCRA || {};
         '<div class="glass panel" style="background:rgba(14,107,168,.06);margin-bottom:20px;padding:14px">' +
           '<div class="muted" style="font-size:12px;line-height:1.6">' +
             'These questions help OCRA personalise your cognitive analysis and generate an accurate, age-appropriate report. ' +
-            'Take your time &mdash; honest answers produce the best results.' +
+            'Take your time · honest answers produce the best results.' +
           '</div>' +
         '</div>' +
         body +
@@ -142,7 +142,7 @@ window.OCRA = window.OCRA || {};
           '<button class="btn primary" data-action="intakeNext" style="flex:2;padding:13px;font-weight:700">Continue &rarr;</button>' +
         '</div>' +
         '<div style="text-align:center;margin-top:12px">' +
-          '<button class="btn" data-action="intakePrint" style="font-size:11px">&#128438; Print Form</button>' +
+          '<button class="btn" data-action="intakePrint" style="font-size:11px"> Print Form</button>' +
         '</div>' +
       '</div></div>';
     },
@@ -156,6 +156,6 @@ window.OCRA = window.OCRA || {};
     }
   });
 
-  console.log("✅ Intake Form Module Loaded — age-tiered questionnaire");
+  console.log("✅ Intake Form Module Loaded · age-tiered questionnaire");
 
 })(window.OCRA);

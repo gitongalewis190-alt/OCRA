@@ -1,5 +1,5 @@
 /* ============================================================
-   DOMAIN_01 — PLATFORM CORE
+   DOMAIN_01 · PLATFORM CORE
    Global state, router, render bus, helpers, SVG charts, logo.
    Other divisions register screen renderers on OCRA.screens.
    ============================================================ */
@@ -17,7 +17,7 @@ window.OCRA = window.OCRA || {};
     recoverSamePw: false,    // recovery: new password equals current one
     signupStage: 1,          // 1..N
     signupField: 0,          // micro-step index within a stage (one field per screen)
-    signupDir: "fwd",        // "fwd" | "back" — drives the step transition direction
+    signupDir: "fwd",        // "fwd" | "back" · drives the step transition direction
     dash: "personal",        // personal | family | organization | developer
     form: {},                // collected signup fields
     user: null,              // logged-in user
@@ -82,7 +82,7 @@ window.OCRA = window.OCRA || {};
             O.topbar(s.dash, dark) +
             (O.dashboards[s.dash] ? O.dashboards[s.dash]() : "") +
             '<div style="text-align:center;margin-top:22px">' +
-              '<button class="btn' + (dark ? " dark" : "") + '" data-action="restart" style="font-size:11px">&larr; Restart flow</button>' +
+              '<button class="btn' + (dark ? " dark" : "") + '" data-action="restart" style="font-size:11px">Restart flow</button>' +
             '</div>' +
           '</div>';
       } else if (s.phase === "auth" || s.phase === "recover" || s.phase === "devLogin") {
@@ -117,11 +117,11 @@ window.OCRA = window.OCRA || {};
         '<div style="font-size:34px;margin-bottom:8px">&#9888;</div>' +
         '<h1 style="font-size:18px;margin:0 0 8px">OCRA hit a snag</h1>' +
         '<p style="font-size:13px;color:#5B7689;margin:0 0 18px">The screen could not be rendered. ' +
-          'Your data is safe &mdash; try restarting the flow.</p>' +
+          'Your data is safe. Try restarting the flow.</p>' +
         '<pre style="font-size:11px;color:#FF3B30;background:#fff5f5;border-radius:8px;' +
           'padding:10px;overflow:auto;text-align:left;margin:0 0 18px">' + detail + '</pre>' +
-        '<button onclick="OCRA.go({phase:\'intro\',signupStage:1,form:{}})" ' +
-          'style="padding:12px 24px;border:none;border-radius:999px;background:#0E6BA8;' +
+        '<button data-action="restart" ' +
+          'style="padding:12px 24px;border:none;border-radius:12px;background:#0E6BA8;' +
           'color:#fff;font-weight:700;cursor:pointer">Restart OCRA</button>' +
       '</div>';
   };
@@ -146,7 +146,7 @@ window.OCRA = window.OCRA || {};
       case "acctEnter":
         return O.go({ account: v, phase: "auth", authMode: "login", authStep: "email", signupStage: 1, form: {} });
 
-      // NOTE: coming-soon strata (Finances, Upcoming) are inert for now —
+      // NOTE: coming-soon strata (Finances, Upcoming) are inert for now ·
       // their pills carry no data-action, so there is no attention path to handle.
 
       case "pickAccount": {
@@ -264,7 +264,7 @@ window.OCRA = window.OCRA || {};
         O._otpCode   = String(Math.floor(100000 + Math.random() * 899999));
         O._otpSentTo = emailVal;
         if (O.notifications) {
-          O.notifications.push("Demo — OTP code: " + O._otpCode, O.notifications.TYPES.INFO);
+          O.notifications.push("Demo · OTP code: " + O._otpCode, O.notifications.TYPES.INFO);
         } else {
           console.info("[OCRA OTP]", O._otpCode);
         }
@@ -283,13 +283,14 @@ window.OCRA = window.OCRA || {};
           if (O.notifications) O.notifications.push("Email verified ✓", O.notifications.TYPES.SUCCESS);
         } else {
           var box2 = document.getElementById("stageErr");
-          if (box2) box2.textContent = "Incorrect code — check and try again.";
+          if (box2) box2.textContent = "Incorrect code · check and try again.";
         }
         O.render();
         return;
       }
 
       case "signupCreate": {
+        if (!O.state.form.agreed) { var box4=document.getElementById("stageErr"); if(box4) box4.textContent="Please tick the consent box to continue."; return; }
         if (O.antiCheat) {
           var _acRes = O.antiCheat.finalCheck(O.state.form);
           if (!_acRes.passed) {
@@ -385,6 +386,19 @@ window.OCRA = window.OCRA || {};
           O.brainTest.state.isValid = true;
         }
         return O.go({ phase: "intro", signupStage: 1, signupField: 0, form: {}, authStep: "email", authEmail: "", recoverSamePw: false, brainTestPhase: "test", academicRecords: null, paymentStatus: null });
+
+      // ---- generic navigation + data controls (CSP-safe delegated actions) ----
+      case "go": {
+        var phase = t.getAttribute("data-phase");
+        return phase ? O.go({ phase: phase }) : null;
+      }
+      case "exportAll":
+        if (O.dataManagement) O.dataManagement.exportUserData();
+        return;
+      case "clearSession":
+        if (window.confirm && !window.confirm("Clear all session data? This cannot be undone.")) return;
+        if (O.dataManagement) O.dataManagement.clearAll(true);
+        return;
 
       // ---- brain test ----
       case "brainTestStart":
@@ -512,7 +526,7 @@ window.OCRA = window.OCRA || {};
         var _acIn = (document.getElementById("ac-ch-input") || {}).value || "";
         if (!O.antiCheat || !O.antiCheat.checkChallenge(_acIn)) {
           var _acEr = document.getElementById("ac-ch-err");
-          if (_acEr) _acEr.textContent = "Wrong answer — try again.";
+          if (_acEr) _acEr.textContent = "Wrong answer · try again.";
           if (O.antiCheat) {
             var _nc  = O.antiCheat.generateChallenge();
             var _qel = document.getElementById("ac-ch-q");
@@ -555,7 +569,8 @@ window.OCRA = window.OCRA || {};
   document.addEventListener("input", function (e) {
     var f = e.target.getAttribute && e.target.getAttribute("data-field");
     if (f) {
-      O.state.form[f] = e.target.value;
+      // Checkboxes carry a boolean, not the string "on" · consent must be explicit.
+      O.state.form[f] = e.target.type === "checkbox" ? e.target.checked : e.target.value;
       if (O.antiCheat) {
         O.antiCheat.recordValueChange(f, e.target.value.length);
         O.antiCheat.checkHoneypot(f, e.target.value);
@@ -613,7 +628,7 @@ window.OCRA = window.OCRA || {};
 
   // ---- live button gating ----
   // Called after every render and every input event.
-  // Sets button.disabled via live validation — no re-render needed.
+  // Sets button.disabled via live validation · no re-render needed.
   // CSS .auth-btn:disabled already handles visual (opacity .4, no-pointer).
   O._updateGates = function () {
     if (!O.identity) return;
@@ -702,7 +717,7 @@ window.OCRA = window.OCRA || {};
     });
   };
 
-  // ---- developer hold (5s press on logo = dev access, zero hint) ----
+  // ---- hold target (5s press on the wordmark opens the developer sign-in screen) ----
   O.bindHold = function () {
     var el   = document.getElementById("devHold");
     var ring = document.getElementById("devRing");
@@ -725,15 +740,9 @@ window.OCRA = window.OCRA || {};
         ring.setAttribute("stroke-dashoffset", "0");
       }
       _t = setTimeout(function () {
-        if (O.auth) {
-          // log in as developer (any password accepted)
-          O.auth.logIn("gitongalewis190@gmail.com", "dev",
-            function (user) { O.state.user = user; O.go({ phase: "dash", dash: "developer" }); },
-            function () {}
-          );
-        } else {
-          O.go({ phase: "dash", dash: "developer" });
-        }
+        // The hold only reveals the sign-in screen. It never authenticates: the
+        // developer role is issued server side after MFA (OCRA_STANDARDS.md, Auth).
+        O.go({ phase: "devLogin" });
       }, HOLD_MS);
     }
   };
@@ -829,7 +838,7 @@ window.OCRA = window.OCRA || {};
       '<div class="brand">' + O.logo(40, dark) + '<b>OCRA</b></div>' +
       '<div class="' + (dark ? "dglass" : "pill") + '" style="padding:8px 16px;display:flex;gap:8px;align-items:center">' +
         '<span style="font-size:16px">&#9881;</span><b style="font-weight:700">Settings</b>' +
-        '&nbsp;<button class="btn" data-action="voiceMute" title="Toggle voice" style="font-size:14px;padding:5px 8px">' + (O.voice && O.voice.isMuted() ? "&#128263;" : "&#128264;") + '</button>' +
+        '&nbsp;<button class="btn" data-action="voiceMute" title="Toggle voice" aria-label="Toggle voice" style="font-size:12px;padding:5px 8px">' + (O.voice && O.voice.isMuted() ? "Muted" : "Sound") + '</button>' +
         '&nbsp;<button class="btn' + (dark ? " dark" : "") + '" data-action="logout" style="font-size:11px;padding:5px 10px">Sign out</button>' +
       '</div>' +
       '<div class="switcher">' + sw + '</div>' +

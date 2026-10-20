@@ -1,31 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="OCRA — Optimised Career & Results Analytics. Reads academic records and cognitive signals to decode each learner's potential and map it to real career paths." />
-  <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" content="#0E6BA8" />
-  <meta property="og:title" content="OCRA — Optimised Career & Results Analytics" />
-  <meta property="og:description" content="Decode each learner's potential and map it to real career paths." />
-  <meta property="og:type" content="website" />
-  <title>OCRA — Optimised Career & Results Analytics</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='%230E6BA8' stroke-width='7'/%3E%3Ccircle cx='50' cy='50' r='9' fill='%230E6BA8'/%3E%3C/svg%3E" />
-  <link rel="stylesheet" href="./css/tokens.css" />
-  <link rel="stylesheet" href="./css/layout.css" />
-  <link rel="stylesheet" href="./css/auth.css" />
-  <link rel="stylesheet" href="./css/landing.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="OCRA · Optimised Career & Results Analytics. Turn subject scores and a 60-question cognitive profile into four clear reports: transcript, results, career guidance, and revision timetable. KES 40 per document, 30 days access.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#0E6BA8">
+  <!-- Security: CSP · strict, no CDN, no inline scripts except this file's minimal consent logic -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://*.supabase.co https://*.supabase.in; form-action 'self'; upgrade-insecure-requests">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta property="og:title" content="OCRA · Optimised Career & Results Analytics">
+  <meta property="og:description" content="Turn subject scores and a 60-question cognitive profile into four clear reports. KES 40 per document, 30 days.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="./assets/ocra-og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="OCRA: four clear reports from your subject scores and a 60 question cognitive profile. KES 40 per document.">
+  <meta property="og:url" content="https://gitongalewis190-alt.github.io/OCRA/">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="./assets/ocra-og.png">
+  <title>OCRA · Optimised Career & Results Analytics</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='44' fill='none' stroke='%230E6BA8' stroke-width='7'/%3E%3Ccircle cx='50' cy='50' r='9' fill='%230E6BA8'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/auth.css">
+  <link rel="stylesheet" href="./css/landing.css">
+  <style>
+    /* Skip link · keyboard users jump to app */
+    .skip-link{position:absolute;top:-100px;left:12px;z-index:99999;background:#0E6BA8;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none}
+    .skip-link:focus{top:12px;outline:2px solid #fff;outline-offset:2px}
+    /* Legal footer · always visible, even when app is mounted */
+    .ocra-footer{position:relative;z-index:10;background:#0A3D62;color:#dbe8f2;padding:22px 20px;font-size:12px;line-height:1.6}
+    .ocra-footer a{color:#38BDF8;text-decoration:underline}
+    .ocra-footer a:focus-visible{outline:2px solid #38BDF8;outline-offset:2px}
+    .ocra-footer-inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-between;align-items:flex-start}
+    .ocra-footer-links{display:flex;flex-wrap:wrap;gap:14px}
+    /* Cookie banner · consent before non-essential tracking */
+    .ocra-cookie{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:10000;max-width:640px;width:calc(100% - 24px);background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(16,58,85,.22);padding:18px 20px;display:none;gap:12px;align-items:center}
+    .ocra-cookie.show{display:flex;flex-wrap:wrap}
+    .ocra-cookie p{margin:0;font-size:13px;color:#33404e;flex:1;min-width:220px;line-height:1.6}
+    .ocra-cookie-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .ocra-cookie button{padding:10px 16px;border-radius:10px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+    .ocra-cookie-accept{background:#0E6BA8;color:#fff}
+    .ocra-cookie-reject{background:#e6e9ef;color:#33404e}
+    .ocra-cookie-manage{background:transparent;color:#0E6BA8;text-decoration:underline}
+    .ocra-cookie button:focus-visible{outline:2px solid #0E6BA8;outline-offset:2px}
+    /* Sample data disclaimer */
+    .sample-notice{background:#fff8e1;border-left:4px solid #F5B301;padding:10px 14px;border-radius:8px;font-size:11px;color:#5a4a00;margin-bottom:16px;line-height:1.6}
+  </style>
 </head>
 <body>
+  <a class="skip-link" href="#app">Skip to main content</a>
+
   <div id="app" aria-live="polite"></div>
+
+  <!-- Static legal footer · visible on every phase (also mirrored inside dashboards) -->
+  <footer class="ocra-footer" role="contentinfo" aria-label="Legal and business information">
+    <div class="ocra-footer-inner">
+      <div>
+        <strong>Artist Life Foundation</strong> · operating OCRA<br>
+        Nairobi, Kenya · P.O. Box 00100, GPO Nairobi<br>
+        <a href="mailto:support@ocra.app">support@ocra.app</a> · <a href="mailto:privacy@ocra.app">privacy@ocra.app</a> · <a href="mailto:dpo@ocra.app">dpo@ocra.app</a><br>
+        Phone/WhatsApp: <a href="tel:+254700000000">+254 700 000 000</a> · Mon to Fri 8am to 5pm EAT
+      </div>
+      <div class="ocra-footer-links" aria-label="Legal pages">
+        <a href="./legal/privacy.html">Privacy Policy</a>
+        <a href="./legal/terms.html">Terms and Conditions</a>
+        <a href="./legal/cookies.html">Cookies Policy</a>
+        <a href="./legal/refund.html">Refund Policy</a>
+        <a href="./sitemap.xml">Sitemap</a>
+      </div>
+    </div>
+    <div style="max-width:1100px;margin:14px auto 0;font-size:11px;color:#8fb4cc">
+      Images: hero and account branches are licensed for OCRA use; no AI-generated stock images are presented as photographs. Vendor: GSAP Standard License (vendored at assets/vendor/gsap.min.js, no external call). Pricing: KES 40 per document, 30 days access, no auto-renewal. ODPC Data Controller registration in progress.
+    </div>
+  </footer>
+
+  <!-- Cookie consent · appears only if no choice stored; non-essential scripts are gated on consent -->
+  <div id="ocra-cookie" class="ocra-cookie" role="dialog" aria-label="Cookie consent" aria-live="polite">
+    <p>We use necessary storage to keep you signed in. With your consent, we use anonymised analytics to fix slow pages. No ads, no cross-site trackers. <a href="./legal/cookies.html">Learn more</a>.</p>
+    <div class="ocra-cookie-actions">
+      <button class="ocra-cookie-accept" type="button" data-cookie="accept">Accept</button>
+      <button class="ocra-cookie-reject" type="button" data-cookie="reject">Reject non-essential</button>
+      <button class="ocra-cookie-manage" type="button" data-cookie="manage">Manage</button>
+    </div>
+  </div>
+
   <noscript>
     <div style="max-width:520px;margin:14vh auto;padding:28px;text-align:center;font-family:system-ui,sans-serif;color:#103A55">
       <h1 style="font-size:20px">OCRA needs JavaScript</h1>
-      <p style="color:#5B7689">Please enable JavaScript in your browser to use OCRA.</p>
+      <p style="color:#4a5a6b">Please enable JavaScript in your browser to use OCRA.</p>
+      <p style="font-size:13px"><a href="./legal/privacy.html">Privacy</a> · <a href="./legal/terms.html">Terms</a></p>
     </div>
   </noscript>
 
-  <!-- GSAP — vendored locally (no external CDN dependency; works offline & under strict CSP) -->
+  <!-- GSAP · vendored locally (no external CDN, no tracker) under Standard License -->
   <script defer src="./assets/vendor/gsap.min.js"></script>
 
   <!-- CORE PLATFORM -->
@@ -34,7 +105,7 @@
   <script defer src="./js/screens.js"></script>
   <script defer src="./js/dashboards.js"></script>
 
-  <!-- MODULES — load order: data model before UI, core before dependants -->
+  <!-- MODULES · load order: data model before UI, core before dependants -->
   <script defer src="./modules/notifications/notifications.js"></script>
   <script defer src="./modules/data-management/data-management.js"></script>
   <script defer src="./modules/analytics-engine/analytics-engine.js"></script>
@@ -50,10 +121,10 @@
   <script defer src="./modules/auth/auth.js"></script>
   <script defer src="./modules/anti-cheat/anti-cheat.js"></script>
   <script defer src="./modules/voice/voice.js"></script>
-  <!-- Arten (AI assistant) — pulled from the public build for now; re-enable when ready.
-       <script defer src="./modules/arten/arten.js"></script> -->
 
   <!-- BOOT -->
   <script defer src="./js/app.js"></script>
+
+  <script defer src="./js/consent.js"></script>
 </body>
 </html>

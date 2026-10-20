@@ -1,5 +1,5 @@
 /* ============================================================
-   DOMAIN_29 — ARTEN  v3
+   DOMAIN_29 · ARTEN  v3
    Cognitive AI companion of OCRA · Artist Life Intelligence
    · Only activates after the user presses Dive In (never on intro)
    · Absolute meta-awareness: knows OCRA + Artist Life Foundation
@@ -16,7 +16,7 @@
     foundation: {
       name:       "Artist Life Foundation",
       tagline:    "Art is Life Intelligence",
-      mission:    "Democratising cognitive clarity — giving every learner access to deep self-knowledge previously reserved for the privileged few.",
+      mission:    "Democratising cognitive clarity · giving every learner access to deep self-knowledge previously reserved for the privileged few.",
       ocraRel:    "OCRA is a subsidiary of Artist Life Foundation.",
       artenRel:   "Arten is OCRA's cognitive AI companion, engineered under the Artist Life Intelligence framework.",
       philosophy: "Art is Life. And intelligence is the art of understanding life itself.",
@@ -32,7 +32,7 @@
     arten: {
       name:      "Arten",
       role:      "Cognitive AI companion inside OCRA",
-      framework: "Artist Life Intelligence — a framework that treats intelligence as the art of understanding life itself.",
+      framework: "Artist Life Intelligence · a framework that treats intelligence as the art of understanding life itself.",
       creator:   "Engineered by Lewis Gitonga under Artist Life Foundation.",
       voice:     "Arten speaks through the Web Speech API using the warmest available voice on your device.",
       listen:    "Arten listens via your microphone using Web Speech Recognition. Click the mic icon to activate.",
@@ -41,7 +41,7 @@
       name:     "OCRA Brain Test",
       desc:     "A 60-question psychometric assessment spanning 6 cognitive dimensions.",
       dims:     ["Verbal Reasoning", "Numerical Logic", "Abstract Patterns", "Memory & Recall", "Processing Speed", "Spatial Awareness"],
-      duration: "Around 20–30 minutes. Answer honestly — this is your profile, not a competition.",
+      duration: "Around 20–30 minutes. Answer honestly · this is your profile, not a competition.",
     },
     careers: {
       desc:    "OCRA maps your cognitive signature to real career paths using data from academic performance and cognitive test results.",
@@ -50,16 +50,16 @@
     lewis: {
       name:  "Lewis Gitonga",
       role:  "Founder and highest-hierarchy developer of OCRA and Artist Life Foundation.",
-      email: "gitongalewis190@gmail.com",
+      email: "",
     },
   };
 
-  // ── Intent map — 30 intents ───────────────────────────────────
+  // ── Intent map · 30 intents ───────────────────────────────────
   var f = "· Artist Life Intelligence · ";
 
   var INTENTS = {
     GREETING: function () {
-      return { text: "I'm Arten — the cognitive AI companion inside OCRA, built under Artist Life Foundation's intelligence framework. Art is Life. And I'm here to make sure you understand yours.", emotion: "calm" };
+      return { text: "I'm Arten · the cognitive AI companion inside OCRA, built under Artist Life Foundation's intelligence framework. Art is Life. And I'm here to make sure you understand yours.", emotion: "calm" };
     },
     IDENTITY: function () {
       return { text: "I'm Arten. " + KB.arten.role + ". " + KB.arten.framework + " " + KB.arten.creator, emotion: "calm" };
@@ -104,7 +104,7 @@
       return { text: "Hello! Great to meet you. I'm Arten, your cognitive companion. Ready to help you understand yourself better.", emotion: "excited" };
     },
     HOWAMI: function () {
-      return { text: "I'm running beautifully, thank you. Powered by Artist Life Intelligence — curious, attentive, and here for you.", emotion: "calm" };
+      return { text: "I'm running beautifully, thank you. Powered by Artist Life Intelligence · curious, attentive, and here for you.", emotion: "calm" };
     },
     THANKS: function () {
       return { text: "You're very welcome. That's exactly what I'm here for.", emotion: "calm" };
@@ -125,13 +125,13 @@
       return { text: "Our mission: " + KB.foundation.mission, emotion: "encouraging" };
     },
     ACCOUNTS: function () {
-      return { text: "OCRA supports Personal, Family, and Organisation accounts — each tailored to different learning and reporting contexts.", emotion: "calm" };
+      return { text: "OCRA supports Personal, Family, and Organisation accounts · each tailored to different learning and reporting contexts.", emotion: "calm" };
     },
     DATA: function () {
       return { text: "OCRA stores your academic records and cognitive results securely. You can export or delete your data at any time from the Data Management section.", emotion: "calm" };
     },
     SCORES: function () {
-      return { text: "Your cognitive scores are percentile-ranked across six dimensions. The report shows your strengths, growth areas, and career fit — all backed by your actual data.", emotion: "encouraging" };
+      return { text: "Your cognitive scores are percentile-ranked across six dimensions. The report shows your strengths, growth areas, and career fit · all backed by your actual data.", emotion: "encouraging" };
     },
     SIGNUP: function () {
       return { text: "Creating an account is free. Once you sign up, you'll take the brain test and academic intake, then OCRA generates your personal report suite.", emotion: "encouraging" };
@@ -143,10 +143,10 @@
       return { text: "Password recovery uses two factual questions and two favourites you chose when signing up. Answer them correctly to reset your password.", emotion: "calm" };
     },
     INTAKE: function () {
-      return { text: "The intake form gathers context about your academic background — subjects, grades, and learning style — so OCRA can tailor your report accurately.", emotion: "calm" };
+      return { text: "The intake form gathers context about your academic background · subjects, grades, and learning style · so OCRA can tailor your report accurately.", emotion: "calm" };
     },
     UNKNOWN: function () {
-      return { text: "I'm Arten — " + KB.arten.role + ", built under " + KB.foundation.name + "'s Artist Life Intelligence framework. " + KB.ocra.mission + " Ask me about the brain test, your reports, career mapping, or anything OCRA-related. I'm here.", emotion: "calm" };
+      return { text: "I'm Arten · " + KB.arten.role + ", built under " + KB.foundation.name + "'s Artist Life Intelligence framework. " + KB.ocra.mission + " Ask me about the brain test, your reports, career mapping, or anything OCRA-related. I'm here.", emotion: "calm" };
     },
   };
 
@@ -542,7 +542,7 @@
   // ── Emotion setter ────────────────────────────────────────────
   A.setEmotion = function (em) { A._emotion = em; };
 
-  // ── Phase hook — only activates post-Dive-In ──────────────────
+  // ── Phase hook · only activates post-Dive-In ──────────────────
   A.onPhase = function (phase) {
     if (phase === "intro") return;      // Stay invisible on landing screen
     if (!A._mounted) A.mount();        // First non-intro phase: activate
@@ -561,7 +561,7 @@
     A.setEmotion(map[phase] || "calm");
   };
 
-  // NOT auto-mounting — activates via onPhase() when Dive In is pressed
-  console.log("✅ Arten v3 Loaded — Artist Life Intelligence · activates after Dive In");
+  // NOT auto-mounting · activates via onPhase() when Dive In is pressed
+  console.log("✅ Arten v3 Loaded · Artist Life Intelligence · activates after Dive In");
 
 })(window.OCRA);

@@ -1,5 +1,5 @@
 /* ============================================================
-   AUTH — Neumorphic "soft & dimensional" theme (3D, light)
+   AUTH · Neumorphic "soft & dimensional" theme (3D, light)
    Every class name preserved so screen logic is untouched.
    ============================================================ */
 
@@ -9,7 +9,7 @@
   --nm-l:#ffffff;          /* light soft shadow */
   --nm-text:#46505d;
   --nm-strong:#33404e;
-  --nm-mut:#8b95a3;
+  --nm-mut:#4a5a6b;        /* WCAG AA 4.8:1 on #e6e9ef · was #8b95a3 which failed */
   --nm-acc:#0E6BA8;
   --nm-acc2:#38BDF8;
 }
@@ -147,7 +147,7 @@
 /* ── Embedded account-type banner (segmented, inset track) ────── */
 .auth-acct-banner{
   display:flex; gap:6px; background:var(--nm-bg);
-  border-radius:16px; padding:7px; margin-bottom:22px;
+  border-radius:12px; padding:7px; margin-bottom:22px;
   box-shadow:inset 5px 5px 10px var(--nm-d), inset -5px -5px 10px var(--nm-l);
 }
 .auth-acct-btn{
@@ -166,9 +166,9 @@
 .auth-banner{ margin-bottom:24px; }
 .auth-segs{ display:flex; gap:6px; margin-bottom:9px; padding:6px;
   border-radius:12px; box-shadow:inset 4px 4px 8px var(--nm-d), inset -4px -4px 8px var(--nm-l); }
-.auth-seg{ flex:1; height:7px; border-radius:999px; background:var(--nm-bg);
+.auth-seg{ flex:1; height:7px; border-radius:4px; background:var(--nm-bg);
   box-shadow:inset 1px 1px 2px var(--nm-d); overflow:hidden; }
-.auth-seg-fill{ height:100%; border-radius:999px;
+.auth-seg-fill{ height:100%; border-radius:4px;
   background:linear-gradient(90deg,var(--nm-acc),var(--nm-acc2));
   transition:width .45s cubic-bezier(.4,0,.2,1); }
 .auth-seg-labels{ display:flex; gap:6px; }
@@ -211,7 +211,7 @@
   box-shadow:4px 4px 9px var(--nm-d), -4px -4px 9px var(--nm-l); transition:box-shadow .16s; }
 .auth-mini-btn:active{ box-shadow:inset 3px 3px 7px var(--nm-d), inset -3px -3px 7px var(--nm-l); }
 .auth-verified{ display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:800;
-  color:#1f9d6b; padding:7px 13px; margin-bottom:14px; border-radius:999px; background:var(--nm-bg);
+  color:#1f9d6b; padding:7px 13px; margin-bottom:14px; border-radius:10px; background:var(--nm-bg);
   box-shadow:inset 3px 3px 7px var(--nm-d), inset -3px -3px 7px var(--nm-l); }
 
 /* ── Phone row ────────────────────────────────────────────────── */

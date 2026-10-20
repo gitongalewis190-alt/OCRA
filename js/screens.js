@@ -1,5 +1,5 @@
 /* ============================================================
-   DOMAIN_26 — EXPERIENCE (entry flow screens)
+   DOMAIN_26 · EXPERIENCE (entry flow screens)
    intro -> choose -> account -> auth/signup
    ============================================================ */
 (function (O) {
@@ -105,7 +105,7 @@
     var valid = val && I.validCountry(val);
     var hint  = val
       ? (valid ? '<div class="auth-hint ok">✓ ' + O.esc(val) + ' recognised</div>'
-               : '<div class="auth-hint bad">⚠ Not found — pick from the list</div>')
+               : '<div class="auth-hint bad">⚠ Not found · pick from the list</div>')
       : "";
     var opts = (I.DATA.countries || []).map(function (c) {
       return '<option value="' + O.esc(c) + '"/>';
@@ -230,7 +230,7 @@
         '<div class="auth-grp-icon">' + ic.shield + '</div>' +
         '<div>' +
           '<div class="auth-grp-title">Account recovery</div>' +
-          '<div class="auth-grp-sub">Two facts + two favourites — never forgotten.</div>' +
+          '<div class="auth-grp-sub">Two facts + two favourites · never forgotten.</div>' +
         '</div>' +
       '</div>' +
       I.recovery.map(function (r) {
@@ -246,16 +246,22 @@
   function congratsStage(accountType) {
     if (O._creating) {
       return '<div class="auth-congrats">' +
-        '<div class="auth-congrats-icon">&#9881;&#65039;</div>' +
-        '<div class="auth-congrats-h">Creating your account&hellip;</div>' +
-        '<div style="margin-top:18px"><span class="auth-spinner"></span></div>' +
+        '<div class="auth-congrats-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0E6BA8" stroke-width="1.8"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg></div>' +
+        '<div class="auth-congrats-h">Creating your account</div>' +
+        '<div style="margin-top:18px"><span class="auth-spinner" role="status" aria-label="Creating account"></span></div>' +
       '</div>';
     }
+    var checked = O.state.form.agreed ? ' checked' : '';
     return '<div class="auth-congrats">' +
-      '<div class="auth-congrats-icon">&#127881;</div>' +
-      '<div class="auth-congrats-h">You&rsquo;re all set!</div>' +
-      '<div class="auth-congrats-sub">Everything looks great. Tap <strong>Create Account</strong> to launch your ' +
+      '<div class="auth-congrats-icon" aria-hidden="true"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0E6BA8" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg></div>' +
+      '<div class="auth-congrats-h">You are all set</div>' +
+      '<div class="auth-congrats-sub">Everything looks great. Tick the box below, then tap Create Account to launch your ' +
         O.esc(accountType) + ' profile.</div>' +
+      '<label class="auth-policy-agree" style="margin:16px 0;text-align:left;background:#fff;border-radius:12px;padding:12px;border:1px solid #e6e9ef">' +
+        '<input type="checkbox" data-field="agreed"' + checked + ' aria-describedby="agree-help"> ' +
+        '<span>I agree to the <a href="./legal/terms.html" target="_blank" rel="noopener">Terms</a> and <a href="./legal/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>, and I confirm I have permission to provide this learner data. For learners under 18, I am the verified guardian.</span>' +
+      '</label>' +
+      '<p id="agree-help" style="font-size:11px;color:#4a5a6b;margin:-8px 0 12px">Required. Your data is used only to generate your four reports. See Privacy Policy for retention and rights.</p>' +
       '<button class="auth-btn auth-btn-primary" data-action="signupCreate">Create Account</button>' +
     '</div>';
   }
@@ -264,7 +270,7 @@
   // single recovery-question step
   function recoveryStep(r, f) {
     return '<div class="auth-step-h">Account recovery</div>' +
-      '<div class="auth-step-sub">Two facts &amp; two favourites — so you never lose access.</div>' +
+      '<div class="auth-step-sub">Two facts &amp; two favourites · so you never lose access.</div>' +
       '<div class="auth-lbl">' + O.esc(r.q) + '</div>' +
       '<div class="ah">' + ic.key +
         '<input data-field="' + r.k + '" type="text" placeholder="Your answer" value="' + O.esc(f[r.k] || "") + '" autofocus/>' +
@@ -300,11 +306,11 @@
     '<div class="auth-bg top">' +
       '<div class="auth-card wide" data-auth>' +
         '<div class="auth-logorow">' + O.logo(44) + '</div>' +
-        '<div class="auth-title" style="text-transform:capitalize">' + O.esc(s.account) + ' &mdash; Sign up</div>' +
+        '<div class="auth-title" style="text-transform:capitalize">' + O.esc(s.account) + ' , Sign up</div>' +
         (isFirst ? _acctBanner() : "") +
         progressBanner(stages, idx) +
         body +
-        /* honeypot — off-screen, aria-hidden; bots fill these, humans never see them */
+        /* honeypot · off-screen, aria-hidden; bots fill these, humans never see them */
         '<div style="position:absolute;left:-99999px;opacity:0;height:0;overflow:hidden;pointer-events:none" aria-hidden="true">' +
           '<input data-field="hp_name"    type="text"  name="name"    tabindex="-1" autocomplete="off"/>' +
           '<input data-field="hp_email"   type="email" name="email"   tabindex="-1" autocomplete="off"/>' +
@@ -398,7 +404,7 @@
 
         (samePw ?
           '<div style="background:var(--nm-bg);box-shadow:inset 4px 4px 9px var(--nm-d),inset -4px -4px 9px var(--nm-l);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px">' +
-            '<div style="font-size:28px;margin-bottom:8px">&#128274;</div>' +
+            '<div style="font-size:28px;margin-bottom:8px"><span aria-hidden="true" style="font-size:12px;font-weight:700;color:var(--ocean)">Lock</span></div>' +
             '<div style="font-size:14px;font-weight:800;color:#0E6BA8;margin-bottom:6px">That&rsquo;s your current password</div>' +
             '<div style="font-size:12px;color:#8b95a3;margin-bottom:18px">Keep using it, or choose a new one.</div>' +
             '<div style="display:flex;gap:10px">' +
@@ -464,7 +470,7 @@
     '</div>';
   };
 
-  // ── INTRO — cinematic landing: PNG logo, GSAP, 5 presets ─────
+  // ── INTRO · cinematic landing: PNG logo, GSAP, 5 presets ─────
   function ifeat(accent, title, sub) {
     return '<div class="ifeat" style="opacity:0">' +
       '<div style="font-size:12px;font-weight:700;color:' + accent + ';letter-spacing:.06em;margin-bottom:3px">' + title + '</div>' +
@@ -472,52 +478,43 @@
     '</div>';
   }
 
-  // ── LANDING — animated hero, white brief banner, fast typewriter ──
-  var BRIEF_BOLD = "Beyond academics and finances, OCRA decodes your hidden architecture.";
-  var BRIEF_REST = " By auditing performance, cognition, and personality, it isolates your critical bugs, prescribes precise execution remedies, and maps your truest potential. It’s a personalized, predictive counselor engineered to replace uncertainty with absolute clarity.";
+  // ── LANDING · specific promise (no vague hero text per OCRA_STANDARDS.md)
+  var BRIEF_BOLD = "Turn subject scores and a 60 question cognitive profile into four clear reports.";
+  var BRIEF_REST = " Enter your grades, take the structured assessment, and get a transcript, results analysis, career guidance with explainable reasons, and a personal revision timetable. KES 40 per document, 30 days access, no auto renewal. AI assisted, not a guarantee, review with a teacher.";
 
   O.screens.intro = function () {
     return '' +
-    '<div class="land" id="land">' +
-      '<div class="land-hero" id="landHero"></div>' +
-      '<div class="land-orbit" id="landOrbit1"></div>' +
-      '<div class="land-orbit two" id="landOrbit2"></div>' +
-      '<canvas class="land-fx" id="landFx"></canvas>' +
-      /* ghosted, intentionally-doubled OCRA — also the 5s dev-access hold target */
-      '<div class="land-mark" id="devHold"><span>OCRA</span><span>OCRA</span></div>' +
+    '<div class="land" id="land" aria-label="OCRA landing">' +
+      '<div class="land-hero" id="landHero" role="img" aria-label="Abstract illustration of a globe with connected learning nodes representing career paths"></div>' +
+      '<div class="land-orbit" id="landOrbit1" aria-hidden="true"></div>' +
+      '<div class="land-orbit two" id="landOrbit2" aria-hidden="true"></div>' +
+      '<canvas class="land-fx" id="landFx" aria-hidden="true"></canvas>' +
+      /* ghosted, intentionally-doubled OCRA · also the 5s dev-access hold target */
+      '<div class="land-mark" id="devHold" aria-hidden="true"><span>OCRA</span><span>OCRA</span></div>' +
       '<div class="land-banner" id="landBanner">' +
         '<div class="land-brief" id="landBrief"></div>' +
-        '<div class="land-sub"><span>A subsidiary of art is life</span></div>' +
+        '<div class="land-sub"><span>A subsidiary of Artist Life Foundation</span></div>' +
       '</div>' +
-      /* Dive In — separate neumorphic pill, not part of the explanation box */
-      '<button class="land-dive" id="landDive" data-action="diveIn">Dive In</button>' +
+      '<button class="land-dive" id="landDive" data-action="diveIn" aria-label="Enter OCRA and choose your account type">Dive In</button>' +
+      '<nav class="land-legal" aria-label="Legal and business information">' +
+        '<span class="land-legal-org">Artist Life Foundation, Nairobi</span>' +
+        '<a href="./legal/privacy.html">Privacy</a>' +
+        '<a href="./legal/terms.html">Terms</a>' +
+        '<a href="./legal/cookies.html">Cookies</a>' +
+        '<a href="./legal/refund.html">Refunds</a>' +
+      '</nav>' +
     '</div>';
   };
 
-  // fast "light-speed" typewriter — bold first sentence, then the rest
+  // static brief render · no cursor animation per OCRA_STANDARDS.md
   function _typeBrief(el) {
     if (!el) return;
-    var full = BRIEF_BOLD + BRIEF_REST, boldLen = BRIEF_BOLD.length;
     if (O._briefT) { clearTimeout(O._briefT); O._briefT = null; }
     el.innerHTML = "";
-    var b    = document.createElement("b");    el.appendChild(b);
+    var b = document.createElement("b"); el.appendChild(b);
     var span = document.createElement("span"); el.appendChild(span);
-    var cur  = document.createElement("span"); cur.className = "land-cursor"; el.appendChild(cur);
-    // no rAF (smoke/jsdom) — render instantly, drop cursor
-    if (typeof requestAnimationFrame === "undefined") {
-      b.textContent = BRIEF_BOLD; span.textContent = BRIEF_REST;
-      if (cur.parentNode) cur.parentNode.removeChild(cur);
-      return;
-    }
-    var i = 0;
-    (function step() {
-      if (!el.isConnected) { O._briefT = null; return; }
-      i = Math.min(full.length, i + 6);
-      if (i <= boldLen) { b.textContent = full.slice(0, i); }
-      else { b.textContent = BRIEF_BOLD; span.textContent = full.slice(boldLen, i); }
-      if (i < full.length) { O._briefT = setTimeout(step, 14); }
-      else if (cur.parentNode) { cur.parentNode.removeChild(cur); }
-    })();
+    // no rAF or cursor: render immediately for accessibility and compliance
+    b.textContent = BRIEF_BOLD; span.textContent = BRIEF_REST;
   }
 
   // drifting network dots + slowly-toggling math glyphs (calm, continuous)
@@ -547,7 +544,7 @@
     }
 
     function frame() {
-      // landing left the DOM — stop the loop, release listeners & closures
+      // landing left the DOM · stop the loop, release listeners & closures
       if (!cv.isConnected) {
         O._landFx = null;
         if (O._landResize) { window.removeEventListener("resize", O._landResize); O._landResize = null; }
@@ -583,7 +580,7 @@
     frame();
   }
 
-  // LANDING animation — round 1 completes the reveal fast, then idle loops continue
+  // LANDING animation · round 1 completes the reveal fast, then idle loops continue
   O.introAnimate = function () {
     var hero   = document.getElementById("landHero");
     var o1     = document.getElementById("landOrbit1");
@@ -682,7 +679,7 @@
     // Hotspots (data-action="acctEnter") are handled by the core click bus.
   }
 
-  // ── CHOOSE — stratum deck (scrollable, centered; matches the prototype) ──
+  // ── CHOOSE · stratum deck (scrollable, centered; matches the prototype) ──
   O.screens.choose = function () {
     // front -> back: Academics (live), Finances (next), then Upcoming behind. 8 cards.
     var strata = [
@@ -696,60 +693,67 @@
       { k: "upcoming",  label: "UPCOMING",  locked: true },
     ];
     var pills = strata.map(function (st, i) {
-      // coming-soon strata are fully inert for now — no action, no attention
       return '<div class="strata-pill ' + (st.locked ? "locked" : "active") + '" ' +
-        (st.locked ? 'aria-disabled="true"' : 'data-action="academics"') + ' ' +
-        'data-value="' + st.k + '" data-strata="' + i + '">' +
+        (st.locked ? 'aria-disabled="true"' : 'data-action="academics" aria-label="Open Academics"') + ' ' +
+        'data-value="' + st.k + '" data-strata="' + i + '" role="listitem">' +
         '<span class="strata-lbl">' + O.esc(st.label) + '</span>' +
       '</div>';
     }).join("");
     return '<div class="strata-wrap">' +
       '<div class="strata-guide">' +
         '<h2>What are you working on?</h2>' +
-        '<p>Scroll the deck to explore &mdash; Academics is live now.</p>' +
+        '<p>Scroll the deck to explore. Academics is live now. Finances and more are coming soon.</p>' +
       '</div>' +
-      '<div class="strata-deck" id="strataStack">' +
+      '<div class="strata-deck" id="strataStack" role="list" aria-label="Work areas">' +
         '<div class="strata-stack">' + pills + '</div>' +
       '</div>' +
     '</div>';
   };
 
-  // ── ACCOUNT — exact prototype image with clickable hotspots + rotating ring ──
+  // ── ACCOUNT · accessible branch selector (real buttons, no image hotspots) ──
   O.screens.account = function () {
-    // hotspots positioned over the image branches (% of the 848x1264 art)
-    function hot(k, label, x, y) {
-      return '<button class="acct-hot" data-action="acctEnter" data-value="' + k + '" ' +
-        'aria-label="' + label + ' account" style="left:' + x + '%;top:' + y + '%"></button>';
+    function branch(k, label, note, cls) {
+      return '<button class="acct-branch ' + cls + '" data-action="acctEnter" data-value="' + k + '">' +
+        '<span class="acct-branch-label">' + label + '</span>' +
+        '<span class="acct-branch-note">' + note + '</span>' +
+      '</button>';
     }
     return '<div class="acct-scene">' +
       '<div class="acct-guide">' +
         '<h2>Choose your account</h2>' +
-        '<p>Tap Family, Personal or Organization to continue.</p>' +
+        '<p>Pick the account that matches who is paying and who the learner is. Families and schools need guardian permission for anyone under 18.</p>' +
       '</div>' +
-      '<div class="acct-orbit">' +
-        '<img class="acct-img" src="./assets/account-branches.png" alt="Choose your OCRA account" draggable="false"/>' +
-        '<div class="acct-spin"></div>' +
-        hot("family", "Family", 50, 24.5) +
-        hot("personal", "Personal", 28, 72) +
-        hot("organization", "Organization", 71.5, 72) +
+      '<div class="acct-tree">' +
+        '<svg class="acct-lines" viewBox="0 0 440 400" aria-hidden="true" focusable="false">' +
+          '<path d="M220 200 L220 74" />' +
+          '<path d="M220 200 L104 326" />' +
+          '<path d="M220 200 L336 326" />' +
+          '<circle cx="220" cy="200" r="86" class="acct-ring-outer"/>' +
+          '<circle cx="220" cy="200" r="66" class="acct-ring-inner"/>' +
+        '</svg>' +
+        '<div class="acct-hub" aria-hidden="true">OCRA</div>' +
+        branch("family", "Family", "Parent or guardian managing up to 6 learners", "acct-branch-top") +
+        branch("personal", "Personal", "One learner, 18 or over", "acct-branch-left") +
+        branch("organization", "Organization", "School or centre with staff accounts", "acct-branch-right") +
       '</div>' +
+      '<p class="acct-foot">Every branch is a normal button: tab to it and press Enter. Nothing is hidden behind an invisible hotspot.</p>' +
     '</div>';
   };
 
   // ── BRAIN TEST START ──────────────────────────────────────────
   O.screens.brainTestStart = function () {
     return '<div class="center"><div class="glass card-pad" style="max-width:540px;text-align:center">' +
-      '<div style="font-size:36px;margin-bottom:14px">&#129504;</div>' +
+      '<div style="font-size:12px;font-weight:700;color:var(--ocean);letter-spacing:.1em;margin-bottom:10px;text-transform:uppercase" aria-hidden="true">Assessment</div>' +
       '<div style="font-size:26px;font-weight:800;color:var(--ink);margin-bottom:8px">Brain Test</div>' +
       '<p class="muted" style="margin-bottom:20px;line-height:1.6">This 60-question assessment measures 6 core cognitive dimensions. One question per screen. No time limit per question, but response speed is recorded for authenticity.</p>' +
       '<div class="glass panel" style="text-align:left;margin-bottom:20px;background:rgba(14,107,168,.08)">' +
         '<div class="label" style="font-size:12px;color:var(--ocean);margin-bottom:10px">What to expect</div>' +
         '<ul style="margin:0;padding-left:20px;font-size:12px;color:var(--ink);line-height:1.8">' +
-          '<li><strong>60 questions</strong> total &mdash; roughly 15&ndash;30 minutes</li>' +
+          '<li><strong>60 questions</strong> total , roughly 15&ndash;30 minutes</li>' +
           '<li><strong>6 dimensions</strong> (10 questions each)</li>' +
-          '<li><strong>One per screen</strong> &mdash; easy to focus</li>' +
-          '<li><strong>No penalties</strong> for time &mdash; authenticity matters</li>' +
-          '<li><strong>Your answers are private</strong> &mdash; used only for your report</li>' +
+          '<li><strong>One per screen</strong> , easy to focus</li>' +
+          '<li><strong>No penalties</strong> for time , authenticity matters</li>' +
+          '<li><strong>Your answers are private</strong> , used only for your report</li>' +
         '</ul>' +
       '</div>' +
       '<button class="btn primary full lg" data-action="brainTestBegin" style="margin-bottom:10px;padding:16px;font-weight:700">Start Test</button>' +

@@ -1,6 +1,6 @@
 /* ============================================================
    DEVELOPER CONSOLE MODULE
-   Lewis Gitonga — highest hierarchy, no payment required.
+   Lewis Gitonga · highest hierarchy, no payment required.
    Feature flags, API key manager, usage stats, theme editor,
    module health monitor, audit log viewer.
    ============================================================ */
@@ -54,7 +54,7 @@ window.OCRA = window.OCRA || {};
     O.render();
   };
 
-  // ---- API KEYS (seams — actual keys stored server-side) ----
+  // ---- API KEYS (seams · actual keys stored server-side) ----
   DC.apiSeams = {
     claudeApi:    { label: "Claude Sonnet (AI Insights)", status: "seam", endpoint: "/api/ai/insights" },
     mpesa:        { label: "M-Pesa Daraja API",           status: "seam", endpoint: "/api/payment/mpesa" },
@@ -107,7 +107,7 @@ window.OCRA = window.OCRA || {};
     var auditLog = O.dataManagement ? O.dataManagement.auditLog.slice(0, 10) : [];
 
     var healthRows = health.map(function (m) {
-      var status = m.loaded ? "&#10003;" : (m.required ? "&#10007;" : "&mdash;");
+      var status = m.loaded ? "OK" : (m.required ? "Missing" : "Optional");
       var color = m.loaded ? "var(--green)" : (m.required ? "var(--red)" : "var(--muted)");
       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;' +
         'border-bottom:1px solid rgba(255,255,255,.06);font-size:12px">' +
@@ -173,11 +173,11 @@ window.OCRA = window.OCRA || {};
         '<div class="dglass panel">' +
           '<div class="label" style="font-size:11px;color:var(--ocean);margin-bottom:8px">Quick Actions</div>' +
           '<div style="display:flex;flex-direction:column;gap:8px">' +
-            '<button class="btn dark" style="font-size:11px;padding:10px" onclick="OCRA.go({phase:\'intake\'})">[ Open Intake Form ]</button>' +
-            '<button class="btn dark" style="font-size:11px;padding:10px" onclick="OCRA.go({phase:\'academicEntry\'})">[ Academic Entry ]</button>' +
+            '<button class="btn dark" style="font-size:11px;padding:10px" data-action="go" data-phase="intake">Open Intake Form</button>' +
+            '<button class="btn dark" style="font-size:11px;padding:10px" data-action="go" data-phase="academicEntry">Academic Entry</button>' +
             '<button class="btn dark" style="font-size:11px;padding:10px" data-action="brainTestStart">[ Start Brain Test ]</button>' +
-            '<button class="btn dark" style="font-size:11px;padding:10px" onclick="OCRA.dataManagement&&OCRA.dataManagement.exportUserData()">[ Export All Data ]</button>' +
-            '<button class="btn dark" style="font-size:11px;padding:10px;color:var(--red)" onclick="if(confirm(\'Clear all session data?\'))OCRA.dataManagement&&OCRA.dataManagement.clearAll(true)">[ Clear Session ]</button>' +
+            '<button class="btn dark" style="font-size:11px;padding:10px" data-action="exportAll">Export All Data</button>' +
+            '<button class="btn dark" style="font-size:11px;padding:10px;color:var(--red)" data-action="clearSession">Clear Session</button>' +
           '</div>' +
         '</div>' +
         '<div class="dglass panel">' +
@@ -186,14 +186,14 @@ window.OCRA = window.OCRA || {};
           '<div style="display:flex;gap:8px">' +
             (["dark","black","light"].map(function (opt) {
               var on = DC.flags.introBackground === opt;
-              return '<button onclick="OCRA.developerConsole.setIntroBackground(\'' + opt + '\')" ' +
+              return '<button data-dc-bg="' + opt + '" ' +
                 'style="flex:1;padding:8px 0;font-size:11px;font-family:inherit;cursor:pointer;' +
                 'border-radius:8px;border:1px solid ' + (on ? "var(--ocean)" : "rgba(255,255,255,.15)") + ';' +
                 'background:' + (on ? "var(--ocean)" : "rgba(255,255,255,.05)") + ';' +
                 'color:' + (on ? "#fff" : "rgba(220,232,242,.7)") + '">' + opt + '</button>';
             }).join("")) +
           '</div>' +
-          '<button onclick="OCRA.go({phase:\'intro\'})" ' +
+          '<button data-action="go" data-phase="intro" ' +
             'style="width:100%;margin-top:8px;padding:9px;font-size:11px;font-family:inherit;cursor:pointer;' +
             'border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);' +
             'color:rgba(220,232,242,.6)">Preview Intro →</button>' +
@@ -206,7 +206,7 @@ window.OCRA = window.OCRA || {};
               var on  = DC.flags.introPreset === opt;
               var p   = O._introPresets && O._introPresets[opt];
               var ac  = p ? p.accent : "#38BDF8";
-              return '<button onclick="OCRA.developerConsole.setIntroPreset(\'' + opt + '\')" ' +
+              return '<button data-dc-preset="' + opt + '" ' +
                 'style="padding:8px 4px;font-size:11px;font-family:inherit;cursor:pointer;' +
                 'border-radius:8px;border:1px solid ' + (on ? ac : "rgba(255,255,255,.12)") + ';' +
                 'background:' + (on ? "rgba(0,0,0,.35)" : "rgba(255,255,255,.04)") + ';' +
@@ -230,6 +230,14 @@ window.OCRA = window.OCRA || {};
     '</div>';
   };
 
-  console.log("✅ Developer Console Module Loaded — Lewis Gitonga, highest hierarchy");
+  // CSP-safe controls: no inline handlers anywhere in the console.
+  document.addEventListener("click", function (e) {
+    var bg = e.target.closest && e.target.closest("[data-dc-bg]");
+    if (bg) { DC.setIntroBackground(bg.getAttribute("data-dc-bg")); return; }
+    var pr = e.target.closest && e.target.closest("[data-dc-preset]");
+    if (pr) { DC.setIntroPreset(pr.getAttribute("data-dc-preset")); return; }
+  });
+
+  console.log("✅ Developer Console Module Loaded · Lewis Gitonga, highest hierarchy");
 
 })(window.OCRA);

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="OCRA Cookies Policy · what we store, why, and how to control it. Kenya DPA compliant.">
+<title>Cookies Policy · OCRA</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif;color:#103A55;background:#eef1f6;line-height:1.7}
+.wrap{max-width:800px;margin:0 auto;padding:32px 20px 60px}
+.card{background:#fff;border-radius:20px;box-shadow:0 8px 30px rgba(31,72,110,.12);padding:clamp(20px,4vw,40px)}
+h1{font-size:28px;margin:0 0 6px;color:#0E6BA8}
+.meta{font-size:13px;color:#5B7689;margin-bottom:24px}
+h2{font-size:17px;margin:28px 0 10px;color:#0A3D62;border-bottom:2px solid #e6e9ef;padding-bottom:6px}
+p,li{font-size:14px;color:#33404e}
+a{color:#0E6BA8;text-decoration:underline}
+.badge{display:inline-block;background:#e6f4ff;color:#0E6BA8;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.06em}
+.nav{margin-bottom:18px}
+.nav a{font-size:13px;color:#5B7689;text-decoration:none;margin-right:14px}
+.nav a:hover{color:#0E6BA8;text-decoration:underline}
+.footer{margin-top:32px;padding-top:20px;border-top:1px solid #e6e9ef;font-size:12px;color:#5B7689}
+.table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px}
+.table th,.table td{border:1px solid #d9e1ea;padding:10px;text-align:left}
+.table th{background:#f0f4f8;font-weight:700}
+.toggle{display:flex;align-items:center;justify-content:space-between;background:#f0f4f8;border-radius:12px;padding:14px 16px;margin:10px 0}
+.toggle b{font-size:13px}
+.toggle span{font-size:12px;color:#5B7689}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="nav"><a href="../index.html">← Back to OCRA</a> <a href="privacy.html">Privacy</a> <a href="terms.html">Terms</a> <a href="refund.html">Refund</a></nav>
+<div class="card">
+<span class="badge">YOUR CHOICE · CONSENT BEFORE NON-ESSENTIAL TRACKING</span>
+<h1>Cookies and Similar Technologies Policy</h1>
+<p class="meta"><strong>Last updated:</strong> 20 October 2026 · This policy is part of our <a href="privacy.html">Privacy Policy</a></p>
+
+<p>OCRA uses cookies and similar technologies (localStorage, sessionStorage, IndexedDB) to make the site work, keep you signed in, and (only with your consent) understand how it is used. This policy explains what we store and how to control it.</p>
+
+<p><strong>Our commitment:</strong> We ask for your consent <em>before</em> any non-essential script runs. Strictly necessary storage works without consent; analytics and marketing storage only runs if you choose "Accept". You can change your choice at any time in Settings or via the banner that reappears after 6 months.</p>
+
+<h2>1. What are these technologies?</h2>
+<ul>
+<li><strong>Cookies</strong> · small text files your browser stores and sends back to us. Some last for a session, others until expiry.</li>
+<li><strong>localStorage / sessionStorage</strong> · browser storage OCRA uses to keep your session and preferences. The Privacy Policy treats these the same as cookies under Kenya DPA guidance.</li>
+<li>We do <strong>not</strong> use third-party advertising cookies, cross-site trackers, or fingerprinting.</li>
+</ul>
+
+<h2>2. What we store</h2>
+<table class="table">
+<tr><th>Name</th><th>Type</th><th>Purpose</th><th>Duration</th><th>Category</th></tr>
+<tr><td><code>ocra_session_v1</code></td><td>localStorage + HttpOnly Secure cookie (production)</td><td>Keep you signed in, remember account type</td><td>7 days or until logout</td><td>Strictly necessary</td></tr>
+<tr><td><code>ocra_csrf</code></td><td>Cookie (Secure, SameSite=Strict)</td><td>Prevent cross-site request forgery</td><td>Session</td><td>Strictly necessary</td></tr>
+<tr><td><code>ocra_consent</code></td><td>localStorage</td><td>Remember your cookie choice</td><td>6 months</td><td>Strictly necessary</td></tr>
+<tr><td><code>ocra_reports_cache</code></td><td>IndexedDB</td><td>Cache Claude insights to control cost; re-creation may reuse a similar cached document (disclosed before charge)</td><td>90 days</td><td>Necessary for service</td></tr>
+<tr><td><code>_analytics_*</code> (only if you accept)</td><td>Cookie + localStorage</td><td>Aggregated, anonymised usage (which pages are slow or broken) · no names, schools, or scores</td><td>13 months</td><td>Analytics (consent)</td></tr>
+<tr><td><em>Future: performance beacon</em></td><td>Beacon API</td><td>Measure page load on low-bandwidth connections</td><td>Session</td><td>Analytics (consent)</td></tr>
+</table>
+<p><strong>We do not set:</strong> marketing cookies, social-media pixels, or third-party ad cookies. If we add them in future, we will ask fresh consent and list them here first.</p>
+
+<h2>3. Third parties that may set storage</h2>
+<table class="table">
+<tr><th>Third party</th><th>Why</th><th>What they store</th><th>Link</th></tr>
+<tr><td>Supabase</td><td>Auth + database</td><td>Auth session tokens (HttpOnly)</td><td><a href="https://supabase.com/privacy">supabase.com/privacy</a></td></tr>
+<tr><td>Anthropic (Claude)</td><td>AI insights</td><td>No browser storage in OCRA; server-side only</td><td><a href="https://www.anthropic.com/privacy">anthropic.com/privacy</a></td></tr>
+<tr><td>Africa's Talking</td><td>SMS OTP</td><td>No browser storage</td><td><a href="https://africastalking.com/privacy">africastalking.com/privacy</a></td></tr>
+<tr><td>Safaricom Daraja</td><td>M-Pesa</td><td>No browser storage; payment via Safaricom</td><td><a href="https://www.safaricom.co.ke/privacy">safaricom.co.ke/privacy</a></td></tr>
+<tr><td>GSAP (local vendor)</td><td>Animations</td><td>None · vendored at <code>assets/vendor/gsap.min.js</code>, no external call</td><td><a href="https://gsap.com/standard-license">gsap.com/standard-license</a></td></tr>
+</table>
+<p>We review processor terms before any new embed, as required by OCRA_STANDARDS.md. No new tracker is added without a privacy review.</p>
+
+<h2>4. Your choices</h2>
+<div class="toggle"><div><b>Strictly necessary</b><br><span>Required for login and security · cannot be turned off</span></div><span style="color:#0E6BA8;font-weight:700">ON</span></div>
+<div class="toggle"><div><b>Analytics (anonymised)</b><br><span>Helps us fix slow pages. No personal data. You can turn off.</span></div><span id="analytics-state" style="font-weight:700">OFF · waiting for consent</span></div>
+<p>When you first visit OCRA, a banner at the bottom asks:</p>
+<ul>
+<li><strong>Accept all</strong> · necessary + analytics</li>
+<li><strong>Reject non-essential</strong> · necessary only</li>
+<li><strong>Manage</strong> · choose per category</li>
+</ul>
+<p>You can change this at any time: <strong>Settings → Privacy → Cookie preferences</strong>, or clear site data in your browser. Withdrawing analytics consent does not affect necessary cookies already set for your session.</p>
+
+<h2>5. How to control via your browser</h2>
+<p>You can block or delete cookies in your browser settings. If you block strictly necessary storage, OCRA will not be able to keep you signed in and many features will not work. Instructions:</p>
+<ul>
+<li>Chrome: Settings → Privacy and security → Cookies</li>
+<li>Safari: Settings → Privacy → Manage Website Data</li>
+<li>Firefox: Settings → Privacy and Security → Cookies</li>
+</ul>
+
+<h2>6. Do Not Track and consent signals</h2>
+<p>We respect Global Privacy Control (GPC) where sent by your browser as a request not to enable non-essential storage. We do not sell personal data.</p>
+
+<h2>7. Children's consent</h2>
+<p>For learners under 18, the <strong>guardian's consent</strong> controls analytics. A child cannot enable analytics without guardian approval.</p>
+
+<h2>8. Contact and updates</h2>
+<p>Questions about cookies? Email <a href="mailto:privacy@ocra.app">privacy@ocra.app</a> or <a href="mailto:dpo@ocra.app">dpo@ocra.app</a>. Material changes to this policy trigger a new consent banner. Last reviewed date is at the top.</p>
+
+</div>
+<div class="footer">
+<p><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms</a> · <a href="refund.html">Refund Policy</a> · <a href="../index.html">Back to OCRA</a></p>
+<p>© 2026 Artist Life Foundation · Cookie consent before non-essential tracking, always.</p>
+</div>
+</div>
+<script defer src="../js/consent.js"></script>
+<script defer src="../js/consent-view.js"></script>
+</body>
+</html>

@@ -136,6 +136,6 @@ window.OCRA = window.OCRA || {};
   setInterval(DM.purgeExpired, 3600000);
 
   DM.log("SYSTEM", "Data Management Module initialised");
-  console.log("✅ Data Management Module Loaded — soft delete, 30-day recovery, export, audit log");
+  console.log("✅ Data Management Module Loaded · soft delete, 30-day recovery, export, audit log");
 
 })(window.OCRA);

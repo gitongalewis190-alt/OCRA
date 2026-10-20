@@ -1,5 +1,5 @@
 /* ============================================================
-   BOOTSTRAP — mount the app, define logo spin
+   BOOTSTRAP · mount the app, define logo spin
    ============================================================ */
 (function (O) {
   "use strict";

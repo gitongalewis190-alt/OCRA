@@ -1,5 +1,5 @@
 /* ============================================================
-   DASHBOARDS — Personal / Family / Organization / Developer
+   DASHBOARDS · Personal / Family / Organization / Developer
    Built to the four reference mockups. Logo + live data plug in
    later; layout/arrangement/buttons match the images.
    ============================================================ */
@@ -15,10 +15,12 @@
     ], { dark: dark });
   }
 
+  function sampleBanner(){ return '<div class="sample-notice" role="note" style="background:#fff8e1;border-left:4px solid #F5B301;padding:10px 14px;border-radius:8px;font-size:11px;color:#5a4a00;margin-bottom:16px;line-height:1.6">Sample data for illustration only. Your real records will appear after you add data. No fake metrics are presented as real.</div>'; }
+
   // PERSONAL (Image 1)
   O.dashboards.personal = function () {
-    var mgmt = ["New Data", "Print Data", "About me", "Download", "Clear All", "+ \u2665", "Recover", "Signature"];
-    return '' +
+    var mgmt = ["New Data", "Print Data", "About me", "Download", "Clear All", "Favourite", "Recover", "Signature"];
+    return sampleBanner() +
     '<div class="grid-3">' +
       '<div class="glass panel">' +
         '<div class="label" style="font-size:12px;color:var(--ink)">Data Management</div>' +
@@ -33,9 +35,9 @@
       '<div class="col">' +
         '<div style="display:flex;align-items:center;gap:14px">' +
           '<div class="pill" style="width:48px;height:48px;display:grid;place-items:center;font-weight:800;color:var(--ocean)">LG</div>' +
-          '<div style="font-size:24px;font-weight:800;color:var(--ink)">Lewis Gitonga <span class="muted" style="font-weight:600;font-size:16px">&mdash; leez</span></div>' +
+          '<div style="font-size:24px;font-weight:800;color:var(--ink)">Lewis Gitonga <span class="muted" style="font-weight:600;font-size:16px">· leez</span></div>' +
         '</div>' +
-        '<div class="glass panel" style="display:flex;align-items:center;gap:10px"><span style="font-size:16px">&#128269;</span><span class="muted">Search&hellip;</span><span class="muted" style="margin-left:auto">&#9662;&nbsp;&times;</span></div>' +
+        '<div class="glass panel" style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:700;color:var(--ink)">Search</span><span class="muted">Type to filter</span><span class="muted" style="margin-left:auto">&#9662;&nbsp;&times;</span></div>' +
         '<div class="glass panel-0">' +
           '<div class="thead label muted" style="grid-template-columns:1.4fr 1fr 1fr 1.2fr"><span>Name</span><span>System / Level</span><span>Progress</span><span>Mental State</span></div>' +
           '<div class="trow" style="grid-template-columns:1.4fr 1fr 1fr 1.2fr">' +
@@ -46,8 +48,8 @@
           '</div>' +
         '</div>' +
         '<div class="glass panel"><div class="label" style="font-size:11px;color:var(--ink)">Psychological Remark</div>' +
-          '<p class="muted" style="font-size:13px;margin-top:8px;line-height:1.5">Strong working memory anchors your science track; reasoning is solid and rising. Next term, focus on converting recall into applied problem-solving.</p>' +
-          '<div class="label muted" style="text-align:center;font-size:10px;margin-top:10px">&mdash; O C R A &mdash;</div></div>' +
+          '<p class="muted" style="font-size:13px;margin-top:8px;line-height:1.5">Strong working memory anchors your science track. Reasoning is solid and rising. Next term, focus on converting recall into applied problem solving.</p>' +
+          '<div class="label muted" style="text-align:center;font-size:10px;margin-top:10px">· O C R A ·</div></div>' +
       '</div>' +
       '<div class="col">' +
         '<div class="glass panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><div class="label" style="font-size:12px;color:var(--ink)">Your Growth.</div><div class="muted" style="font-size:10px">Analytics Engine</div></div>' + growthSVG(false) + '</div>' +
@@ -61,13 +63,14 @@
 
   // ORGANIZATION (Image 2)
   O.dashboards.organization = function () {
+    var _orgBanner = sampleBanner();
     var rows = [
       ["Lewis Gitonga", "Form 4", 80, 20, "var(--red)"], ["Achieng O.", "Form 4", 74, 12, "var(--green)"],
       ["Elom M.", "Form 4", 81, 20, "var(--red)"], ["Justin B.", "Form 4", 69, 6, "var(--green)"],
       ["Gravis G.", "Form 4", 77, 15, "var(--blue)"], ["Adel\u00e9 B.", "Form 6", 88, 15, "var(--green)"],
     ];
     var mgmt = ["View Data", "New Student", "Print Data", "Clear Data", "Download", "Remove Student", "Signatures", "Recover"];
-    return '' +
+    return _orgBanner +
     '<div class="grid-2l">' +
       '<div class="col">' +
         '<div class="glass panel" style="text-align:center;font-weight:700;color:var(--ink);padding:22px">Organization Logo</div>' +
@@ -94,12 +97,13 @@
 
   // FAMILY (Image 4)
   O.dashboards.family = function () {
+    var _famBanner = sampleBanner();
     var kids = [
       ["Teacy", "CBE G.10", 81, 71, 18, 40, "var(--red)"], ["Elsie", "CBE G.10", 54, 80, 18, 40, "var(--amber)"],
       ["Elvis", "CBE G.6", 54, 40, 42, 30, "var(--amber)"], ["Nia", "G.4", 96, 85, 85, 71, "var(--green)"],
     ];
     var mgmt = ["New Data", "New Member", "New Dept.", "New Data", "Print Data", "Clear Data", "Backup", "Restart"];
-    return '' +
+    return _famBanner +
     '<div class="grid-2f">' +
       '<div class="col">' +
         '<div class="glass panel"><div class="label" style="font-size:13px;color:var(--ink);margin-bottom:12px">Family Console</div>' +
@@ -107,7 +111,7 @@
           '<div class="label" style="font-size:11px;color:var(--ink);margin-top:18px">News &amp; Updates</div>' +
           '<div class="btnwrap" style="margin-top:8px"><button class="btn" style="font-size:11px">Family Advice</button><button class="btn" style="font-size:11px">Data Review</button></div></div>' +
         '<div class="glass panel"><div class="label" style="font-size:11px;color:var(--ink);margin-bottom:10px">Descriptors</div>' +
-          '<div style="font-size:12px;color:var(--ink);display:flex;flex-direction:column;gap:8px"><span>' + O.dot("var(--red)") + 'Red &mdash; Performance</span><span>' + O.dot("var(--blue)") + 'Moderate</span><span>' + O.dot("var(--green)") + 'Good</span></div></div>' +
+          '<div style="font-size:12px;color:var(--ink);display:flex;flex-direction:column;gap:8px"><span>' + O.dot("var(--red)") + 'Red · Performance</span><span>' + O.dot("var(--blue)") + 'Moderate</span><span>' + O.dot("var(--green)") + 'Good</span></div></div>' +
       '</div>' +
       '<div class="col">' +
         '<div class="glass panel-0">' +
@@ -119,20 +123,21 @@
               '<div class="muted">' + k[1] + '</div>' +
               '<div class="kpi" style="color:var(--ink)">' + k[2] + '%</div>' +
               '<div class="muted" style="font-size:10.5px;line-height:1.5">Reasoning ' + k[3] + ' &middot; Memory ' + k[4] + ' &middot; Stress ' + k[5] + '</div>' +
-              '<div style="font-size:16px;color:var(--ocean)">&#128065; +</div></div>';
+              '<div style="font-size:12px;color:var(--ocean);font-weight:700" aria-label="View details">View +</div></div>';
           }).join("") +
           '<div style="padding:14px"><button class="btn full" style="padding:12px;font-weight:700">View All</button></div>' +
         '</div>' +
-        '<div class="glass panel"><div class="label" style="font-size:12px;color:var(--ink);margin-bottom:6px">Growth Rate &mdash; 2026</div>' + growthSVG(false) + '</div>' +
+        '<div class="glass panel"><div class="label" style="font-size:12px;color:var(--ink);margin-bottom:6px">Growth Rate · 2026</div>' + growthSVG(false) + '</div>' +
       '</div>' +
     '</div>';
   };
 
-  // DEVELOPER (Image 3 — dark, hidden console)
+  // DEVELOPER (Image 3 · dark, hidden console)
   O.dashboards.developer = function () {
+    var _devBanner = '<div class="sample-notice" role="note" style="background:rgba(255,248,180,.15);border-left:4px solid #F5B301;padding:10px 14px;border-radius:8px;font-size:11px;color:#e8dcc0;margin-bottom:16px;line-height:1.6">Internal console · user counts are illustrative and not a live metric.</div>';
     var accts = [["Personal", 160], ["Organization", 20], ["Family", 18], ["Developer", 4]];
     var code = 'export default function Dashboard(){\n  const cfg = await loadTenantConfig();\n  cfg.theme   = "ocean-glass";\n  cfg.account = "organization";\n  return &lt;Console editable={cfg.editable} /&gt;;\n}';
-    return '' +
+    return _devBanner +
     '<div class="grid-3">' +
       '<div class="col">' +
         '<div class="dglass panel" style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px">' + O.logo(64, true) + '<div class="label" style="font-size:11px">OCRA Logo</div><div class="label" style="font-size:10px;color:rgba(220,232,242,.6)">Developer Console</div></div>' +
@@ -147,8 +152,8 @@
       '<div class="col">' +
         '<div class="dglass panel"><div class="label" style="font-size:11px;margin-bottom:10px">Live Codebase</div>' +
           '<pre style="background:#0a1622;border-radius:10px;padding:14px;font-size:11px;line-height:1.6;overflow:auto;color:#7fd6ff;border:1px solid rgba(255,255,255,.08)">' + code + '</pre></div>' +
-        '<div class="dglass panel"><div class="label" style="font-size:11px;margin-bottom:6px">Marketing Guide &mdash; Profit Margin</div>' + growthSVG(true) + '</div>' +
-        '<div class="dglass panel"><div class="label" style="font-size:11px">Typewriter Remarks (Psychological)</div><div style="margin-top:8px;font-size:13px;color:rgba(220,232,242,.8)">&mdash; Remarks &nbsp; &mdash; Advice &nbsp; &mdash; Insights</div></div>' +
+        '<div class="dglass panel"><div class="label" style="font-size:11px;margin-bottom:6px">Marketing Guide · Profit Margin</div>' + growthSVG(true) + '</div>' +
+        '<div class="dglass panel"><div class="label" style="font-size:11px">Typewriter Remarks (Psychological)</div><div style="margin-top:8px;font-size:13px;color:rgba(220,232,242,.8)">· Remarks &nbsp; · Advice &nbsp; · Insights</div></div>' +
       '</div>' +
       '<div class="col">' +
         '<div class="dglass panel"><div class="label" style="font-size:11px;margin-bottom:10px">Data Management</div>' +

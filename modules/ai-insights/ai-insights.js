@@ -79,7 +79,7 @@ window.OCRA = window.OCRA || {};
         2: "You show a balanced blend of logical and creative thinking, typical of a well-rounded learner at this stage.",
         3: "Your cognitive pattern suggests a methodical, analytical disposition with notable strengths in " + top[0] + " and " + top[1] + ". Channel this into focused study habits.",
         4: "Your profile indicates a strategic cognitive orientation. Your " + top[0] + " and " + top[1] + " strengths align well with competitive academic and professional pathways.",
-        5: "Your profile reflects a mature cognitive approach. Your dominant dimensions—" + top[0] + " and " + top[1] + "—are indicators of professional competence and growth capacity.",
+        5: "Your profile reflects a mature cognitive approach. Your dominant dimensions·" + top[0] + " and " + top[1] + "·are indicators of professional competence and growth capacity.",
       };
       return insights[tier] || insights[3];
     },
@@ -169,6 +169,6 @@ window.OCRA = window.OCRA || {};
     });
   };
 
-  console.log("✅ AI Insights Module Loaded — Claude Sonnet + template fallbacks");
+  console.log("✅ AI Insights Module Loaded · Claude Sonnet + template fallbacks");
 
 })(window.OCRA);

@@ -117,6 +117,6 @@ window.OCRA = window.OCRA || {};
     };
   };
 
-  console.log("✅ Analytics Engine Loaded — z-scores, percentiles, growth trends, CRS");
+  console.log("✅ Analytics Engine Loaded · z-scores, percentiles, growth trends, CRS");
 
 })(window.OCRA);

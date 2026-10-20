@@ -71,7 +71,7 @@ window.OCRA = window.OCRA || {};
       title: "Academic Transcript & Cognitive Profile",
       ageTier: ageTier,
       sections: [
-        { heading: "Student Information", content: { name: (profile.firstName || "") + " " + (profile.lastName || ""), school: profile.school || "—", level: profile.grade || "—", system: profile.educationSystem || "—", dateGenerated: new Date().toLocaleDateString("en-GB") } },
+        { heading: "Student Information", content: { name: (profile.firstName || "") + " " + (profile.lastName || ""), school: profile.school || "·", level: profile.grade || "·", system: profile.educationSystem || "·", dateGenerated: new Date().toLocaleDateString("en-GB") } },
         { heading: "Academic Results Summary", content: academics },
         { heading: "6-Dimension Cognitive Profile", content: payload.scores },
         { heading: "Strengths & Key Observations", content: RE.getInsight("strengthsSummary", "Cognitive assessment indicates a well-rounded learner with notable analytical potential.") },
@@ -174,6 +174,6 @@ window.OCRA = window.OCRA || {};
 
   RE.screens = RE.screens || {};
 
-  console.log("✅ Report Engine Module Loaded — 4-document generation, age-tiered, AI-wired");
+  console.log("✅ Report Engine Module Loaded · 4-document generation, age-tiered, AI-wired");
 
 })(window.OCRA);

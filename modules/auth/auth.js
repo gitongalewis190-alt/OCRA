@@ -24,8 +24,9 @@ window.OCRA = window.OCRA || {};
     ORGANIZATION: "organization",
   };
 
-  // ---- DEVELOPER IDENTITY (never requires payment, highest hierarchy) ----
-  AUTH.DEV_EMAILS = ["gitongalewis190@gmail.com", "developer@ocra.app"];
+  // ---- DEVELOPER CONTACT ADDRESS (not an access control list) ----
+  // Support routing only. Access is decided by user.role, never by an address.
+  AUTH.DEV_EMAILS = ["developer@ocra.app"];
 
   // ---- CURRENT SESSION ----
   AUTH.session = null;
@@ -59,7 +60,6 @@ window.OCRA = window.OCRA || {};
     var existing = AUTH.findAccount(formData.email || formData.momEmail);
     if (existing) { onError("An account with this email already exists."); return; }
 
-    var isDev = AUTH.DEV_EMAILS.indexOf((formData.email || "").toLowerCase()) >= 0;
     var userId = "usr_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
 
     var user = {
@@ -68,7 +68,7 @@ window.OCRA = window.OCRA || {};
       firstName:       formData.first || formData.familyName || formData.orgName || "",
       lastName:        formData.last || "",
       accountType:     accountType,
-      role:            isDev ? AUTH.ROLES.DEVELOPER : accountType,
+      role:            accountType,   // server issues developer / admin roles after MFA
       school:          formData.school || "",
       grade:           formData.grade || "",
       educationSystem: formData.system || "KCSE",
@@ -110,18 +110,8 @@ window.OCRA = window.OCRA || {};
       }
     }
 
-    // Developer shortcut (no password required in dev mode)
-    var isDev = AUTH.DEV_EMAILS.indexOf(email.toLowerCase()) >= 0;
-    if (!record && isDev) {
-      var devUser = {
-        id: "dev_001", email: email, firstName: "Lewis", lastName: "Gitonga",
-        accountType: "developer", role: AUTH.ROLES.DEVELOPER,
-        educationSystem: "KCSE", createdAt: new Date().toISOString(),
-      };
-      AUTH.createSession(devUser);
-      onSuccess(devUser);
-      return;
-    }
+    // No shortcut. A developer account is an ordinary record whose role is
+    // "developer"; production issues that role server side after MFA.
 
     if (!record) { onError("No account found with that email."); return; }
     if (record.passwordHash !== AUTH.hashPassword(password)) { onError("Incorrect password."); return; }
@@ -151,25 +141,12 @@ window.OCRA = window.OCRA || {};
     }
 
     var record = AUTH.findAccount(email);
-    var isDev = AUTH.DEV_EMAILS.indexOf(email.toLowerCase()) >= 0;
 
     if (record) {
       // identity verified by the provider — passwordless session
       AUTH.createSession(record.user);
       if (O.dataManagement) O.dataManagement.log("LOGIN_SOCIAL", provider + " sign-in: " + email);
       if (onLogin) onLogin(record.user);
-      return;
-    }
-
-    if (isDev) {
-      var devUser = {
-        id: "dev_001", email: email, firstName: "Lewis", lastName: "Gitonga",
-        accountType: "developer", role: AUTH.ROLES.DEVELOPER,
-        authProvider: provider, educationSystem: "KCSE", createdAt: new Date().toISOString(),
-      };
-      AUTH.createSession(devUser);
-      if (O.dataManagement) O.dataManagement.log("LOGIN_SOCIAL", provider + " dev sign-in: " + email);
-      if (onLogin) onLogin(devUser);
       return;
     }
 
@@ -272,8 +249,9 @@ window.OCRA = window.OCRA || {};
   };
 
   AUTH.isDeveloper = function () {
-    var user = AUTH.session && AUTH.session.user;
-    return user && (user.role === AUTH.ROLES.DEVELOPER || AUTH.DEV_EMAILS.indexOf((user.email || "").toLowerCase()) >= 0);
+    var user = (AUTH.session && AUTH.session.user) || O.state.user;
+    // Only a server-issued role grants elevation. An email address never does.
+    return !!(user && user.role === AUTH.ROLES.DEVELOPER);
   };
 
   // ---- STORAGE HELPERS ----
@@ -295,7 +273,9 @@ window.OCRA = window.OCRA || {};
   };
 
   // ---- CRYPTO HELPERS ----
-  // Simple deterministic hash (replace with bcrypt on real backend)
+  // NOT A PASSWORD HASH. A non-cryptographic local digest so the demo store is not
+  // plaintext. Production authentication runs argon2id on the FastAPI server; the
+  // client never receives or stores a password hash.
   AUTH.hashPassword = function (password) {
     var hash = 5381;
     for (var i = 0; i < password.length; i++) {
@@ -354,41 +334,6 @@ window.OCRA = window.OCRA || {};
     return true;
   };
 
-  // ---- SOCIAL AUTH SEAM ----
-  AUTH.PROVIDERS = { GOOGLE: "google", APPLE: "apple", MICROSOFT: "microsoft" };
-  AUTH.socialAuth = function (provider, profile, onLogin, onSignup, onError) {
-    // Developer shortcut via social: if profile email matches dev emails
-    if (profile && profile.email && AUTH.DEV_EMAILS.indexOf((profile.email || "").toLowerCase()) >= 0) {
-      var devUser = {
-        id: "dev_social", email: profile.email, firstName: profile.displayName || "Lewis",
-        lastName: "", accountType: "developer", role: AUTH.ROLES.DEVELOPER,
-        educationSystem: "KCSE", createdAt: new Date().toISOString(),
-      };
-      AUTH.createSession(devUser);
-      onLogin(devUser);
-      return;
-    }
-    // Check if account exists — if so, passwordless login; if not, prefill signup
-    if (profile && profile.email) {
-      var existing = AUTH.findAccount(profile.email);
-      if (existing) {
-        AUTH.createSession(existing.user);
-        onLogin(existing.user);
-        return;
-      }
-      // New identity: pre-fill signup form
-      if (O.state) {
-        O.state.form.email       = profile.email || "";
-        O.state.form.first       = profile.givenName || profile.displayName || "";
-        O.state.form.last        = profile.familyName || "";
-        O.state.form.socialProvider = provider;
-      }
-      onSignup();
-      return;
-    }
-    // No profile: redirect to signup for user to fill details
-    onSignup();
-  };
 
   // ---- FIREBASE SEAM (swap this in when credentials are ready) ----
   AUTH.providers = {

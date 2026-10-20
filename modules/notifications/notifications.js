@@ -65,7 +65,7 @@ window.OCRA = window.OCRA || {};
     }
 
     var colors = { info: "#0E6BA8", success: "#34C759", warning: "#F5B301", error: "#FF3B30" };
-    var icons  = { info: "&#9432;", success: "&#10003;", warning: "&#9888;", error: "&#9888;" };
+    var icons  = { info: "i", success: "✓", warning: "!", error: "!" };
 
     var toast = document.createElement("div");
     toast.style.cssText = "background:#fff;border-left:4px solid " + (colors[note.type] || colors.info) + ";" +
@@ -75,7 +75,7 @@ window.OCRA = window.OCRA || {};
     toast.innerHTML =
       '<span style="font-size:16px;color:' + (colors[note.type] || colors.info) + '">' + (icons[note.type] || icons.info) + '</span>' +
       '<div style="flex:1">' + String(note.message).replace(/</g, "&lt;").replace(/>/g, "&gt;") + '</div>' +
-      '<button onclick="this.closest(\'div\').remove()" style="background:none;border:none;cursor:pointer;font-size:16px;color:#5B7689;line-height:1;padding:0">&times;</button>';
+      '<button type="button" data-toast-close aria-label="Dismiss notification" style="background:none;border:none;cursor:pointer;font-size:16px;color:#4a5a6b;line-height:1;padding:0">&times;</button>';
 
     container.appendChild(toast);
 
@@ -106,6 +106,6 @@ window.OCRA = window.OCRA || {};
     N.push("Welcome to OCRA. Your session is secure and ready.", N.TYPES.INFO);
   }, 1500);
 
-  console.log("✅ Notifications Module Loaded — toast + queue + badges");
+  console.log("✅ Notifications Module Loaded · toast + queue + badges");
 
 })(window.OCRA);

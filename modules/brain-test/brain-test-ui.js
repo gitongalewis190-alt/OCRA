@@ -62,7 +62,7 @@
     return '' +
     '<div style="max-width:600px;margin:0 auto">' +
       '<div class="glass panel" style="text-align:center;padding:40px 28px">' +
-        '<div style="font-size:44px;margin-bottom:14px">&#10003;</div>' +
+        '<div style="width:44px;height:44px;margin:0 auto 14px;border-radius:50%;background:#e6f8ee;color:#0a7a42;display:grid;place-items:center;font-size:20px;font-weight:800" aria-hidden="true">OK</div>' +
         '<div style="font-size:26px;font-weight:800;color:var(--ink);margin-bottom:8px">Test Complete</div>' +
         '<p class="muted" style="margin-bottom:26px;line-height:1.6">Your cognitive profile is ready.</p>' +
         scoreGrid(payload) +
@@ -111,7 +111,7 @@
     return '' +
     '<div style="max-width:600px;margin:0 auto">' +
       '<div class="glass panel" style="text-align:center;padding:40px 28px">' +
-        '<div style="font-size:44px;margin-bottom:14px">&#10003;</div>' +
+        '<div style="width:44px;height:44px;margin:0 auto 14px;border-radius:50%;background:#e6f8ee;color:#0a7a42;display:grid;place-items:center;font-size:20px;font-weight:800" aria-hidden="true">OK</div>' +
         '<div style="font-size:26px;font-weight:800;color:var(--ink);margin-bottom:8px">Test Complete!</div>' +
         '<p class="muted" style="margin-bottom:26px;line-height:1.6">Your cognitive profile is ready. Review your 6-dimension scores below.</p>' +
         scoreGrid(payload) +
@@ -133,15 +133,15 @@
       return '' +
       '<div style="max-width:700px;margin:0 auto">' +
         '<div class="glass panel" style="margin-bottom:20px;text-align:center">' +
-          '<div style="font-size:32px;margin-bottom:14px">&#128202;</div>' +
+          '<div style="font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--ocean);margin-bottom:12px;text-transform:uppercase">Reports</div>' +
           '<div style="font-size:26px;font-weight:800;color:var(--ink);margin-bottom:8px">Your Reports Are Ready</div>' +
           '<p class="muted" style="margin-bottom:20px;line-height:1.6">Four comprehensive documents have been generated based on your cognitive profile and academic record.</p>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">' +
-          reportCard("transcript",       "&#128196;", "Academic Transcript",  "Student info, results &amp; profile") +
-          reportCard("resultsReport",    "&#128200;", "Results Report",       "Performance &amp; growth analysis") +
-          reportCard("careerGuidance",   "&#127919;", "Career Guidance",      "4-career blockchain &amp; pathways") +
-          reportCard("revisionTimetable","&#128197;", "Revision Timetable",   "Personalised study schedule") +
+          reportCard("transcript",       "DOC", "Academic Transcript",  "Student info, results &amp; profile") +
+          reportCard("resultsReport",    "RES", "Results Report",       "Performance &amp; growth analysis") +
+          reportCard("careerGuidance",   "PATH", "Career Guidance",      "4-career pathways &amp; subjects") +
+          reportCard("revisionTimetable","PLAN", "Revision Timetable",   "Personalised study schedule") +
         '</div>' +
         '<div class="glass panel" style="margin-bottom:20px;padding:16px;text-align:center">' +
           '<button class="btn primary full" data-action="exportReportPDF" data-doc-type="all" style="padding:14px;font-weight:700">Export Full PDF Bundle</button>' +
@@ -192,7 +192,7 @@
         '<div class="glass panel" style="padding:28px">' +
           '<div style="font-size:20px;font-weight:800;color:var(--ink);margin-bottom:20px;border-bottom:1px solid rgba(16,58,85,.1);padding-bottom:14px">' + O.esc(doc.title) + '</div>' +
           sectionsHtml +
-          '<button class="btn primary full" data-action="exportReportPDF" data-doc-type="' + O.esc(docType) + '" style="padding:14px;font-weight:700;margin-top:8px">Download as PDF &mdash; KES 40</button>' +
+          '<button class="btn primary full" data-action="exportReportPDF" data-doc-type="' + O.esc(docType) + '" style="padding:14px;font-weight:700;margin-top:8px">Download as PDF · KES 40</button>' +
         '</div>' +
       '</div>';
     },

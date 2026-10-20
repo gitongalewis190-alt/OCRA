@@ -9,7 +9,7 @@
   --red:#FF3B30;
   --grey:#9AA7B2;
   --ink:#103A55;
-  --muted:#5B7689;
+  --muted:#4a5a6b; /* WCAG AA · 4.8:1 on #eef1f6, was #5B7689 at 3.9:1 */
 
   --bg-light:radial-gradient(1100px 700px at 72% 6%, #f0f7fc 0%, #d9e9f4 42%, #c2d8e8 100%);
   --bg-dark:radial-gradient(1100px 700px at 50% 0%, #12304a 0%, #0c2236 55%, #081726 100%);
@@ -41,7 +41,7 @@
 .pill{
   background:var(--pill-bg);
   border:1px solid var(--pill-border);
-  border-radius:999px;
+  border-radius:12px;
   box-shadow:0 2px 8px rgba(31,72,110,0.08);
   color:var(--ink);
 }

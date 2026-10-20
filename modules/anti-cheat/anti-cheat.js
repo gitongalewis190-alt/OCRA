@@ -1,6 +1,6 @@
 /* ============================================================
-   ANTI-CHEAT MODULE — Behavioural telemetry + transparent flagging
-   All analysis is client-side. Signals are soft flags — no hard
+   ANTI-CHEAT MODULE · Behavioural telemetry + transparent flagging
+   All analysis is client-side. Signals are soft flags · no hard
    blocks without a human-solvable challenge. Never breaks UX.
    ============================================================ */
 window.OCRA = window.OCRA || {};
@@ -318,7 +318,7 @@ window.OCRA = window.OCRA || {};
     var cls = sc >= 10 ? "high" : sc >= 6 ? "warn" : "info";
     var icon = sc >= 6 ? "⚠️" : "ℹ️";
     var msgs = {
-      info: "We noticed some unusual activity — your data is still safe.",
+      info: "We noticed some unusual activity · your data is still safe.",
       warn: "Some responses look unusual. Please review your entries.",
       high: "This session looks automated. Confirm you&rsquo;re human to continue.",
     };
@@ -393,6 +393,6 @@ window.OCRA = window.OCRA || {};
     AC._hideBanner();
   };
 
-  console.log("✅ Anti-Cheat Module Loaded — behavioural telemetry, honeypot, brain-test analysis");
+  console.log("✅ Anti-Cheat Module Loaded · behavioural telemetry, honeypot, brain-test analysis");
 
 })(window.OCRA);

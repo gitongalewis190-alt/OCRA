@@ -82,6 +82,7 @@ console.log("\n── Render smoke test ─────────────�
 // Initial state
 assert("intro screen renders",          app().includes("diveIn"));
 assert("O.fail defined",                typeof O.fail === "function");
+assert("landing carries legal links",    app().includes("legal/privacy.html") && app().includes("legal/refund.html"));
 
 // Entry-flow screens
 O.go({ phase: "choose" });
@@ -89,7 +90,7 @@ assert("choose screen",                 app().includes("academics"));
 assert("choose: finances button",       app().includes("finances"));
 
 O.go({ phase: "account" });
-assert("account screen (3D branches)",  app().includes("acct-orbit"));
+assert("account screen (branch selector)", app().includes("acct-tree"));
 assert("account: branch enters login",  app().includes("acctEnter"));
 assert("account: three account types",
   app().includes('data-value="personal"') && app().includes('data-value="family"') && app().includes('data-value="organization"'));
@@ -281,12 +282,22 @@ O.auth.logIn("test_smoke@ocra.app", "wrongpassword",
 );
 assert("auth: rejects wrong password",  !badLogin);
 
-// Developer bypass
+// Developer access must NOT be granted by the client. An unknown address with an
+// arbitrary password has to fail, and no role may be assumed from an email string.
+var devLoginOk = false;
 O.auth.logIn("gitongalewis190@gmail.com", "anypassword",
-  function (user) { O.state.user = user; },
+  function () { devLoginOk = true; },
   function () {}
 );
-assert("developer bypasses payment",    O.payment.isDeveloper());
+assert("no client-side developer bypass", !devLoginOk);
+
+// A server-issued developer role in a real session does bypass the payment gate.
+O.auth.session = { user: { email: "dev@ocra.app", role: "developer" }, expiresAt: Date.now() + 60000 };
+O.state.user = O.auth.session.user;
+assert("developer role bypasses payment", O.payment.isDeveloper());
+O.auth.session = { user: { email: "user@ocra.app", role: "personal" }, expiresAt: Date.now() + 60000 };
+O.state.user = O.auth.session.user;
+assert("student role pays for documents", !O.payment.isDeveloper());
 
 console.log("\n── Result: " + passed + " passed, " + failed + " failed ──────────────────");
 if (failed) console.error("SMOKE TEST FAILED\n");
