@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { signOut } from '@/app/auth/actions';
 import { MODULES } from '@/features/registry';
 
 export function DashboardShell({ children }: { children: ReactNode }) {
@@ -10,11 +9,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <p className="eyebrow">OCRA</p>
           <h1>Personal dashboard</h1>
         </div>
-        <form action={signOut}>
-          <button type="submit" className="ghost">
-            Sign out
-          </button>
-        </form>
       </header>
 
       <nav className="module-nav" aria-label="Modules">
