@@ -12,10 +12,9 @@ concurrency:
 
 jobs:
   validate:
-    name: Validate source scripts
+    name: Test and typecheck
     runs-on: ubuntu-latest
-    # Hard ceiling so a hung test can never occupy a runner for hours.
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,7 +22,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Validate JS (syntax + JSON-wrapper guard)
-        run: npm run validate
-      - name: Render smoke test (headless jsdom)
-        run: npm run smoke
+      - name: Unit tests
+        run: npm test
+      - name: Typecheck
+        run: npm run typecheck

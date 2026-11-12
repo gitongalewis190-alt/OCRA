@@ -5,22 +5,19 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# Least-privilege token scoped for Pages deployment.
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Never run two deployments at once; cancel superseded ones.
+# This app is a Next.js server (auth, middleware, M-Pesa webhook).
+# GitHub Pages can only host static files, and publishing the repo root
+# removed index.html and 404'd the Pages site. Production is Vercel.
+# This workflow only checks the app. It does not upload a Pages artifact.
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
   validate:
-    name: Validate before deploy
+    name: Test and typecheck
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,23 +25,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm test
-
-  deploy:
-    name: Build & deploy
-    needs: validate
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-        with:
-          # Auto-enable GitHub Pages (source: GitHub Actions) if it isn't already.
-          enablement: true
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Unit tests
+        run: npm test
+      - name: Typecheck
+        run: npm run typecheck
