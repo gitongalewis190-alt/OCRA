@@ -81,6 +81,10 @@
   cursor: pointer;
   justify-self: start;
   white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .iconBtn {
@@ -455,10 +459,89 @@
   gap: 0.5rem;
 }
 
+.personal {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+  grid-template-areas: 'hero' 'console' 'news' 'panel' 'growth' 'remark' 'descriptors';
+}
+
+.aHero { grid-area: hero; }
+.aConsole { grid-area: console; }
+.aNews { grid-area: news; }
+.aPanel { grid-area: panel; }
+.aGrowth { grid-area: growth; }
+.aRemark { grid-area: remark; }
+.aDesc { grid-area: descriptors; }
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.identityName {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.growthStack {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.restore {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+  padding: 0.9rem;
+  border-radius: 18px;
+  background: rgba(217, 98, 43, 0.1);
+}
+
+@media (min-width: 640px) and (max-width: 1099px) {
+  .personal {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      'hero hero'
+      'console growth'
+      'news growth'
+      'panel panel'
+      'remark descriptors';
+  }
+}
+
+@media (min-width: 1100px) {
+  .personal {
+    grid-template-columns: 1fr 1.3fr 1fr;
+    grid-template-areas:
+      'console hero growth'
+      'news panel growth'
+      'news remark descriptors';
+  }
+}
+
 .editMark {
   color: var(--accent);
   font-size: 0.8rem;
   font-weight: 700;
+}
+
+.stack {
+  display: grid;
+  gap: 0.9rem;
 }
 
 :global(html[data-theme='dark']) .page {
