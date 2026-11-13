@@ -1,28 +1,18 @@
 import type { ReactNode } from 'react';
-import Link from 'next/link';
-import { MODULES } from '@/features/registry';
+import { Topbar } from './Topbar';
+import styles from './dashboard.module.css';
 
-export function DashboardShell({ title = 'Personal dashboard', children }: { title?: string; children: ReactNode }) {
+type Props = { title: string; backHref?: string; backLabel?: string; showSearch?: boolean; children: ReactNode };
+
+// Every dashboard shares this frame: a full-screen backdrop, the glass top bar, then the content.
+export function DashboardShell({ title, backHref, backLabel, showSearch, children }: Props) {
   return (
-    <main className="dashboard">
-      <header className="dashboard-header glass">
-        <div>
-          <p className="eyebrow">OCRA</p>
-          <h1>{title}</h1>
-          <Link href="/" className="muted">Back to account choice</Link>
-        </div>
-      </header>
-
-      <nav className="module-nav" aria-label="Modules">
-        {MODULES.map((module) => (
-          <a key={module.id} href={module.href} className="glass module-link">
-            <strong>{module.label}</strong>
-            <span className="muted">{module.description}</span>
-          </a>
-        ))}
-      </nav>
-
-      {children}
-    </main>
+    <>
+      <div className={styles.backdrop} aria-hidden="true" />
+      <main className={styles.page}>
+        <Topbar title={title} backHref={backHref} backLabel={backLabel} showSearch={showSearch} />
+        {children}
+      </main>
+    </>
   );
 }

@@ -1,11 +1,5 @@
-import { DashboardShell } from '@/components/dashboard/DashboardShell';
+import { OrganisationDashboard } from '@/components/dashboard/OrganisationDashboard';
 
-export default function OrganizationDashboardPage() {
-  return (
-    <DashboardShell title="Organisation dashboard">
-      <section className="glass module-link">
-        <p className="muted">Professional panels for a school or institution. Built in the build phase.</p>
-      </section>
-    </DashboardShell>
-  );
+export default function OrganizationPage() {
+  return <OrganisationDashboard />;
 }
