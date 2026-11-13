@@ -1,0 +1,496 @@
+/* Glass surfaces in the iOS style: translucent panels, heavy blur, soft edge light. */
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: max(0.75rem, env(safe-area-inset-top)) 1rem max(3rem, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.58);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 26px;
+  box-shadow: 0 10px 34px rgba(38, 32, 26, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  padding: 1.1rem 1.2rem;
+  min-width: 0;
+}
+
+.tint {
+  background: rgba(120, 200, 160, 0.28);
+}
+
+.topbar {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  padding: 0.65rem 1rem;
+  border-radius: 999px;
+}
+
+.topLeft,
+.topRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.topTitle {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.wordmark {
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.topSearch {
+  flex: 1 1 260px;
+  display: flex;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.topSearch input {
+  flex: 1;
+  min-width: 0;
+}
+
+.iconBtn,
+.btn {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  min-height: 40px;
+  padding: 0.5rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(38, 32, 26, 0.1);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text);
+  cursor: pointer;
+  justify-self: start;
+  white-space: nowrap;
+}
+
+.iconBtn {
+  padding: 0.4rem 0.7rem;
+}
+
+.btnPrimary {
+  background: var(--accent);
+  border-color: transparent;
+  color: #ffffff;
+}
+
+.btnDanger {
+  color: #b42318;
+}
+
+.btnGreen {
+  color: #1f6b47;
+}
+
+.btnGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 0.5rem;
+}
+
+.toggle {
+  position: relative;
+  width: 46px;
+  height: 28px;
+  padding: 0;
+  min-height: 28px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(38, 32, 26, 0.18);
+  cursor: pointer;
+}
+
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.toggle[aria-pressed='true'] {
+  background: #34c759;
+}
+
+.toggle[aria-pressed='true']::after {
+  transform: translateX(18px);
+}
+
+.notice {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.label {
+  margin: 0 0 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.heading {
+  margin: 0.2rem 0 0.8rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.hero {
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  padding: 1.4rem 1rem;
+  text-align: center;
+}
+
+.logoCircle {
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(217, 98, 43, 0.5);
+  background: rgba(255, 255, 255, 0.7);
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.heroSearch {
+  width: min(560px, 100%);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.heroSearch input {
+  flex: 1;
+  min-width: 0;
+}
+
+.twoCol {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 820px) {
+  .twoCol {
+    grid-template-columns: 1fr 1.1fr;
+  }
+}
+
+.layout {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 900px) {
+  .layout {
+    grid-template-columns: 230px 1fr;
+    align-items: start;
+  }
+}
+
+.studentGrid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 960px) {
+  .studentGrid {
+    grid-template-columns: 1.1fr 1fr 0.8fr;
+    align-items: start;
+  }
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.sidebar a {
+  padding: 0.6rem 0.75rem;
+  border-radius: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.sidebar a[aria-current='page'] {
+  background: rgba(217, 98, 43, 0.14);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.stats {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.stat {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.statValue {
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.table th {
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(38, 32, 26, 0.1);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 0.65rem 0.5rem;
+  border-bottom: 1px solid rgba(38, 32, 26, 0.07);
+  vertical-align: middle;
+}
+
+.up {
+  color: #1f7a4d;
+  font-weight: 700;
+}
+
+.down {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.flat {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.high {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.mental {
+  display: grid;
+  gap: 0.15rem;
+  font-size: 0.82rem;
+}
+
+.mental span {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.chart {
+  margin: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.chartSvg {
+  width: 100%;
+  height: auto;
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  font-size: 0.85rem;
+}
+
+.remark {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.tab {
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(38, 32, 26, 0.08);
+}
+
+.tabActive {
+  background: #ffffff;
+  color: var(--accent);
+  border-color: rgba(217, 98, 43, 0.4);
+}
+
+.transcriptGrid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.transcriptCell {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.7rem;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.placeholderBox {
+  aspect-ratio: 4 / 3;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(38, 32, 26, 0.04), rgba(38, 32, 26, 0.1));
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.fieldRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(38, 32, 26, 0.08);
+  font-size: 0.9rem;
+}
+
+.fieldRow span:first-child {
+  color: var(--muted);
+}
+
+.historyItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 0.82rem;
+}
+
+.historyStack {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.editMark {
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+:global(html[data-theme='dark']) .page {
+  --text: #f4efe9;
+  --muted: #b1a79b;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(1200px 600px at 10% -10%, #fdf1ea 0%, transparent 60%), #ffffff;
+}
+
+:global(html[data-theme='dark']) .backdrop {
+  background: #141210;
+}
+
+:global(html[data-theme='dark']) .glass {
+  background: rgba(40, 36, 32, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+:global(html[data-theme='dark']) .btn,
+:global(html[data-theme='dark']) .iconBtn,
+:global(html[data-theme='dark']) .tab {
+  background: rgba(60, 55, 50, 0.85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle::after {
+    transition: none;
+  }
+}
