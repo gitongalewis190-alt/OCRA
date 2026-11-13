@@ -9,12 +9,21 @@ import { SAMPLE_STUDENTS } from '../features/dashboard/sample';
 describe('dashboard rendering', () => {
   it('renders the personal dashboard without the profile form', () => {
     const html = renderToStaticMarkup(<PersonalDashboard />);
-    expect(html).toContain('Personal dashboard');
+    expect(html).toContain('Mr. Lees.');
     expect(html).toContain('Personal console');
+    expect(html).toContain('Alerts');
+    expect(html).toContain('See my profile');
     expect(html).toContain('Your growth');
     expect(html).toContain('Data panel');
     expect(html).toContain('Psychological remark');
+    expect(html).not.toContain('Cancel deletion');
     expect(html).not.toMatch(/save profile|full name/i);
+  });
+
+  it('shows the restore notice only when a deletion can still be cancelled', () => {
+    const html = renderToStaticMarkup(<PersonalDashboard restore={{ action: async () => {} }} />);
+    expect(html).toContain('This account was deleted');
+    expect(html).toContain('Cancel deletion');
   });
 
   it('renders the family dashboard with a View link for each sample student', () => {

@@ -41,7 +41,7 @@ export function Topbar({ title, backHref, backLabel = 'Back', showSearch = true 
         <button type="button" className={styles.toggle} aria-pressed={dark} aria-label="Dark mode" onClick={toggleDark} />
         <span className={styles.muted}>Auto guide</span>
         <button type="button" className={styles.toggle} aria-pressed={guide} aria-label="Auto guide" onClick={() => setGuide(!guide)} />
-        <button type="button" className={styles.btn}>Settings</button>
+        <Link href="/settings" className={styles.btn}>Settings</Link>
       </div>
     </header>
   );
